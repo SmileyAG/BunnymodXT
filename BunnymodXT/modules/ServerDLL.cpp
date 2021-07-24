@@ -1117,7 +1117,7 @@ void ServerDLL::RegisterCVarsAndCommands()
 	}
 	if (ORIG_CTriggerSave__SaveTouch)
 		REG(bxt_disable_autosave);
-	if (ORIG_CChangeLevel__ChangeLevelNow)
+	if (ORIG_CChangeLevel__ChangeLevelNow || ORIG_CChangeLevel__ChangeLevelNow_Linux)
 		REG(bxt_disable_changelevel);
 	#undef REG
 }
