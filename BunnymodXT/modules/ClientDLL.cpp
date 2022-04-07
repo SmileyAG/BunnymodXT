@@ -109,6 +109,11 @@ extern "C" void __cdecl _Z11ScaleColorsRiS_S_i(int* r, int* g, int* b, int a)
 {
 	return ClientDLL::HOOKED_ScaleColors(r, g, b, a);
 }
+
+extern "C" int __cdecl Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
+{
+	return ClientDLL::HOOKED_Initialize(pEnginefuncs, iVersion);
+}
 #endif
 
 void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* moduleBase, size_t moduleLength, bool needToIntercept)
@@ -159,7 +164,8 @@ void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 			ORIG_CL_IsThirdPerson, HOOKED_CL_IsThirdPerson,
 			ORIG_CStudioModelRenderer__StudioRenderModel, HOOKED_CStudioModelRenderer__StudioRenderModel,
 			ORIG_CHudFlashlight__drawNightVision, HOOKED_CHudFlashlight__drawNightVision,
-			ORIG_ScaleColors, HOOKED_ScaleColors);
+			ORIG_ScaleColors, HOOKED_ScaleColors,
+			ORIG_Initialize, HOOKED_Initialize);
 	}
 
 	// HACK: on Windows we don't get a LoadLibrary for SDL2, so when starting using the injector
@@ -194,7 +200,8 @@ void ClientDLL::Unhook()
 			ORIG_CL_IsThirdPerson,
 			ORIG_CStudioModelRenderer__StudioRenderModel,
 			ORIG_CHudFlashlight__drawNightVision,
-			ORIG_ScaleColors);
+			ORIG_ScaleColors,
+			ORIG_Initialize);
 	}
 
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_Init));
@@ -246,6 +253,7 @@ void ClientDLL::Clear()
 	ORIG_IN_DeactivateMouse = nullptr;
 	ORIG_CL_IsThirdPerson = nullptr;
 	ORIG_ScaleColors = nullptr;
+	ORIG_Initialize = nullptr;
 	ppmove = nullptr;
 	offOldbuttons = 0;
 	offOnground = 0;
@@ -419,6 +427,8 @@ void ClientDLL::FindStuff()
 					+ reinterpret_cast<uintptr_t>(pInitialize) + 5);
 				EngineDevMsg("Jump detected, found the real Initialize at %p.\n", pInitialize);
 			}
+
+			ORIG_Initialize = reinterpret_cast<_Initialize>(pInitialize);
 
 			// Find "mov edi, offset dword; rep movsd" inside Initialize. The pointer to gEngfuncs is that dword.
 			static constexpr auto p = PATTERN("BF ?? ?? ?? ?? F3 A5");
@@ -1413,4 +1423,9 @@ HOOK_DEF_4(ClientDLL, void, __cdecl, ScaleColors, int*, r, int*, g, int*, b, int
 		a = CVars::bxt_hud_game_alpha.GetInt();
 
 	ORIG_ScaleColors(r, g, b, a);
+}
+
+HOOK_DEF_2(ClientDLL, int, __cdecl, Initialize, cl_enginefunc_t*, pEnginefuncs, int, iVersion)
+{
+	return ORIG_Initialize(pEnginefuncs, iVersion);
 }
