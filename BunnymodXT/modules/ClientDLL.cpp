@@ -10,6 +10,7 @@
 #include "../cvars.hpp"
 #include "../hud_custom.hpp"
 #include "../triangle_drawing.hpp"
+#include "../discord_integration.hpp"
 #include <GL/gl.h>
 
 // Linux hooks.
@@ -114,6 +115,11 @@ extern "C" int __cdecl Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
 {
 	return ClientDLL::HOOKED_Initialize(pEnginefuncs, iVersion);
 }
+
+extern "C" void __cdecl HUD_Shutdown()
+{
+	return ClientDLL::HOOKED_HUD_Shutdown();
+}
 #endif
 
 void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* moduleBase, size_t moduleLength, bool needToIntercept)
@@ -139,6 +145,7 @@ void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 	MemUtils::AddSymbolLookupHook(moduleHandle, reinterpret_cast<void*>(ORIG_HUD_Key_Event), reinterpret_cast<void*>(HOOKED_HUD_Key_Event));
 	MemUtils::AddSymbolLookupHook(moduleHandle, reinterpret_cast<void*>(ORIG_HUD_UpdateClientData), reinterpret_cast<void*>(HOOKED_HUD_UpdateClientData));
 	MemUtils::AddSymbolLookupHook(moduleHandle, reinterpret_cast<void*>(ORIG_HUD_AddEntity), reinterpret_cast<void*>(HOOKED_HUD_AddEntity));
+	MemUtils::AddSymbolLookupHook(moduleHandle, reinterpret_cast<void*>(ORIG_HUD_Shutdown), reinterpret_cast<void*>(HOOKED_HUD_Shutdown));
 	MemUtils::AddSymbolLookupHook(moduleHandle, reinterpret_cast<void*>(ORIG_CL_IsThirdPerson), reinterpret_cast<void*>(HOOKED_CL_IsThirdPerson));
 
 	if (needToIntercept)
@@ -157,6 +164,7 @@ void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 			ORIG_HUD_Key_Event, HOOKED_HUD_Key_Event,
 			ORIG_HUD_UpdateClientData, HOOKED_HUD_UpdateClientData,
 			ORIG_HUD_AddEntity, HOOKED_HUD_AddEntity,
+			ORIG_HUD_Shutdown, HOOKED_HUD_Shutdown,
 			ORIG_EV_GetDefaultShellInfo, HOOKED_EV_GetDefaultShellInfo,
 			ORIG_StudioCalcAttachments, HOOKED_StudioCalcAttachments,
 			ORIG_VectorTransform, HOOKED_VectorTransform,
@@ -193,6 +201,7 @@ void ClientDLL::Unhook()
 			ORIG_HUD_Key_Event,
 			ORIG_HUD_UpdateClientData,
 			ORIG_HUD_AddEntity,
+			ORIG_HUD_Shutdown,
 			ORIG_EV_GetDefaultShellInfo,
 			ORIG_StudioCalcAttachments,
 			ORIG_VectorTransform,
@@ -214,6 +223,7 @@ void ClientDLL::Unhook()
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_Key_Event));
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_UpdateClientData));
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_AddEntity));
+	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_Shutdown));
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_CL_IsThirdPerson));
 
 	Clear();
@@ -249,6 +259,7 @@ void ClientDLL::Clear()
 	ORIG_HUD_Key_Event = nullptr;
 	ORIG_HUD_UpdateClientData = nullptr;
 	ORIG_HUD_AddEntity = nullptr;
+	ORIG_HUD_Shutdown = nullptr;
 	ORIG_IN_ActivateMouse = nullptr;
 	ORIG_IN_DeactivateMouse = nullptr;
 	ORIG_CL_IsThirdPerson = nullptr;
@@ -544,6 +555,13 @@ void ClientDLL::FindStuff()
 	} else {
 		EngineDevWarning("[client dll] Could not find HUD_AddEntity.\n");
 		EngineWarning("bxt_show_hidden_entities_clientside is not available.\n");
+	}
+
+	ORIG_HUD_Shutdown = reinterpret_cast<_HUD_Shutdown>(MemUtils::GetSymbolAddress(m_Handle, "HUD_Shutdown"));
+	if (ORIG_HUD_Shutdown) {
+		EngineDevMsg("[client dll] Found HUD_Shutdown at %p.\n", ORIG_HUD_Shutdown);
+	} else {
+		EngineDevWarning("[client dll] Could not find HUD_Shutdown.\n");
 	}
 
 	ORIG_IN_ActivateMouse = reinterpret_cast<_IN_ActivateMouse>(MemUtils::GetSymbolAddress(m_Handle, "IN_ActivateMouse"));
@@ -1156,6 +1174,8 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, HUD_Frame, double, time)
 		pEngfuncs->Con_Printf(const_cast<char*>("HUD_Frame time: %f\n"), time);
 
 	SeedsQueued = 0;
+
+	discord_integration::on_frame();
 }
 
 HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_DrawTransparentTriangles)
@@ -1202,6 +1222,8 @@ HOOK_DEF_2(ClientDLL, int, __cdecl, HUD_UpdateClientData, client_data_t*, pcldat
 	if (norefresh && pEngfuncs) {
 		pEngfuncs->pfnGetScreenInfo = ORIG_GetScreenInfo;
 	}
+
+	discord_integration::on_update_client_data();
 
 	return rv;
 }
@@ -1427,5 +1449,14 @@ HOOK_DEF_4(ClientDLL, void, __cdecl, ScaleColors, int*, r, int*, g, int*, b, int
 
 HOOK_DEF_2(ClientDLL, int, __cdecl, Initialize, cl_enginefunc_t*, pEnginefuncs, int, iVersion)
 {
+	discord_integration::initialize();
+
 	return ORIG_Initialize(pEnginefuncs, iVersion);
+}
+
+HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_Shutdown)
+{
+	ORIG_HUD_Shutdown();
+
+	discord_integration::shutdown();
 }
