@@ -164,7 +164,7 @@ namespace discord_integration
 			"ofboot3"s,
 			"ofboot4"s
 		};
-	
+
 		// Text names of game states
 		const std::string STATE_NAMES[] = {
 			"Not Playing"s,
