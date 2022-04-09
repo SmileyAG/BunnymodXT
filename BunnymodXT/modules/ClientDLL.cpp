@@ -505,6 +505,11 @@ void ClientDLL::FindStuff()
 		}
 	}
 
+	// Linux hook
+	#ifndef _WIN32
+	ORIG_Initialize = reinterpret_cast<_Initialize>(MemUtils::GetSymbolAddress(m_Handle, "Initialize"));
+	#endif
+
 	ORIG_V_CalcRefdef = reinterpret_cast<_V_CalcRefdef>(MemUtils::GetSymbolAddress(m_Handle, "V_CalcRefdef"));
 	if (ORIG_V_CalcRefdef) {
 		EngineDevMsg("[client dll] Found V_CalcRefdef at %p.\n", ORIG_V_CalcRefdef);
