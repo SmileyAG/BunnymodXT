@@ -842,7 +842,11 @@ namespace discord_integration
 								presence.largeImageKey = "czds_chapter19";
 						}
 
-						presence.largeImageText = map_name;
+						char buffer[128]; // as Discord API says (it can crash the game if more than 128 - TODO: extend buffer)
+						sprintf(buffer, "Map: %s | Gamedir: %s", map_name, gameDir);
+
+						presence.details = buffer;
+						presence.largeImageText = map_name; // TODO: should be chapter name instead map name
 					}
 				}
 
