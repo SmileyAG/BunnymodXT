@@ -532,9 +532,6 @@ namespace discord_integration
 			"cz_train03"s
 		};
 
-		// For tracking if we're in-game.
-		bool updated_client_data = false;
-
 		// Text names of game states
 		const std::string STATE_NAMES[] = {
 			"Not Playing"s,
@@ -547,6 +544,9 @@ namespace discord_integration
 			NOT_PLAYING = 0,
 			PLAYING
 		};
+
+		// For tracking if we're in-game.
+		bool updated_client_data = false;
 
 		// Class that handles tracking state changes.
 		class DiscordState {
@@ -620,229 +620,226 @@ namespace discord_integration
 					get_map_name(map_name, ARRAYSIZE_HL(map_name));
 					if (map_name[0])
 					{
-						if (presence.largeImageKey == "default")
+						// Game directory
+						const char* gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
+
+						if (strstr(gameDir, "valve") != NULL)
 						{
-							// Game directory
-							const char* gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
+							if (presence.largeImageKey == "default" && hl1_chapter1.find(map_name) != hl1_chapter1.cend())
+								presence.largeImageKey = "hl1_chapter1";
 
-							if (strstr(gameDir, "valve") != NULL)
-							{
-								if (hl1_chapter1.find(map_name) != hl1_chapter1.cend())
-									presence.largeImageKey = "hl1_chapter1";
+							if (presence.largeImageKey == "default" && hl1_chapter2.find(map_name) != hl1_chapter2.cend())
+								presence.largeImageKey = "hl1_chapter2";
 
-								if (hl1_chapter2.find(map_name) != hl1_chapter2.cend())
-									presence.largeImageKey = "hl1_chapter2";
+							if (presence.largeImageKey == "default" && hl1_chapter3.find(map_name) != hl1_chapter3.cend())
+								presence.largeImageKey = "hl1_chapter3";
 
-								if (hl1_chapter3.find(map_name) != hl1_chapter3.cend())
-									presence.largeImageKey = "hl1_chapter3";
+							if (presence.largeImageKey == "default" && hl1_chapter4.find(map_name) != hl1_chapter4.cend())
+								presence.largeImageKey = "hl1_chapter4";
 
-								if (hl1_chapter4.find(map_name) != hl1_chapter4.cend())
-									presence.largeImageKey = "hl1_chapter4";
+							if (presence.largeImageKey == "default" && hl1_chapter5.find(map_name) != hl1_chapter5.cend())
+								presence.largeImageKey = "hl1_chapter5";
 
-								if (hl1_chapter5.find(map_name) != hl1_chapter5.cend())
-									presence.largeImageKey = "hl1_chapter5";
+							if (presence.largeImageKey == "default" && hl1_chapter6.find(map_name) != hl1_chapter6.cend())
+								presence.largeImageKey = "hl1_chapter6";
 
-								if (hl1_chapter6.find(map_name) != hl1_chapter6.cend())
-									presence.largeImageKey = "hl1_chapter6";
+							if (presence.largeImageKey == "default" && hl1_chapter7.find(map_name) != hl1_chapter7.cend())
+								presence.largeImageKey = "hl1_chapter7";
 
-								if (hl1_chapter7.find(map_name) != hl1_chapter7.cend())
-									presence.largeImageKey = "hl1_chapter7";
+							if (presence.largeImageKey == "default" && hl1_chapter8.find(map_name) != hl1_chapter8.cend())
+								presence.largeImageKey = "hl1_chapter8";
 
-								if (hl1_chapter8.find(map_name) != hl1_chapter8.cend())
-									presence.largeImageKey = "hl1_chapter8";
+							if (presence.largeImageKey == "default" && hl1_chapter9.find(map_name) != hl1_chapter9.cend())
+								presence.largeImageKey = "hl1_chapter9";
 
-								if (hl1_chapter9.find(map_name) != hl1_chapter9.cend())
-									presence.largeImageKey = "hl1_chapter9";
+							if (presence.largeImageKey == "default" && hl1_chapter10.find(map_name) != hl1_chapter10.cend())
+								presence.largeImageKey = "hl1_chapter10";
 
-								if (hl1_chapter10.find(map_name) != hl1_chapter10.cend())
-									presence.largeImageKey = "hl1_chapter10";
+							if (presence.largeImageKey == "default" && hl1_chapter11.find(map_name) != hl1_chapter11.cend())
+								presence.largeImageKey = "hl1_chapter11";
 
-								if (hl1_chapter11.find(map_name) != hl1_chapter11.cend())
-									presence.largeImageKey = "hl1_chapter11";
+							if (presence.largeImageKey == "default" && hl1_chapter12.find(map_name) != hl1_chapter12.cend())
+								presence.largeImageKey = "hl1_chapter12";
 
-								if (hl1_chapter12.find(map_name) != hl1_chapter12.cend())
-									presence.largeImageKey = "hl1_chapter12";
+							if (presence.largeImageKey == "default" && hl1_chapter13.find(map_name) != hl1_chapter13.cend())
+								presence.largeImageKey = "hl1_chapter13";
 
-								if (hl1_chapter13.find(map_name) != hl1_chapter13.cend())
-									presence.largeImageKey = "hl1_chapter13";
+							if (presence.largeImageKey == "default" && hl1_chapter14.find(map_name) != hl1_chapter14.cend())
+								presence.largeImageKey = "hl1_chapter14";
 
-								if (hl1_chapter14.find(map_name) != hl1_chapter14.cend())
-									presence.largeImageKey = "hl1_chapter14";
+							if (presence.largeImageKey == "default" && hl1_chapter15.find(map_name) != hl1_chapter15.cend())
+								presence.largeImageKey = "hl1_chapter15";
 
-								if (hl1_chapter15.find(map_name) != hl1_chapter15.cend())
-									presence.largeImageKey = "hl1_chapter15";
+							if (presence.largeImageKey == "default" && hl1_chapter16.find(map_name) != hl1_chapter16.cend())
+								presence.largeImageKey = "hl1_chapter16";
 
-								if (hl1_chapter16.find(map_name) != hl1_chapter16.cend())
-									presence.largeImageKey = "hl1_chapter16";
+							if (presence.largeImageKey == "default" && hl1_chapter17.find(map_name) != hl1_chapter17.cend())
+								presence.largeImageKey = "hl1_chapter17";
 
-								if (hl1_chapter17.find(map_name) != hl1_chapter17.cend())
-									presence.largeImageKey = "hl1_chapter17";
+							if (presence.largeImageKey == "default" && hl1_chapter18.find(map_name) != hl1_chapter18.cend())
+								presence.largeImageKey = "hl1_chapter18";
 
-								if (hl1_chapter18.find(map_name) != hl1_chapter18.cend())
-									presence.largeImageKey = "hl1_chapter18";
+							if (presence.largeImageKey == "default" && hl1_chapter19.find(map_name) != hl1_chapter19.cend())
+								presence.largeImageKey = "hl1_chapter19";
 
-								if (hl1_chapter19.find(map_name) != hl1_chapter19.cend())
-									presence.largeImageKey = "hl1_chapter19";
+							if (presence.largeImageKey == "default" && hl1_chapter20.find(map_name) != hl1_chapter20.cend())
+								presence.largeImageKey = "hl1_chapter20";
+						}
 
-								if (hl1_chapter20.find(map_name) != hl1_chapter20.cend())
-									presence.largeImageKey = "hl1_chapter20";
-							}
+						if (strstr(gameDir, "gearbox") != NULL)
+						{
+							if (presence.largeImageKey == "default" && op4_chapter1.find(map_name) != op4_chapter1.cend())
+								presence.largeImageKey = "op4_chapter1";
 
-							if (strstr(gameDir, "gearbox") != NULL)
-							{
-								if (op4_chapter1.find(map_name) != op4_chapter1.cend())
-									presence.largeImageKey = "op4_chapter1";
+							if (presence.largeImageKey == "default" && op4_chapter2.find(map_name) != op4_chapter2.cend())
+								presence.largeImageKey = "op4_chapter2";
 
-								if (op4_chapter2.find(map_name) != op4_chapter2.cend())
-									presence.largeImageKey = "op4_chapter2";
+							if (presence.largeImageKey == "default" && op4_chapter3.find(map_name) != op4_chapter3.cend())
+								presence.largeImageKey = "op4_chapter3";
 
-								if (op4_chapter3.find(map_name) != op4_chapter3.cend())
-									presence.largeImageKey = "op4_chapter3";
+							if (presence.largeImageKey == "default" && op4_chapter4.find(map_name) != op4_chapter4.cend())
+								presence.largeImageKey = "op4_chapter4";
 
-								if (op4_chapter4.find(map_name) != op4_chapter4.cend())
-									presence.largeImageKey = "op4_chapter4";
+							if (presence.largeImageKey == "default" && op4_chapter5.find(map_name) != op4_chapter5.cend())
+								presence.largeImageKey = "op4_chapter5";
 
-								if (op4_chapter5.find(map_name) != op4_chapter5.cend())
-									presence.largeImageKey = "op4_chapter5";
+							if (presence.largeImageKey == "default" && op4_chapter6.find(map_name) != op4_chapter6.cend())
+								presence.largeImageKey = "op4_chapter6";
 
-								if (op4_chapter6.find(map_name) != op4_chapter6.cend())
-									presence.largeImageKey = "op4_chapter6";
+							if (presence.largeImageKey == "default" && op4_chapter7.find(map_name) != op4_chapter7.cend())
+								presence.largeImageKey = "op4_chapter7";
 
-								if (op4_chapter7.find(map_name) != op4_chapter7.cend())
-									presence.largeImageKey = "op4_chapter7";
+							if (presence.largeImageKey == "default" && op4_chapter8.find(map_name) != op4_chapter8.cend())
+								presence.largeImageKey = "op4_chapter8";
 
-								if (op4_chapter8.find(map_name) != op4_chapter8.cend())
-									presence.largeImageKey = "op4_chapter8";
+							if (presence.largeImageKey == "default" && op4_chapter9.find(map_name) != op4_chapter9.cend())
+								presence.largeImageKey = "op4_chapter9";
 
-								if (op4_chapter9.find(map_name) != op4_chapter9.cend())
-									presence.largeImageKey = "op4_chapter9";
+							if (presence.largeImageKey == "default" && op4_chapter10.find(map_name) != op4_chapter10.cend())
+								presence.largeImageKey = "op4_chapter10";
 
-								if (op4_chapter10.find(map_name) != op4_chapter10.cend())
-									presence.largeImageKey = "op4_chapter10";
+							if (presence.largeImageKey == "default" && op4_chapter11.find(map_name) != op4_chapter11.cend())
+								presence.largeImageKey = "op4_chapter11";
 
-								if (op4_chapter11.find(map_name) != op4_chapter11.cend())
-									presence.largeImageKey = "op4_chapter11";
+							if (presence.largeImageKey == "default" && op4_chapter12.find(map_name) != op4_chapter12.cend())
+								presence.largeImageKey = "op4_chapter12";
 
-								if (op4_chapter12.find(map_name) != op4_chapter12.cend())
-									presence.largeImageKey = "op4_chapter12";
+							if (presence.largeImageKey == "default" && op4_chapter13.find(map_name) != op4_chapter13.cend())
+								presence.largeImageKey = "op4_chapter13";
+						}
 
-								if (op4_chapter13.find(map_name) != op4_chapter13.cend())
-									presence.largeImageKey = "op4_chapter13";
-							}
+						if (strstr(gameDir, "bshift") != NULL)
+						{
+							if (presence.largeImageKey == "default" && bs_chapter1.find(map_name) != bs_chapter1.cend())
+								presence.largeImageKey = "bs_chapter1";
 
-							if (strstr(gameDir, "bshift") != NULL)
-							{
-								if (bs_chapter1.find(map_name) != bs_chapter1.cend())
-									presence.largeImageKey = "bs_chapter1";
+							if (presence.largeImageKey == "default" && bs_chapter2.find(map_name) != bs_chapter2.cend())
+								presence.largeImageKey = "bs_chapter2";
 
-								if (bs_chapter2.find(map_name) != bs_chapter2.cend())
-									presence.largeImageKey = "bs_chapter2";
+							if (presence.largeImageKey == "default" && bs_chapter3.find(map_name) != bs_chapter3.cend())
+								presence.largeImageKey = "bs_chapter3";
 
-								if (bs_chapter3.find(map_name) != bs_chapter3.cend())
-									presence.largeImageKey = "bs_chapter3";
+							if (presence.largeImageKey == "default" && bs_chapter4.find(map_name) != bs_chapter4.cend())
+								presence.largeImageKey = "bs_chapter4";
 
-								if (bs_chapter4.find(map_name) != bs_chapter4.cend())
-									presence.largeImageKey = "bs_chapter4";
+							if (presence.largeImageKey == "default" && bs_chapter5.find(map_name) != bs_chapter5.cend())
+								presence.largeImageKey = "bs_chapter5";
 
-								if (bs_chapter5.find(map_name) != bs_chapter5.cend())
-									presence.largeImageKey = "bs_chapter5";
+							if (presence.largeImageKey == "default" && bs_chapter6.find(map_name) != bs_chapter6.cend())
+								presence.largeImageKey = "bs_chapter6";
 
-								if (bs_chapter6.find(map_name) != bs_chapter6.cend())
-									presence.largeImageKey = "bs_chapter6";
+							if (presence.largeImageKey == "default" && bs_chapter7.find(map_name) != bs_chapter7.cend())
+								presence.largeImageKey = "bs_chapter7";
 
-								if (bs_chapter7.find(map_name) != bs_chapter7.cend())
-									presence.largeImageKey = "bs_chapter7";
+							if (presence.largeImageKey == "default" && bs_chapter8.find(map_name) != bs_chapter8.cend())
+								presence.largeImageKey = "bs_chapter8";
+						}
 
-								if (bs_chapter8.find(map_name) != bs_chapter8.cend())
-									presence.largeImageKey = "bs_chapter8";
-							}
+						if (strstr(gameDir, "rewolf") != NULL)
+						{
+							if (presence.largeImageKey == "default" && gmc_chapter1.find(map_name) != gmc_chapter1.cend())
+								presence.largeImageKey = "gmc_chapter1";
 
-							if (strstr(gameDir, "rewolf") != NULL)
-							{
-								if (gmc_chapter1.find(map_name) != gmc_chapter1.cend())
-									presence.largeImageKey = "gmc_chapter1";
+							if (presence.largeImageKey == "default" && gmc_chapter2.find(map_name) != gmc_chapter2.cend())
+								presence.largeImageKey = "gmc_chapter2";
 
-								if (gmc_chapter2.find(map_name) != gmc_chapter2.cend())
-									presence.largeImageKey = "gmc_chapter2";
+							if (presence.largeImageKey == "default" && gmc_chapter3.find(map_name) != gmc_chapter3.cend())
+								presence.largeImageKey = "gmc_chapter3";
 
-								if (gmc_chapter3.find(map_name) != gmc_chapter3.cend())
-									presence.largeImageKey = "gmc_chapter3";
+							if (presence.largeImageKey == "default" && gmc_chapter4.find(map_name) != gmc_chapter4.cend())
+								presence.largeImageKey = "gmc_chapter4";
 
-								if (gmc_chapter4.find(map_name) != gmc_chapter4.cend())
-									presence.largeImageKey = "gmc_chapter4";
+							if (presence.largeImageKey == "default" && gmc_chapter5.find(map_name) != gmc_chapter5.cend())
+								presence.largeImageKey = "gmc_chapter5";
 
-								if (gmc_chapter5.find(map_name) != gmc_chapter5.cend())
-									presence.largeImageKey = "gmc_chapter5";
+							if (presence.largeImageKey == "default" && gmc_chapter6.find(map_name) != gmc_chapter6.cend())
+								presence.largeImageKey = "gmc_chapter6";
 
-								if (gmc_chapter6.find(map_name) != gmc_chapter6.cend())
-									presence.largeImageKey = "gmc_chapter6";
+							if (presence.largeImageKey == "default" && gmc_chapter7.find(map_name) != gmc_chapter7.cend())
+								presence.largeImageKey = "gmc_chapter7";
 
-								if (gmc_chapter7.find(map_name) != gmc_chapter7.cend())
-									presence.largeImageKey = "gmc_chapter7";
+							if (presence.largeImageKey == "default" && gmc_chapter8.find(map_name) != gmc_chapter8.cend())
+								presence.largeImageKey = "gmc_chapter8";
+						}
 
-								if (gmc_chapter8.find(map_name) != gmc_chapter8.cend())
-									presence.largeImageKey = "gmc_chapter8";
-							}
+						if (strstr(gameDir, "czeror") != NULL)
+						{
+							if (presence.largeImageKey == "default" && czds_chapter1.find(map_name) != czds_chapter1.cend())
+								presence.largeImageKey = "czds_chapter1";
 
-							if (strstr(gameDir, "czeror") != NULL)
-							{
-								if (czds_chapter1.find(map_name) != czds_chapter1.cend())
-									presence.largeImageKey = "czds_chapter1";
+							if (presence.largeImageKey == "default" && czds_chapter2.find(map_name) != czds_chapter2.cend())
+								presence.largeImageKey = "czds_chapter2";
 
-								if (czds_chapter2.find(map_name) != czds_chapter2.cend())
-									presence.largeImageKey = "czds_chapter2";
+							if (presence.largeImageKey == "default" && czds_chapter3.find(map_name) != czds_chapter3.cend())
+								presence.largeImageKey = "czds_chapter3";
 
-								if (czds_chapter3.find(map_name) != czds_chapter3.cend())
-									presence.largeImageKey = "czds_chapter3";
+							if (presence.largeImageKey == "default" && czds_chapter4.find(map_name) != czds_chapter4.cend())
+								presence.largeImageKey = "czds_chapter4";
 
-								if (czds_chapter4.find(map_name) != czds_chapter4.cend())
-									presence.largeImageKey = "czds_chapter4";
+							if (presence.largeImageKey == "default" && czds_chapter5.find(map_name) != czds_chapter5.cend())
+								presence.largeImageKey = "czds_chapter5";
 
-								if (czds_chapter5.find(map_name) != czds_chapter5.cend())
-									presence.largeImageKey = "czds_chapter5";
+							if (presence.largeImageKey == "default" && czds_chapter6.find(map_name) != czds_chapter6.cend())
+								presence.largeImageKey = "czds_chapter6";
 
-								if (czds_chapter6.find(map_name) != czds_chapter6.cend())
-									presence.largeImageKey = "czds_chapter6";
+							if (presence.largeImageKey == "default" && czds_chapter7.find(map_name) != czds_chapter7.cend())
+								presence.largeImageKey = "czds_chapter7";
 
-								if (czds_chapter7.find(map_name) != czds_chapter7.cend())
-									presence.largeImageKey = "czds_chapter7";
+							if (presence.largeImageKey == "default" && czds_chapter8.find(map_name) != czds_chapter8.cend())
+								presence.largeImageKey = "czds_chapter8";
 
-								if (czds_chapter8.find(map_name) != czds_chapter8.cend())
-									presence.largeImageKey = "czds_chapter8";
+							if (presence.largeImageKey == "default" && czds_chapter9.find(map_name) != czds_chapter9.cend())
+								presence.largeImageKey = "czds_chapter9";
 
-								if (czds_chapter9.find(map_name) != czds_chapter9.cend())
-									presence.largeImageKey = "czds_chapter9";
+							if (presence.largeImageKey == "default" && czds_chapter10.find(map_name) != czds_chapter10.cend())
+								presence.largeImageKey = "czds_chapter10";
 
-								if (czds_chapter10.find(map_name) != czds_chapter10.cend())
-									presence.largeImageKey = "czds_chapter10";
+							if (presence.largeImageKey == "default" && czds_chapter11.find(map_name) != czds_chapter11.cend())
+								presence.largeImageKey = "czds_chapter11";
 
-								if (czds_chapter11.find(map_name) != czds_chapter11.cend())
-									presence.largeImageKey = "czds_chapter11";
+							if (presence.largeImageKey == "default" && czds_chapter12.find(map_name) != czds_chapter12.cend())
+								presence.largeImageKey = "czds_chapter12";
 
-								if (czds_chapter12.find(map_name) != czds_chapter12.cend())
-									presence.largeImageKey = "czds_chapter12";
+							if (presence.largeImageKey == "default" && czds_chapter13.find(map_name) != czds_chapter13.cend())
+								presence.largeImageKey = "czds_chapter13";
 
-								if (czds_chapter13.find(map_name) != czds_chapter13.cend())
-									presence.largeImageKey = "czds_chapter13";
+							if (presence.largeImageKey == "default" && czds_chapter14.find(map_name) != czds_chapter14.cend())
+								presence.largeImageKey = "czds_chapter14";
 
-								if (czds_chapter14.find(map_name) != czds_chapter14.cend())
-									presence.largeImageKey = "czds_chapter14";
+							if (presence.largeImageKey == "default" && czds_chapter15.find(map_name) != czds_chapter15.cend())
+								presence.largeImageKey = "czds_chapter15";
 
-								if (czds_chapter15.find(map_name) != czds_chapter15.cend())
-									presence.largeImageKey = "czds_chapter15";
+							if (presence.largeImageKey == "default" && czds_chapter16.find(map_name) != czds_chapter16.cend())
+								presence.largeImageKey = "czds_chapter16";
 
-								if (czds_chapter16.find(map_name) != czds_chapter16.cend())
-									presence.largeImageKey = "czds_chapter16";
+							if (presence.largeImageKey == "default" && czds_chapter17.find(map_name) != czds_chapter17.cend())
+								presence.largeImageKey = "czds_chapter17";
 
-								if (czds_chapter17.find(map_name) != czds_chapter17.cend())
-									presence.largeImageKey = "czds_chapter17";
+							if (presence.largeImageKey == "default" && czds_chapter18.find(map_name) != czds_chapter18.cend())
+								presence.largeImageKey = "czds_chapter18";
 
-								if (czds_chapter18.find(map_name) != czds_chapter18.cend())
-									presence.largeImageKey = "czds_chapter18";
-
-								if (czds_chapter19.find(map_name) != czds_chapter19.cend())
-									presence.largeImageKey = "czds_chapter19";
-							}
+							if (presence.largeImageKey == "default" && czds_chapter19.find(map_name) != czds_chapter19.cend())
+								presence.largeImageKey = "czds_chapter19";
 						}
 
 						presence.largeImageText = map_name;
