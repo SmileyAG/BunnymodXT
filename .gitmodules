@@ -16,4 +16,3 @@
 [submodule "discord-rpc"]
 	path = discord-rpc
 	url = https://github.com/YaLTeR/discord-rpc.git
-	branch = xp

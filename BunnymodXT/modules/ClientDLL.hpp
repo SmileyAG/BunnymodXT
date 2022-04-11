@@ -36,7 +36,6 @@ class ClientDLL : public IHookableNameFilter
 	HOOK_DECL(void, __fastcall, CHudFlashlight__drawNightVision, void* thisptr)
 	HOOK_DECL(void, __cdecl, CHudFlashlight__drawNightVision_Linux, void* thisptr)
 	HOOK_DECL(void, __cdecl, ScaleColors, int* r, int* g, int* b, int a)
-	HOOK_DECL(int, __cdecl, Initialize, cl_enginefunc_t* pEnginefuncs, int iVersion)
 	HOOK_DECL(void, __cdecl, HUD_Shutdown)
 
 public:

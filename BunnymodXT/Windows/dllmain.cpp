@@ -6,6 +6,7 @@
 #include "../modules.hpp"
 #include "conutils.hpp"
 #include "../interprocess.hpp"
+#include "../discord_integration.hpp"
 
 const wchar_t EVENT_NAME[] = L"BunnymodXT-Injector";
 
@@ -102,6 +103,7 @@ unsigned int __stdcall MainThread(void* args)
 	Hooks::AddToHookedModules(&ClientDLL::GetInstance());
 	Hooks::AddToHookedModules(&ServerDLL::GetInstance());
 	Hooks::AddToHookedModules(&SDL::GetInstance());
+	discord_integration::initialize();
 	Hooks::Init(true);
 
 	auto resume_event = OpenEventW(EVENT_MODIFY_STATE, FALSE, EVENT_NAME);

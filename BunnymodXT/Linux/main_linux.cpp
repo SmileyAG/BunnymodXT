@@ -5,6 +5,7 @@
 #include <SPTLib/Hooks.hpp>
 #include "../modules.hpp"
 #include "../interprocess.hpp"
+#include "../discord_integration.hpp"
 
 static FILE *logfile = nullptr;
 
@@ -99,6 +100,7 @@ static __attribute__((constructor(1337))) void Construct()
 	Hooks::AddToHookedModules(&ClientDLL::GetInstance());
 	Hooks::AddToHookedModules(&ServerDLL::GetInstance());
 	Hooks::AddToHookedModules(&SDL::GetInstance());
+	discord_integration::initialize();
 	Hooks::Init(false);
 }
 

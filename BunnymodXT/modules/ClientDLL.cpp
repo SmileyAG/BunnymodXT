@@ -111,11 +111,6 @@ extern "C" void __cdecl _Z11ScaleColorsRiS_S_i(int* r, int* g, int* b, int a)
 	return ClientDLL::HOOKED_ScaleColors(r, g, b, a);
 }
 
-extern "C" int __cdecl Initialize(cl_enginefunc_t* pEnginefuncs, int iVersion)
-{
-	return ClientDLL::HOOKED_Initialize(pEnginefuncs, iVersion);
-}
-
 extern "C" void __cdecl HUD_Shutdown()
 {
 	return ClientDLL::HOOKED_HUD_Shutdown();
@@ -172,8 +167,7 @@ void ClientDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 			ORIG_CL_IsThirdPerson, HOOKED_CL_IsThirdPerson,
 			ORIG_CStudioModelRenderer__StudioRenderModel, HOOKED_CStudioModelRenderer__StudioRenderModel,
 			ORIG_CHudFlashlight__drawNightVision, HOOKED_CHudFlashlight__drawNightVision,
-			ORIG_ScaleColors, HOOKED_ScaleColors,
-			ORIG_Initialize, HOOKED_Initialize);
+			ORIG_ScaleColors, HOOKED_ScaleColors);
 	}
 
 	// HACK: on Windows we don't get a LoadLibrary for SDL2, so when starting using the injector
@@ -209,8 +203,7 @@ void ClientDLL::Unhook()
 			ORIG_CL_IsThirdPerson,
 			ORIG_CStudioModelRenderer__StudioRenderModel,
 			ORIG_CHudFlashlight__drawNightVision,
-			ORIG_ScaleColors,
-			ORIG_Initialize);
+			ORIG_ScaleColors);
 	}
 
 	MemUtils::RemoveSymbolLookupHook(m_Handle, reinterpret_cast<void*>(ORIG_HUD_Init));
@@ -264,7 +257,6 @@ void ClientDLL::Clear()
 	ORIG_IN_DeactivateMouse = nullptr;
 	ORIG_CL_IsThirdPerson = nullptr;
 	ORIG_ScaleColors = nullptr;
-	ORIG_Initialize = nullptr;
 	ppmove = nullptr;
 	offOldbuttons = 0;
 	offOnground = 0;
@@ -439,8 +431,6 @@ void ClientDLL::FindStuff()
 				EngineDevMsg("Jump detected, found the real Initialize at %p.\n", pInitialize);
 			}
 
-			ORIG_Initialize = reinterpret_cast<_Initialize>(pInitialize);
-
 			// Find "mov edi, offset dword; rep movsd" inside Initialize. The pointer to gEngfuncs is that dword.
 			static constexpr auto p = PATTERN("BF ?? ?? ?? ?? F3 A5");
 			auto addr = MemUtils::find_pattern(pInitialize, 40, p);
@@ -504,11 +494,6 @@ void ClientDLL::FindStuff()
 			EngineWarning("Custom HUD is not available.\n");
 		}
 	}
-
-	// Linux hook
-	#ifndef _WIN32
-	ORIG_Initialize = reinterpret_cast<_Initialize>(MemUtils::GetSymbolAddress(m_Handle, "Initialize"));
-	#endif
 
 	ORIG_V_CalcRefdef = reinterpret_cast<_V_CalcRefdef>(MemUtils::GetSymbolAddress(m_Handle, "V_CalcRefdef"));
 	if (ORIG_V_CalcRefdef) {
@@ -1450,13 +1435,6 @@ HOOK_DEF_4(ClientDLL, void, __cdecl, ScaleColors, int*, r, int*, g, int*, b, int
 		a = CVars::bxt_hud_game_alpha.GetInt();
 
 	ORIG_ScaleColors(r, g, b, a);
-}
-
-HOOK_DEF_2(ClientDLL, int, __cdecl, Initialize, cl_enginefunc_t*, pEnginefuncs, int, iVersion)
-{
-	discord_integration::initialize();
-
-	return ORIG_Initialize(pEnginefuncs, iVersion);
 }
 
 HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_Shutdown)

@@ -851,6 +851,10 @@ namespace discord_integration
 				}
 
 				presence.state = state.c_str();
+				presence.buttonLabel[0] = "Download";
+				presence.buttonLabel[1] = "Join to SourceRuns Discord";
+				presence.buttonUrl[0] = "https://github.com/YaLTeR/BunnymodXT";
+				presence.buttonUrl[1] = "https://discord.gg/sourceruns";
 
 				Discord_UpdatePresence(&presence);
 			}
