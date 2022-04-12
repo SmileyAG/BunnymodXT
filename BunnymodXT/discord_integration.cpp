@@ -91,40 +91,43 @@ namespace discord_integration
 
 				if (cur_state != game_state::NOT_PLAYING)
 				{
-					// Get the map name and icon.
-					get_map_name(map_name, ARRAYSIZE_HL(map_name));
-					if (map_name[0] && ClientDLL::GetInstance().pEngfuncs)
+					if (ClientDLL::GetInstance().pEngfuncs)
 					{
-						// Game directory
-						const char* gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
-
-						if (strstr(gameDir, "valve") != NULL)
+						// Get the map name and icon.
+						get_map_name(map_name, ARRAYSIZE_HL(map_name));
+						if (map_name[0])
 						{
-							if (hl1_chapter1.find(map_name) != hl1_chapter1.cend())
-								presence.largeImageKey = "hl1_chapter1";
+							// Game directory
+							const char* gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
+
+							if (strncmp(gameDir, "valve", 5) == NULL)
+							{
+								if (hl1_chapter1.find(map_name) != hl1_chapter1.cend())
+									presence.largeImageKey = "hl1_chapter1";
+							}
+
+							if (strncmp(gameDir, "gearbox", 7) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "bshift", 6) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "rewolf", 6) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "czeror", 6) == NULL)
+							{
+							}
+
+							char buffer_details[128];
+							sprintf(buffer_details, "Map: %s | Game: %s", map_name, gameDir);
+
+							presence.details = buffer_details;
+							presence.largeImageText = map_name; // TODO: should be chapter name instead map_name
 						}
-
-						if (strstr(gameDir, "gearbox") != NULL)
-						{
-						}
-
-						if (strstr(gameDir, "bshift") != NULL)
-						{
-						}
-
-						if (strstr(gameDir, "rewolf") != NULL)
-						{
-						}
-
-						if (strstr(gameDir, "czeror") != NULL)
-						{
-						}
-
-						char buffer_details[128];
-						sprintf(buffer_details, "Map: %s | Game: %s", map_name, gameDir);
-
-						presence.details = buffer_details;
-						presence.largeImageText = map_name; // TODO: should be chapter name instead map_name
 					}
 				}
 
