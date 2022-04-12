@@ -10,7 +10,7 @@ using namespace std::literals;
 namespace discord_integration
 {
 		/**
-		* Initializes the Discord integration. Call this once on game start.
+		* Initializes the Discord integration. Call this once on BXT or game start.
 		*/
 		void initialize();
 
