@@ -3531,6 +3531,7 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	CVars::sv_cheats.Assign(FindCVar("sv_cheats"));
 	CVars::fps_max.Assign(FindCVar("fps_max"));
 	CVars::default_fov.Assign(FindCVar("default_fov"));
+	CVars::skill.Assign(FindCVar("skill"));
 
 	FindCVarsIfNeeded();
 

@@ -5,7 +5,6 @@
 #include <SPTLib/Hooks.hpp>
 #include "../modules.hpp"
 #include "../interprocess.hpp"
-#include "../discord_integration.hpp"
 
 static FILE *logfile = nullptr;
 
