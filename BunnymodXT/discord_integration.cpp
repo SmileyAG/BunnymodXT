@@ -136,7 +136,7 @@ namespace discord_integration
 
 				presence.state = buffer_state;
 				presence.buttonLabel[0] = "Download";
-				presence.buttonLabel[1] = "Join to SourceRuns Discord";
+				presence.buttonLabel[1] = "Join SourceRuns Discord";
 				presence.buttonUrl[0] = "https://github.com/YaLTeR/BunnymodXT";
 				presence.buttonUrl[1] = "https://discord.gg/sourceruns";
 
