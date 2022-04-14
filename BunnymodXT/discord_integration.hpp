@@ -334,20 +334,20 @@ namespace discord_integration
 		};
 
 		const std::unordered_set<std::string> gmc_chapter1{
-			"CITY2A"s,
+			"city2a"s,
 			"city2b"s,
 			"city3a"s,
 			"city3b"s
 		};
 
 		const std::unordered_set<std::string> gmc_chapter2{
-			"MAYAN0A"s,
-			"MAYAN0B"s,
+			"mayan0a"s,
+			"mayan0b"s,
 			"mayan1"s,
 			"mayan3a"s,
 			"mayan4"s,
 			"mayan6"s,
-			"MAYAN8"s
+			"mayan8"s
 		};
 
 		const std::unordered_set<std::string> gmc_chapter3{
@@ -360,17 +360,17 @@ namespace discord_integration
 			"rust2a"s,
 			"rust2b"s,
 			"rust3a"s,
-			"RUST4A"s,
-			"RUST4B"s,
-			"RUST4C"s,
-			"RUST5A"s,
+			"rust4a"s,
+			"rust4b"s,
+			"rust4c"s,
+			"rust5a"s,
 			"rust6a"s,
 			"rust6b"s,
 			"rust6c"s,
 			"rust6d"s,
 			"rust7a"s,
-			"RUST7B"s,
-			"RUST7C"s,
+			"rust7b"s,
+			"rust7c"s,
 			"rust7d"s,
 			"rust7e"s,
 			"rust8a"s,
@@ -398,23 +398,23 @@ namespace discord_integration
 		};
 
 		const std::unordered_set<std::string> gmc_chapter7{
-			"REBAR0A"s,
-			"REBAR0B"s,
-			"REBAR2A"s,
-			"REBAR2B"s,
-			"REBAR2C"s,
-			"REBAR2D"s,
-			"REBAR2E"s,
-			"REBAR2F"s,
-			"REBAR2G"s,
-			"REBAR2H"s,
-			"REBAR2I"s,
-			"REBAR2J"s,
-			"REBAR2K"s,
+			"rebar0a"s,
+			"rebar0b"s,
+			"rebar2a"s,
+			"rebar2b"s,
+			"rebar2c"s,
+			"rebar2d"s,
+			"rebar2e"s,
+			"rebar2f"s,
+			"rebar2g"s,
+			"rebar2h"s,
+			"rebar2i"s,
+			"rebar2j"s,
+			"rebar2k"s,
 			"rebar2l"s,
-			"REBAR3B"s,
-			"REBAR3D"s,
-			"REBAR3E"s
+			"rebar3b"s,
+			"rebar3d"s,
+			"rebar3e"s
 		};
 
 		const std::unordered_set<std::string> gmc_chapter8{
