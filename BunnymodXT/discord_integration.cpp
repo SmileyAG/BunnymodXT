@@ -1,4 +1,5 @@
 #include "discord_integration.hpp"
+#include <string>
 
 namespace discord_integration
 {
@@ -99,6 +100,13 @@ namespace discord_integration
 						{
 							// Game directory
 							const char* gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
+
+							// Adjust to lowercase
+							unsigned char *tptr = (unsigned char *)map_name;
+							while (*tptr) {
+								*tptr = tolower(*tptr);
+								tptr++;
+							}
 
 							if (strncmp(gameDir, "valve", 5) == NULL)
 							{
