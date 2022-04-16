@@ -1,5 +1,4 @@
 #include "discord_integration.hpp"
-#include <string>
 
 namespace discord_integration
 {
@@ -127,6 +126,26 @@ namespace discord_integration
 							}
 
 							if (strncmp(gameDir, "czeror", 6) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "Hunger", 6) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "wantedsp", 8) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "echoes", 6) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "caged_fgs", 9) == NULL)
+							{
+							}
+
+							if (strncmp(gameDir, "poke646", 7) == NULL)
 							{
 							}
 
