@@ -164,6 +164,8 @@ namespace discord_integration
 				char buffer_state[128];
 				sprintf(buffer_state, "%s | FPS Max: %s | Skill: %u", state.c_str(), oss.str().c_str(), CVars::skill.GetInt());
 
+				std::time_t curtime = std::time(0); 
+				presence.startTimestamp = curtime;
 				presence.state = buffer_state;
 				presence.buttonLabel[0] = "Download";
 				presence.buttonLabel[1] = "Join SourceRuns Discord";
