@@ -362,6 +362,7 @@ void ClientDLL::FindStuff()
 					break;
 				case 8:
 				case 9:
+				case 13:
 					ppmove = *reinterpret_cast<void***>(reinterpret_cast<uintptr_t>(ORIG_PM_Jump) + 8);
 					break;
 				}
@@ -416,6 +417,11 @@ void ClientDLL::FindStuff()
 				ORIG_VectorTransform = reinterpret_cast<_VectorTransform>(
 					*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_StudioCalcAttachments) + 97)
 					+ reinterpret_cast<uintptr_t>(ORIG_StudioCalcAttachments) + 101);
+				break;
+			case 7: // CoF-5936
+				ORIG_VectorTransform = reinterpret_cast<_VectorTransform>(
+					*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_StudioCalcAttachments) + 77)
+					+ reinterpret_cast<uintptr_t>(ORIG_StudioCalcAttachments) + 81);
 				break;
 			default:
 				assert(false);
