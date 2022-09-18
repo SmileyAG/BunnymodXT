@@ -311,11 +311,6 @@ extern "C" qboolean __cdecl CL_CheckGameDirectory(char *gamedir)
 {
 	return HwDLL::HOOKED_CL_CheckGameDirectory(gamedir);
 }
-
-extern "C" int __cdecl Host_ValidSave()
-{
-	return HwDLL::HOOKED_Host_ValidSave();
-}
 #endif
 
 void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* moduleBase, size_t moduleLength, bool needToIntercept)
@@ -675,7 +670,7 @@ void HwDLL::Clear()
 	movevars = nullptr;
 	offZmax = 0;
 	pHost_FilterTime_FPS_Cap_Byte = 0;
-	pHost_ValidSave_Save_Lock_In_Cof_Byte = 0;
+	cofSaveHack = nullptr;
 	frametime_remainder = nullptr;
 	pstudiohdr = nullptr;
 	scr_fov_value = nullptr;
@@ -1032,12 +1027,6 @@ void HwDLL::FindStuff()
 		else
 			EngineDevWarning("[hw dll] Could not find Host_FilterTime.\n");
 
-		ORIG_Host_ValidSave = reinterpret_cast<_Host_ValidSave>(MemUtils::GetSymbolAddress(m_Handle, "Host_ValidSave"));
-		if (ORIG_Host_ValidSave)
-			EngineDevMsg("[hw dll] Found Host_ValidSave at %p.\n", ORIG_Host_ValidSave);
-		else
-			EngineDevWarning("[hw dll] Could not find Host_ValidSave.\n");
-
 		ORIG_V_FadeAlpha = reinterpret_cast<_V_FadeAlpha>(MemUtils::GetSymbolAddress(m_Handle, "V_FadeAlpha"));
 		if (ORIG_V_FadeAlpha)
 			EngineDevMsg("[hw dll] Found V_FadeAlpha at %p.\n", ORIG_V_FadeAlpha);
@@ -1218,7 +1207,6 @@ void HwDLL::FindStuff()
 		DEF_FUTURE(Host_FilterTime)
 		DEF_FUTURE(V_FadeAlpha)
 		DEF_FUTURE(R_DrawSkyBox)
-		DEF_FUTURE(Host_ValidSave)
 		DEF_FUTURE(SCR_UpdateScreen)
 		DEF_FUTURE(PF_GetPhysicsKeyValue)
 		DEF_FUTURE(build_number)
@@ -1355,19 +1343,6 @@ void HwDLL::FindStuff()
 					break;
 				case 1: // HL-WON-1712
 					pHost_FilterTime_FPS_Cap_Byte += 11;
-					break;
-				default:
-					assert(false);
-				}
-			});
-
-		auto fHost_ValidSave_Save_Lock_In_Cof_Byte = FindAsync(
-			pHost_ValidSave_Save_Lock_In_Cof_Byte,
-			patterns::engine::Host_ValidSave_Save_Lock_In_Cof_Byte,
-			[&](auto pattern) {
-				switch (pattern - patterns::engine::Host_ValidSave_Save_Lock_In_Cof_Byte.cbegin()) {
-				case 0: // CoF-5936
-					pHost_ValidSave_Save_Lock_In_Cof_Byte += 16;
 					break;
 				default:
 					assert(false);
@@ -1829,6 +1804,13 @@ void HwDLL::FindStuff()
 				}
 			});
 
+		auto fHost_ValidSave = FindAsync(
+			ORIG_Host_ValidSave,
+			patterns::engine::Host_ValidSave,
+			[&](auto pattern) {
+				cofSaveHack = *reinterpret_cast<bool**>(reinterpret_cast<uintptr_t>(ORIG_Host_ValidSave) + 21);
+			});
+
 		{
 			auto pattern = fClientDLL_CheckStudioInterface.get();
 			if (ClientDLL_CheckStudioInterface) {
@@ -1869,15 +1851,6 @@ void HwDLL::FindStuff()
 				EngineDevMsg("[hw dll] Found Host_FilterTime FPS Cap Byte at %p (using the %s pattern).\n", pHost_FilterTime_FPS_Cap_Byte, pattern->name());
 			} else {
 				EngineDevWarning("[hw dll] Could not find Host_FilterTime FPS Cap Byte.\n");
-			}
-		}
-
-		{
-			auto pattern = fHost_ValidSave_Save_Lock_In_Cof_Byte.get();
-			if (pHost_ValidSave_Save_Lock_In_Cof_Byte) {
-				EngineDevMsg("[hw dll] Found locking save byte at %p (using the %s pattern).\n", pHost_ValidSave_Save_Lock_In_Cof_Byte, pattern->name());
-			} else {
-				EngineDevWarning("[hw dll] Could not find Host_ValidSave Save Lock CoF Byte.\n");
 			}
 		}
 
@@ -2076,6 +2049,17 @@ void HwDLL::FindStuff()
 			}
 		}
 
+		{
+			auto pattern = fHost_ValidSave.get();
+			if (ORIG_Host_ValidSave) {
+				EngineDevMsg("[hw dll] Found Host_ValidSave at %p (using the %s pattern).\n", ORIG_Host_ValidSave, pattern->name());
+				EngineDevMsg("[hw dll] Found cof_savehack at %p.\n", cofSaveHack);
+			} else {
+				EngineDevWarning("[hw dll] Could not find Host_ValidSave.\n");
+				EngineWarning("[hw dll] Quick saving in Cry of Fear is not available.\n");
+			}
+		}
+
 		#define GET_FUTURE(future_name) \
 			{ \
 				auto pattern = f##future_name.get(); \
@@ -2129,7 +2113,6 @@ void HwDLL::FindStuff()
 		GET_FUTURE(Host_FilterTime);
 		GET_FUTURE(V_FadeAlpha);
 		GET_FUTURE(R_DrawSkyBox);
-		GET_FUTURE(Host_ValidSave);
 		GET_FUTURE(SV_Frame);
 		GET_FUTURE(VGuiWrap2_ConDPrintf);
 		GET_FUTURE(VGuiWrap2_ConPrintf);
@@ -3992,7 +3975,9 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	RegisterCVar(CVars::bxt_force_clear);
 	RegisterCVar(CVars::bxt_disable_gamedir_check_in_demo);
 	RegisterCVar(CVars::bxt_remove_fps_limit);
-	RegisterCVar(CVars::bxt_disable_save_lock_in_cof);
+
+	if (ORIG_Host_ValidSave && cofSaveHack)
+		RegisterCVar(CVars::bxt_disable_save_lock_in_cof);
 
 	if (ORIG_R_SetFrustum && scr_fov_value)
 		RegisterCVar(CVars::bxt_force_fov);
@@ -6206,15 +6191,8 @@ HOOK_DEF_1(HwDLL, qboolean, __cdecl, CL_CheckGameDirectory, char*, gamedir)
 
 HOOK_DEF_0(HwDLL, int, __cdecl, Host_ValidSave)
 {
-	if (pHost_ValidSave_Save_Lock_In_Cof_Byte)
-	{
-		if (CVars::bxt_disable_save_lock_in_cof.GetBool())
-		{
-			if (*reinterpret_cast<byte*>(pHost_ValidSave_Save_Lock_In_Cof_Byte) == 0x75)
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pHost_ValidSave_Save_Lock_In_Cof_Byte), 1, reinterpret_cast<const byte*>("\xEB"));
-		}
-		else if (*reinterpret_cast<byte*>(pHost_ValidSave_Save_Lock_In_Cof_Byte) == 0xEB)
-			MemUtils::ReplaceBytes(reinterpret_cast<void*>(pHost_ValidSave_Save_Lock_In_Cof_Byte), 1, reinterpret_cast<const byte*>("\x75"));
+	if (cofSaveHack) {
+		*cofSaveHack = CVars::bxt_disable_save_lock_in_cof.GetBool() ? 1 : 0;
 	}
 
 	return ORIG_Host_ValidSave();

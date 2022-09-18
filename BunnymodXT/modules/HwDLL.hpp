@@ -501,7 +501,7 @@ protected:
 	studiohdr_t **pstudiohdr;
 	float *scr_fov_value;
 	ptrdiff_t pHost_FilterTime_FPS_Cap_Byte;
-	ptrdiff_t pHost_ValidSave_Save_Lock_In_Cof_Byte;
+	bool *cofSaveHack;
 
 	int framesTillExecuting;
 	bool executing;
