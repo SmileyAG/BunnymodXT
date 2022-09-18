@@ -187,6 +187,7 @@ namespace CVars
 	extern CVarWrapper bxt_render_far_entities;
 	extern CVarWrapper bxt_fire_on_mm_targetname;
 	extern CVarWrapper bxt_fire_on_mm_command;
+	extern CVarWrapper bxt_cof_enable_ducktap;
 
 	// Clientside CVars
 	extern CVarWrapper cl_righthand;

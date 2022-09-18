@@ -951,6 +951,11 @@ namespace patterns
 			"CoF-5936",
 			"55 8B EC 83 EC 7C 53 56 8B F1"
 		);
+
+		PATTERNS(PM_UnDuck,
+			"CoF-5936",
+			"53 8B DC 83 EC 08 83 E4 F0 83 C4 04 55 8B 6B ?? 89 6C 24 ?? 8B EC 81 EC B0 00 00 00"
+		);
 	}
 
 	namespace client

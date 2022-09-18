@@ -132,7 +132,8 @@ void ServerDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 			ORIG_CBaseEntity__FireBullets, HOOKED_CBaseEntity__FireBullets,
 			ORIG_CBaseEntity__FireBullets_Linux, HOOKED_CBaseEntity__FireBullets_Linux,
 			ORIG_CBaseEntity__FireBulletsPlayer, HOOKED_CBaseEntity__FireBulletsPlayer,
-			ORIG_CBaseEntity__FireBulletsPlayer_Linux, HOOKED_CBaseEntity__FireBulletsPlayer_Linux);
+			ORIG_CBaseEntity__FireBulletsPlayer_Linux, HOOKED_CBaseEntity__FireBulletsPlayer_Linux,
+			ORIG_PM_UnDuck, HOOKED_PM_UnDuck);
 	}
 }
 
@@ -171,7 +172,8 @@ void ServerDLL::Unhook()
 			ORIG_CBaseEntity__FireBullets_Linux,
 			ORIG_CBaseEntity__FireBulletsPlayer,
 			ORIG_CBaseEntity__FireBulletsPlayer_Linux,
-			ORIG_CBaseMonster__Killed);
+			ORIG_CBaseMonster__Killed,
+			ORIG_PM_UnDuck);
 	}
 
 	Clear();
@@ -225,6 +227,7 @@ void ServerDLL::Clear()
 	ORIG_CBaseEntity__FireBulletsPlayer = nullptr;
 	ORIG_CBaseEntity__FireBulletsPlayer_Linux = nullptr;
 	ORIG_CChangeLevel__InTransitionVolume = nullptr;
+	ORIG_PM_UnDuck = nullptr;
 	ppmove = nullptr;
 	offPlayerIndex = 0;
 	offOldbuttons = 0;
@@ -609,6 +612,7 @@ void ServerDLL::FindStuff()
 	auto fCBasePlayer__CheatImpulseCommands = FindAsync(ORIG_CBasePlayer__CheatImpulseCommands, patterns::server::CBasePlayer__CheatImpulseCommands);
 	auto fCBaseMonster__Killed = FindAsync(ORIG_CBaseMonster__Killed, patterns::server::CBaseMonster__Killed);
 	auto fCChangeLevel__InTransitionVolume = FindAsync(ORIG_CChangeLevel__InTransitionVolume, patterns::server::CChangeLevel__InTransitionVolume);
+	auto fPM_UnDuck = FindAsync(ORIG_PM_UnDuck, patterns::server::PM_UnDuck);
 
 	auto fCGraph__InitGraph = FindAsync(
 		ORIG_CGraph__InitGraph,
@@ -1136,6 +1140,16 @@ void ServerDLL::FindStuff()
 		}
 	}
 
+	{
+		auto pattern = fPM_UnDuck.get();
+		if (ORIG_PM_UnDuck) {
+			EngineDevMsg("[server dll] Found PM_UnDuck at %p (using the %s pattern).\n", ORIG_PM_UnDuck, pattern->name());
+		} else {
+			EngineDevWarning("[server dll] Could not find PM_UnDuck.\n");
+			EngineWarning("Enabling ducktap in Cry of Fear is not available.\n");
+		}
+	}
+
 	auto fCBaseEntity__FireBullets = FindAsync(ORIG_CBaseEntity__FireBullets, patterns::server::CBaseEntity__FireBullets);
 	auto fCBaseEntity__FireBulletsPlayer = FindAsync(ORIG_CBaseEntity__FireBulletsPlayer, patterns::server::CBaseEntity__FireBulletsPlayer);
 
@@ -1209,6 +1223,8 @@ void ServerDLL::RegisterCVarsAndCommands()
 		REG(bxt_show_bullets);
 		REG(bxt_show_bullets_enemy);
 	}
+	if (ORIG_PM_UnDuck)
+		REG(bxt_cof_enable_ducktap);
 	#undef REG
 }
 
@@ -2441,4 +2457,17 @@ void ServerDLL::ClearBulletsEnemyTrace() {
 void ServerDLL::ClearBulletsTrace() {
 	traceLineFireBulletsPlayer.clear();
 	traceLineFireBulletsPlayerHit.clear();
+}
+
+HOOK_DEF_0(ServerDLL, void, __cdecl, PM_UnDuck)
+{
+	if (ppmove && offFlags && offInDuck && CVars::bxt_cof_enable_ducktap.GetBool()) {
+		auto pmove = reinterpret_cast<uintptr_t>(*ppmove);
+		int *flags = reinterpret_cast<int*>(pmove + offFlags);
+		bool *inDuck = reinterpret_cast<bool*>(pmove + offInDuck);
+		*flags |= FL_DUCKING;
+		*inDuck = false;
+	}
+
+	ORIG_PM_UnDuck();
 }
