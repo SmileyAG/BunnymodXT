@@ -594,7 +594,6 @@ void HwDLL::Clear()
 	ORIG_Cmd_Argc = nullptr;
 	ORIG_Cmd_Args = nullptr;
 	ORIG_Cmd_Argv = nullptr;
-	ORIG_hudGetViewAngles = nullptr;
 	ORIG_PM_PlayerTrace = nullptr;
 	ORIG_SV_AddLinksToPM = nullptr;
 	ORIG_PF_GetPhysicsKeyValue = nullptr;
@@ -655,7 +654,6 @@ void HwDLL::Clear()
 	insideHost_Loadgame_f = false;
 	insideHost_Reload_f = false;
 	cls = nullptr;
-	clientstate = nullptr;
 	sv = nullptr;
 	lastRecordedHealth = 0;
 	offTime = 0;
@@ -882,12 +880,6 @@ void HwDLL::FindStuff()
 		} else
 			EngineDevWarning("[hw dll] Could not find movevars.\n");
 
-		ORIG_hudGetViewAngles = reinterpret_cast<_hudGetViewAngles>(MemUtils::GetSymbolAddress(m_Handle, "hudGetViewAngles"));
-		if (ORIG_hudGetViewAngles)
-			EngineDevMsg("[hw dll] Found hudGetViewAngles at %p.\n", ORIG_hudGetViewAngles);
-		else
-			EngineDevWarning("[hw dll] Could not find hudGetViewAngles.\n");
-
 		ORIG_SV_AddLinksToPM = reinterpret_cast<_SV_AddLinksToPM>(MemUtils::GetSymbolAddress(m_Handle, "SV_AddLinksToPM"));
 		if (ORIG_SV_AddLinksToPM)
 			EngineDevMsg("[hw dll] Found SV_AddLinksToPM at %p.\n", ORIG_SV_AddLinksToPM);
@@ -987,7 +979,7 @@ void HwDLL::FindStuff()
 		else
 			EngineDevWarning("[hw dll] Could not find CL_CheckGameDirectory.\n");
 
-		if (!cls || !sv || !svs || !svmove || !ppmove || !host_client || !sv_player || !sv_areanodes || !cmd_text || !cmd_alias || !host_frametime || !cvar_vars || !movevars || !ORIG_hudGetViewAngles || !ORIG_SV_AddLinksToPM || !ORIG_SV_SetMoveVars)
+		if (!cls || !sv || !svs || !svmove || !ppmove || !host_client || !sv_player || !sv_areanodes || !cmd_text || !cmd_alias || !host_frametime || !cvar_vars || !movevars || !ORIG_SV_AddLinksToPM || !ORIG_SV_SetMoveVars)
 			ORIG_Cbuf_Execute = nullptr;
 
 		#define FIND(f) \
@@ -1576,7 +1568,6 @@ void HwDLL::FindStuff()
 					cls = *reinterpret_cast<void**>(f + 69);
 					svs = reinterpret_cast<svs_t*>(*reinterpret_cast<uintptr_t*>(f + 45) - 8);
 					offEdict = *reinterpret_cast<ptrdiff_t*>(f + 122);
-					clientstate = reinterpret_cast<void*>(*reinterpret_cast<uintptr_t*>(f + 86) - 0x2AF80);
 					break;
 				case 1: // CoF-5936
 					sv = *reinterpret_cast<void**>(f + 50);
@@ -1593,7 +1584,6 @@ void HwDLL::FindStuff()
 					cls = *reinterpret_cast<void**>(f + 105);
 					svs = reinterpret_cast<svs_t*>(*reinterpret_cast<uintptr_t*>(f + 79) - 8);
 					offEdict = *reinterpret_cast<ptrdiff_t*>(f + 182);
-					clientstate = reinterpret_cast<void*>(*reinterpret_cast<uintptr_t*>(f + 140) - 0x3BF88);
 					break;
 				}
 			});
@@ -1926,7 +1916,6 @@ void HwDLL::FindStuff()
 			if (Host_AutoSave_f) {
 				EngineDevMsg("[hw dll] Found Host_AutoSave_f at %p (using the %s pattern).\n", Host_AutoSave_f, pattern->name());
 				EngineDevMsg("[hw dll] Found cls at %p.\n", cls);
-				EngineDevMsg("[hw dll] Found clientstate at %p.\n", clientstate);
 				EngineDevMsg("[hw dll] Found sv at %p.\n", sv);
 				EngineDevMsg("[hw dll] Found svs at %p.\n", svs);
 				EngineDevMsg("[hw dll] Found Con_Printf at %p.\n", ORIG_Con_Printf);
@@ -2667,7 +2656,7 @@ struct HwDLL::Cmd_BXT_CH_Get_Origin_And_Angles
 		auto &hw = HwDLL::GetInstance();
 		auto &cl = ClientDLL::GetInstance();
 		float angles[3];
-		hw.GetViewangles(angles);
+		cl.pEngfuncs->GetViewAngles(angles);
 		hw.ORIG_Con_Printf("bxt_set_angles %f %f %f;", angles[0], angles[1], angles[2]);
 		if (CVars::bxt_hud_origin.GetInt() == 2)
 			hw.ORIG_Con_Printf("bxt_ch_set_pos %f %f %f\n", cl.last_vieworg[0], cl.last_vieworg[1], cl.last_vieworg[2]);
@@ -2742,22 +2731,22 @@ struct HwDLL::Cmd_BXT_Set_Angles
 
 	static void handler(float x, float y)
 	{
-		auto &hw = HwDLL::GetInstance();
+		auto &cl = ClientDLL::GetInstance();
 		float vec[3];
 		vec[0] = x;
 		vec[1] = y;
 		vec[2] = 0.0f;
-		hw.SetViewangles(vec);
+		cl.pEngfuncs->SetViewAngles(vec);
 	}
 
 	static void handler(float x, float y, float z)
 	{
-		auto &hw = HwDLL::GetInstance();
+		auto &cl = ClientDLL::GetInstance();
 		float vec[3];
 		vec[0] = x;
 		vec[1] = y;
 		vec[2] = z;
-		hw.SetViewangles(vec);
+		cl.pEngfuncs->SetViewAngles(vec);
 	}
 };
 
@@ -4167,7 +4156,7 @@ void HwDLL::InsertCommands()
 						}
 
 						// Hope the viewangles aren't changed in ClientDLL's HUD_UpdateClientData() (that happens later in Host_Frame()).
-						GetViewangles(player.Viewangles);
+						ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
 						//ORIG_Con_Printf("Player viewangles: %f %f %f\n", player.Viewangles[0], player.Viewangles[1], player.Viewangles[2]);
 					}
 				}
@@ -4751,7 +4740,7 @@ void HwDLL::InsertCommands()
 					}
 
 					// Hope the viewangles aren't changed in ClientDLL's HUD_UpdateClientData() (that happens later in Host_Frame()).
-					GetViewangles(player.Viewangles);
+					ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
 					//ORIG_Con_Printf("Player viewangles: %f %f %f\n", player.Viewangles[0], player.Viewangles[1], player.Viewangles[2]);
 				}
 			}
@@ -4880,7 +4869,7 @@ HLStrafe::PlayerData HwDLL::GetPlayerData()
 		player.HasLJModule = false;
 	}
 
-	GetViewangles(player.Viewangles);
+	ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
 
 	return player;
 }
@@ -5294,30 +5283,6 @@ bool HwDLL::TryGettingAccurateInfo(float origin[3], float velocity[3], float& he
 	stamina = pl->v.fuser2;
 
 	return true;
-}
-
-void HwDLL::GetViewangles(float* va)
-{
-	if (clientstate) {
-		float *viewangles;
-
-		if (ClientDLL::GetInstance().DoesGameDirMatch("cryoffear"))
-			viewangles = reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(clientstate) + 0x3BBE8);
-		else
-			viewangles = reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(clientstate) + 0x2ABE4);
-
-		va[0] = viewangles[0];
-		va[1] = viewangles[1];
-		va[2] = viewangles[2];
-	} else
-		ORIG_hudGetViewAngles(va);
-}
-
-void HwDLL::SetViewangles(float* va)
-{
-	if (ClientDLL::GetInstance().pEngfuncs) {
-		ClientDLL::GetInstance().pEngfuncs->SetViewAngles(va);
-	}
 }
 
 HLStrafe::TraceResult HwDLL::PlayerTrace(const float start[3], const float end[3], HLStrafe::HullType hull, bool extendDistanceLimit)

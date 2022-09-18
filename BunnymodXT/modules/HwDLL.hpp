@@ -164,8 +164,6 @@ public:
 	void SetPlayerOrigin(float origin[3]);
 	void SetPlayerVelocity(float velocity[3]);
 	bool TryGettingAccurateInfo(float origin[3], float velocity[3], float& health, float& armorvalue, int& waterlevel, float& stamina);
-	void GetViewangles(float* va);
-	void SetViewangles(float* va);
 
 	inline bool NeedViewmodelAdjustments()
 	{
@@ -362,8 +360,6 @@ protected:
 	_Cmd_Args ORIG_Cmd_Args;
 	typedef char*(__cdecl *_Cmd_Argv) (unsigned n);
 	_Cmd_Argv ORIG_Cmd_Argv;
-	typedef void(__cdecl *_hudGetViewAngles) (float* va);
-	_hudGetViewAngles ORIG_hudGetViewAngles;
 	typedef pmtrace_t(__cdecl *_PM_PlayerTrace) (const float* start, const float* end, int traceFlags, int ignore_pe);
 	_PM_PlayerTrace ORIG_PM_PlayerTrace;
 	typedef void(__cdecl *_SV_AddLinksToPM) (char* node, float* origin);
@@ -481,7 +477,6 @@ protected:
 	bool insideHost_Reload_f;
 
 	void *cls;
-	void *clientstate;
 	void *sv;
 	ptrdiff_t offTime;
 	ptrdiff_t offWorldmodel;
