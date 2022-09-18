@@ -270,8 +270,15 @@ bool ServerDLL::CanHook(const std::wstring& moduleFullName)
 	if (!IHookableDirFilter::CanHook(moduleFullName))
 		return false;
 
+	std::wstring folderName = GetFolderName(moduleFullName);
+
+	// HACK: In Cry of Fear client and server dlls are in the same directory.
+	// When we are going through cl_dlls skip every dll except hl.dll.
+	if (folderName == L"cl_dlls" && GetFileName(moduleFullName) != L"hl.dll")
+		return false;
+
 	// Filter out addons like metamod which may be located into a "dlls" folder under addons.
-	std::wstring pathToLiblist = moduleFullName.substr(0, moduleFullName.rfind(GetFolderName(moduleFullName))).append(L"liblist.gam");
+	std::wstring pathToLiblist = moduleFullName.substr(0, moduleFullName.rfind(folderName)).append(L"liblist.gam");
 
 	// If liblist.gam exists in the parent directory, then we're (hopefully) good.
 	struct wrapper {

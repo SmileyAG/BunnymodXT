@@ -92,7 +92,7 @@ public:
 	void TraceLineWrap(const Vector* vecStart, const Vector* vecEnd, int igmon, edict_t* pentIgnore, TraceResult* ptr);
 
 private:
-	ServerDLL() : IHookableDirFilter({ L"dlls" }) {};
+	ServerDLL() : IHookableDirFilter({ L"dlls", L"cl_dlls"}) {};
 	ServerDLL(const ServerDLL&);
 	void operator=(const ServerDLL&);
 
