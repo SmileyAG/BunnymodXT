@@ -428,6 +428,7 @@ void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* modul
 			MemUtils::MarkAsExecutable(ORIG_Draw_FillRGBA);
 			MemUtils::MarkAsExecutable(ORIG_PF_traceline_DLL);
 			MemUtils::MarkAsExecutable(ORIG_CL_CheckGameDirectory);
+			MemUtils::MarkAsExecutable(ORIG_SaveGameSlot);
 		}
 
 		MemUtils::Intercept(moduleName,
@@ -483,7 +484,8 @@ void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* modul
 			ORIG_DrawCrosshair, HOOKED_DrawCrosshair,
 			ORIG_Draw_FillRGBA, HOOKED_Draw_FillRGBA,
 			ORIG_PF_traceline_DLL, HOOKED_PF_traceline_DLL,
-			ORIG_CL_CheckGameDirectory, HOOKED_CL_CheckGameDirectory);
+			ORIG_CL_CheckGameDirectory, HOOKED_CL_CheckGameDirectory,
+			ORIG_SaveGameSlot, HOOKED_SaveGameSlot);
 	}
 }
 
@@ -544,7 +546,8 @@ void HwDLL::Unhook()
 			ORIG_DrawCrosshair,
 			ORIG_Draw_FillRGBA,
 			ORIG_PF_traceline_DLL,
-			ORIG_CL_CheckGameDirectory);
+			ORIG_CL_CheckGameDirectory,
+			ORIG_SaveGameSlot);
 	}
 
 	for (auto cvar : CVars::allCVars)
@@ -632,6 +635,8 @@ void HwDLL::Clear()
 	ORIG_Draw_FillRGBA = nullptr;
 	ORIG_PF_traceline_DLL = nullptr;
 	ORIG_CL_CheckGameDirectory = nullptr;
+	ORIG_CL_HudMessage = nullptr;
+	ORIG_SaveGameSlot = nullptr;
 
 	ClientDLL::GetInstance().pEngfuncs = nullptr;
 	ServerDLL::GetInstance().pEngfuncs = nullptr;
@@ -1241,6 +1246,8 @@ void HwDLL::FindStuff()
 		DEF_FUTURE(Draw_FillRGBA)
 		DEF_FUTURE(PF_traceline_DLL)
 		DEF_FUTURE(CL_CheckGameDirectory)
+		DEF_FUTURE(SaveGameSlot)
+		DEF_FUTURE(CL_HudMessage)
 		#undef DEF_FUTURE
 
 		bool oldEngine = (m_Name.find(L"hl.exe") != std::wstring::npos);
@@ -2141,6 +2148,8 @@ void HwDLL::FindStuff()
 		GET_FUTURE(Draw_FillRGBA);
 		GET_FUTURE(PF_traceline_DLL);
 		GET_FUTURE(CL_CheckGameDirectory);
+		GET_FUTURE(SaveGameSlot);
+		GET_FUTURE(CL_HudMessage);
 
 		if (oldEngine) {
 			GET_FUTURE(LoadAndDecryptHwDLL);
@@ -6196,4 +6205,14 @@ HOOK_DEF_0(HwDLL, int, __cdecl, Host_ValidSave)
 	}
 
 	return ORIG_Host_ValidSave();
+}
+
+HOOK_DEF_2(HwDLL, int, __cdecl, SaveGameSlot, const char*, pSaveName, const char*, pSaveComment)
+{
+	 auto rv = ORIG_SaveGameSlot(pSaveName, pSaveComment);
+	// Cry of Fear-specific, draw "Saved..." on the screen.
+	if (ORIG_CL_HudMessage) 
+		ORIG_CL_HudMessage("GAMESAVED");
+
+	return rv;
 }
