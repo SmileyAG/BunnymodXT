@@ -3154,9 +3154,11 @@ struct HwDLL::Cmd_BXT_CH_Get_Other_Player_Info
 			out << "FL_ONTRAIN; ";
 		out << '\n';
 		hw.ORIG_Con_Printf("%s", out.str().c_str());
-		hw.ORIG_Con_Printf("bInDuck: %d\n", (*hw.sv_player)->v.bInDuck);
 		hw.ORIG_Con_Printf("Basevelocity: %f %f %f; XY = %f; XYZ = %f\n", basevel.x, basevel.y, basevel.z, basevel.Length2D(), basevel.Length());
 		hw.ORIG_Con_Printf("Server punchangle: %f %f %f\n", punch.x, punch.y, punch.z);
+
+		#ifndef SDK10_BUILD
+		hw.ORIG_Con_Printf("bInDuck: %d\n", (*hw.sv_player)->v.bInDuck);
 		hw.ORIG_Con_Printf("iuser1: %d; iuser2: %d; iuser3: %d; iuser4: %d\n", (*hw.sv_player)->v.iuser1, (*hw.sv_player)->v.iuser2, (*hw.sv_player)->v.iuser3, (*hw.sv_player)->v.iuser4);
 		hw.ORIG_Con_Printf("fuser1: %f; fuser2: %f; fuser3: %f; fuser4: %f\n", (*hw.sv_player)->v.fuser1, (*hw.sv_player)->v.fuser2, (*hw.sv_player)->v.fuser3, (*hw.sv_player)->v.fuser4);
 
@@ -3168,6 +3170,7 @@ struct HwDLL::Cmd_BXT_CH_Get_Other_Player_Info
 		hw.ORIG_Con_Printf("vuser2: %f %f %f; XY = %f; XYZ = %f\n", vusr2.x, vusr2.y, vusr2.z, vusr2.Length2D(), vusr2.Length());
 		hw.ORIG_Con_Printf("vuser3: %f %f %f; XY = %f; XYZ = %f\n", vusr3.x, vusr3.y, vusr3.z, vusr3.Length2D(), vusr3.Length());
 		hw.ORIG_Con_Printf("vuser4: %f %f %f; XY = %f; XYZ = %f\n", vusr4.x, vusr4.y, vusr4.z, vusr4.Length2D(), vusr4.Length());
+		#endif
 	}
 };
 
@@ -5321,9 +5324,15 @@ void HwDLL::InsertCommands()
 						player.Velocity[1] = pl->v.velocity[1];
 						player.Velocity[2] = pl->v.velocity[2];
 						player.Ducking = (pl->v.flags & FL_DUCKING) != 0;
-						player.InDuckAnimation = (pl->v.bInDuck != 0);
-						player.DuckTime = static_cast<float>(pl->v.flDuckTime);
-						player.StaminaTime = pl->v.fuser2;
+						#ifndef SDK10_BUILD
+							player.InDuckAnimation = (pl->v.bInDuck != 0);
+							player.DuckTime = static_cast<float>(pl->v.flDuckTime);
+							player.StaminaTime = pl->v.fuser2;
+						#else
+							player.InDuckAnimation = false;
+							player.DuckTime = 0.0f;
+							player.StaminaTime = 0.0f;
+						#endif
 						player.Walking = (pl->v.movetype == MOVETYPE_WALK);
 
 						if (ORIG_PF_GetPhysicsKeyValue) {
@@ -5984,9 +5993,15 @@ void HwDLL::InsertCommands()
 					player.Velocity[1] = pl->v.velocity[1];
 					player.Velocity[2] = pl->v.velocity[2];
 					player.Ducking = (pl->v.flags & FL_DUCKING) != 0;
-					player.InDuckAnimation = (pl->v.bInDuck != 0);
-					player.DuckTime = static_cast<float>(pl->v.flDuckTime);
-					player.StaminaTime = pl->v.fuser2;
+					#ifndef SDK10_BUILD
+						player.InDuckAnimation = (pl->v.bInDuck != 0);
+						player.DuckTime = static_cast<float>(pl->v.flDuckTime);
+						player.StaminaTime = pl->v.fuser2;
+					#else
+						player.InDuckAnimation = false;
+						player.DuckTime = 0.0f;
+						player.StaminaTime = 0.0f;
+					#endif
 					player.Walking = (pl->v.movetype == MOVETYPE_WALK);
 
 					if (ORIG_PF_GetPhysicsKeyValue) {
@@ -6114,9 +6129,15 @@ HLStrafe::PlayerData HwDLL::GetPlayerData()
 	player.Velocity[1] = pl->v.velocity[1];
 	player.Velocity[2] = pl->v.velocity[2];
 	player.Ducking = (pl->v.flags & FL_DUCKING) != 0;
-	player.InDuckAnimation = (pl->v.bInDuck != 0);
-	player.DuckTime = static_cast<float>(pl->v.flDuckTime);
-	player.StaminaTime = pl->v.fuser2;
+	#ifndef SDK10_BUILD
+		player.InDuckAnimation = (pl->v.bInDuck != 0);
+		player.DuckTime = static_cast<float>(pl->v.flDuckTime);
+		player.StaminaTime = pl->v.fuser2;
+	#else
+		player.InDuckAnimation = false;
+		player.DuckTime = 0.0f;
+		player.StaminaTime = 0.0f;
+	#endif
 	player.Walking = (pl->v.movetype == MOVETYPE_WALK);
 
 	if (ORIG_PF_GetPhysicsKeyValue) {
@@ -6571,7 +6592,11 @@ bool HwDLL::TryGettingAccurateInfo(float origin[3], float velocity[3], float& he
 		float* m_fStamina = reinterpret_cast<float*>(thisAddr + ServerDLL::GetInstance().offm_fStamina);
 		stamina = *m_fStamina;
 	} else {
-		stamina = pl->v.fuser2;
+		#ifndef SDK10_BUILD
+			stamina = pl->v.fuser2;
+		#else
+			stamina = 0.0f;
+		#endif
 	}
 
 	return true;

@@ -2432,8 +2432,11 @@ HOOK_DEF_7(ServerDLL, int, __cdecl, AddToFullPack, struct entity_state_s*, state
 	auto oldRenderAmount = ent->v.renderamt;
 	auto oldRenderFx = ent->v.renderfx;
 	auto oldFlags = ent->v.flags;
+
+	#ifndef SDK10_BUILD
 	auto oldIUser1 = ent->v.iuser1;
 	auto oldIUser2 = ent->v.iuser2;
+	#endif
 
 	static bool is_0x75 = false;
 
@@ -2456,12 +2459,14 @@ HOOK_DEF_7(ServerDLL, int, __cdecl, AddToFullPack, struct entity_state_s*, state
 		}
 	}
 
+	#ifndef SDK10_BUILD
 	if (ClientDLL::GetInstance().DoesGameDirContain("czeror") && CVars::bxt_render_far_entities.GetBool())
 	{
 		ent->v.flags |= FL_IMMUNE_LAVA; // Because the PVS check in AddToFullPack points to '524288' flags bit
 		ent->v.iuser1 = 1; // Similar to above explanation
 		ent->v.iuser2 = 1; // Mappers used on some entities 'nopvs = 1' keyvalue, which is 'iuser2 = 1` in game code
 	}
+	#endif
 
 	if (CVars::bxt_render_far_entities.GetInt() == 2 || (CVars::bxt_render_far_entities.GetBool() && spirit_sdk))
 		ent->v.renderfx = 22; // kRenderFxEntInPVS from Spirit SDK
@@ -2513,8 +2518,11 @@ HOOK_DEF_7(ServerDLL, int, __cdecl, AddToFullPack, struct entity_state_s*, state
 	ent->v.renderamt = oldRenderAmount;
 	ent->v.renderfx = oldRenderFx;
 	ent->v.flags = oldFlags;
+
+	#ifndef SDK10_BUILD
 	ent->v.iuser1 = oldIUser1;
 	ent->v.iuser2 = oldIUser2;
+	#endif
 
 	return ret;
 }
