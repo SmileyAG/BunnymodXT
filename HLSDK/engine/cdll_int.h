@@ -158,6 +158,7 @@ typedef struct cl_enginefuncs_s
 	void						( *pfnConsolePrint )		( const char *string );
 	void						( *pfnCenterPrint )			( const char *string );
 
+	// Functions below are present only in builds > 1202
 
 // Added for user input processing
 	int							( *GetWindowCenterX )		( void );

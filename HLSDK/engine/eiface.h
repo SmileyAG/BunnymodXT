@@ -218,6 +218,8 @@ typedef struct enginefuncs_s
 	cvar_t		*(*pfnCVarGetPointer)		(const char *szVarName);
 	unsigned int (*pfnGetPlayerWONId)		(edict_t *e); // returns the server assigned WONid for this player.  useful for logging frags, etc.  returns -1 if the edict couldn't be found in the list of clients
 
+	// Functions below are present only in builds > 1202
+
 	// YWB 8/1/99 TFF Physics additions
 	void		(*pfnInfo_RemoveKey)		( char *s, const char *key );
 	const char *(*pfnGetPhysicsKeyValue)	( const edict_t *pClient, const char *key );
@@ -453,6 +455,8 @@ typedef struct
 	void			(*pfnSpectatorConnect)		( edict_t *pEntity );
 	void			(*pfnSpectatorDisconnect)	( edict_t *pEntity );
 	void			(*pfnSpectatorThink)		( edict_t *pEntity );
+
+	// Functions below are present only in builds > 1202
 
 	// Notify game .dll that engine is going to shut down.  Allows mod authors to set a breakpoint.
 	void			(*pfnSys_Error)			( const char *error_string );
