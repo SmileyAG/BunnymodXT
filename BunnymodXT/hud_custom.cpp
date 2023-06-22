@@ -120,7 +120,10 @@ namespace CustomHud
 
 	static int DrawString(int x, int y, const char* s, float r, float g, float b)
 	{
+		#ifndef SDK10_BUILD
 		ClientDLL::GetInstance().pEngfuncs->pfnDrawSetTextColor(r, g, b);
+		#endif
+
 		return ClientDLL::GetInstance().pEngfuncs->pfnDrawConsoleString(x, y, const_cast<char*>(s));
 	}
 

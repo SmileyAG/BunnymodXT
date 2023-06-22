@@ -152,7 +152,11 @@ typedef struct cl_enginefuncs_s
 	client_textmessage_t		*( *pfnTextMessageGet )		( const char *pName );
 	int							( *pfnDrawCharacter )		( int x, int y, int number, int r, int g, int b );
 	int							( *pfnDrawConsoleString )	( int x, int y, char *string );
+
+	#ifndef SDK10_BUILD
 	void						( *pfnDrawSetTextColor )	( float r, float g, float b );
+	#endif
+
 	void						( *pfnDrawConsoleStringLen )(  const char *string, int *length, int *height );
 
 	void						( *pfnConsolePrint )		( const char *string );
