@@ -2351,61 +2351,57 @@ void ServerDLL::GetTriggerColor(const char *classname, float &r, float &g, float
 
 	if (is_ladder)
 	{
-		// Sky
-		r = 102;
-		g = 178;
-		b = 255;
+		r = 102; g = 178; b = 255; // Sky
 	}
 	else if (is_trigger)
 	{
 		classname += 8;
-		if (std::strcmp(classname, "changelevel") == 0) {
-			// Bright green
-			r = 79;
-			g = 255;
-			b = 10;
-		}
-		else if (std::strcmp(classname, "hurt") == 0) {
-			// Red
-			r = 255;
-			g = 0;
-			b = 0;
-		}
-		else if (std::strcmp(classname, "multiple") == 0) {
-			// Blue
-			r = 0;
-			g = 0;
-			b = 255;
-		}
-		else if (std::strcmp(classname, "once") == 0) {
-			// Cyan
-			r = 0;
-			g = 255;
-			b = 255;
-		}
-		else if (std::strcmp(classname, "push") == 0) {
-			// Bright yellow
-			r = 255;
-			g = 255;
-			b = 0;
-		}
-		else if (std::strcmp(classname, "teleport") == 0) {
-			// Dull green
-			r = 81;
-			g = 147;
-			b = 49;
-		}
-		else if (std::strcmp(classname, "transition") == 0) {
-			// Magenta
-			r = 203;
-			g = 103;
-			b = 212;
-		}
-		else {
-			// White
-			r = 255;
-			g = 255;
-			b = 255;
+		if (std::strcmp(classname, "autosave") == 0) {
+			r = 128; g = 128; b = 128; // Grey
+		} else if (std::strcmp(classname, "cdaudio") == 0) {
+			r = 128; g = 128; b = 0; // Olive
+		} else if (std::strcmp(classname, "changelevel") == 0) {
+			r = 79; g = 255; b = 10; // Bright green
+		} else if (std::strcmp(classname, "endsection") == 0) {
+			r = 150; g = 75; b = 0; // Brown
+		} else if (std::strcmp(classname, "gravity") == 0) {
+			r = 70; g = 130; b = 180; // Steel blue
+		} else if (std::strcmp(classname, "hurt") == 0) {
+			r = 255; g = 0; b = 0; // Red
+		} else if (std::strcmp(classname, "monsterjump") == 0) {
+			r = 238; g = 154; b = 77; // Brown Sand
+		} else if (std::strcmp(classname, "multiple") == 0) {
+			r = 0; g = 0; b = 255; // Blue
+		} else if (std::strcmp(classname, "once") == 0) {
+			r = 0; g = 255; b = 255; // Cyan
+		} else if (std::strcmp(classname, "push") == 0) {
+			r = 255; g = 255; b = 0; // Bright yellow
+		} else if (std::strcmp(classname, "teleport") == 0) {
+			r = 81; g = 147; b = 49; // Dull green
+		} else if (std::strcmp(classname, "transition") == 0) {
+			r = 203; g = 103; b = 212; // Magenta
+		} else if (std::strcmp(classname, "xen_return") == 0) { // HL: Opposing Force
+			r = 254; g = 255; b = 255;
+		} else if (std::strcmp(classname, "usetool") == 0) { // CS: Condition Zero Deleted Scenes
+			r = 253; g = 255; b = 255;
+		} else if (std::strcmp(classname, "stealth") == 0) { // CS: Condition Zero Deleted Scenes
+			r = 252; g = 255; b = 255;
+		} else if (std::strcmp(classname, "tank") == 0) { // Gunman Chronicles
+			r = 251; g = 255; b = 255;
+		} else if (std::strcmp(classname, "tankoutofgas") == 0) { // Gunman Chronicles
+			r = 250; g = 255; b = 255;
+		} else if (std::strcmp(classname, "tankshell") == 0) { // Gunman Chronicles
+			r = 249; g = 255; b = 255;
+		} else if (std::strcmp(classname, "coop_changelevel") == 0) { // Cry of Fear
+			r = 248; g = 255; b = 255;
+		} else if (std::strcmp(classname, "cofteleport") == 0) { // Cry of Fear
+			r = 247; g = 255; b = 255;
+		} else if (std::strcmp(classname, "checkbrush") == 0) { // Cry of Fear
+			r = 246; g = 255; b = 255;
+		} else if (std::strcmp(classname, "booksimon") == 0) { // Cry of Fear
+			r = 245; g = 255; b = 255;
+		} else {
+			r = 255; g = 255; b = 255; // White
 		}
 	}
 }
