@@ -1070,6 +1070,8 @@ void ClientDLL::RegisterCVarsAndCommands()
 
 	if (ORIG_HUD_AddEntity) {
 		REG(bxt_show_hidden_entities_clientside);
+		REG(bxt_show_hidden_entities_clientside_alpha);
+		REG(bxt_show_hidden_entities_clientside_type);
 		REG(bxt_show_only_players);
 		REG(bxt_disable_beams);
 		REG(bxt_disable_brush_entities);
@@ -1915,13 +1917,19 @@ HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent,
 	bool is_studio = (ent->model->type == mod_studio);
 	bool is_sprite = (ent->model->type == mod_sprite);
 	bool is_transcolor = (ent->curstate.rendermode == kRenderTransColor);
+	bool is_amt_zero = (ent->curstate.renderamt == 0);
 
-	if (CVars::bxt_show_hidden_entities_clientside.GetBool()) {
-		if (ent->curstate.rendermode != kRenderNormal)
-			ent->curstate.renderamt = 255;
+	if (CVars::bxt_show_hidden_entities_clientside.GetBool()) 
+	{
+		if (CVars::bxt_show_hidden_entities_clientside_type.GetBool() || is_amt_zero)
+		{
+			if (ent->curstate.rendermode != kRenderNormal)
+				ent->curstate.renderamt = std::clamp(CVars::bxt_show_hidden_entities_clientside_alpha.GetInt(), 0, 255);
+		}
 	}
 
-	if (CVars::bxt_colorize_entities.GetBool() && colorize_entities_set && !is_trigger && !is_sprite) {
+	if (CVars::bxt_colorize_entities.GetBool() && colorize_entities_set && !is_trigger && !is_sprite) 
+	{
 		ent->curstate.rendermode = kRenderTransColor;
 		ent->curstate.rendercolor.r = colorize_entities_r;
 		ent->curstate.rendercolor.g = colorize_entities_g;
