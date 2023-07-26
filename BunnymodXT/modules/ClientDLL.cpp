@@ -1906,12 +1906,21 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, CStudioModelRenderer__StudioSetupBones_Linu
 
 HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent, char*, modelname)
 {
+	bool is_trigger = (ent->curstate.renderfx == kRenderFxTrigger);
+	bool is_deadplayer = (ent->curstate.renderfx == kRenderFxDeadPlayer);
+	bool is_beam = (ent->curstate.entityType & ENTITY_BEAM);
+	bool is_tempent = (type == 2); // ET_TEMPENTITY from entity_types.h
+	bool is_brush = (ent->model->type == mod_brush);
+	bool is_studio = (ent->model->type == mod_studio);
+	bool is_sprite = (ent->model->type == mod_sprite);
+	bool is_transcolor = (ent->curstate.rendermode == kRenderTransColor);
+
 	if (CVars::bxt_show_hidden_entities_clientside.GetBool()) {
 		if (ent->curstate.rendermode != kRenderNormal)
 			ent->curstate.renderamt = 255;
 	}
 
-	if (CVars::bxt_colorize_entities.GetBool() && colorize_entities_set && (ent->curstate.renderfx != kRenderFxTrigger) && (ent->model->type != mod_sprite)) {
+	if (CVars::bxt_colorize_entities.GetBool() && colorize_entities_set && !is_trigger && !is_sprite) {
 		ent->curstate.rendermode = kRenderTransColor;
 		ent->curstate.rendercolor.r = colorize_entities_r;
 		ent->curstate.rendercolor.g = colorize_entities_g;
@@ -1919,24 +1928,24 @@ HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent,
 		ent->curstate.renderamt = std::clamp(CVars::bxt_colorize_entities_alpha.GetInt(), 0, 255);
 	}
 
-	if (ent->curstate.rendermode == kRenderTransColor && ent->curstate.renderfx == kRenderFxTrigger && CVars::bxt_show_triggers_legacy.GetBool())
+	if (is_transcolor && is_trigger && CVars::bxt_show_triggers_legacy.GetBool())
 		ent->curstate.renderamt = std::clamp(CVars::bxt_show_triggers_legacy_alpha.GetInt(), 0, 255);
 
 	if ((CVars::bxt_show_only_players.GetBool() && CVars::sv_cheats.GetBool() && !ent->player) || (CVars::bxt_disable_world.GetBool() && !CVars::sv_cheats.GetBool() && ent->player))
 		return 0;
 
-	if (CVars::bxt_disable_beams.GetBool() && (ent->model->type == mod_sprite) && (ent->curstate.entityType & ENTITY_BEAM))
+	if (CVars::bxt_disable_beams.GetBool() && is_sprite && is_beam)
 		return 0;
 
-	if (CVars::bxt_disable_brush_entities.GetBool() && ((!CVars::sv_cheats.GetBool() && ent->player) || (ent->model->type == mod_brush && ent->curstate.rendermode != kRenderTransColor && ent->curstate.renderfx != kRenderFxTrigger)))
+	if (CVars::bxt_disable_brush_entities.GetBool() && ((!CVars::sv_cheats.GetBool() && ent->player) || (is_brush && !is_transcolor && !is_trigger)))
 		return 0;
 
-	if ((CVars::bxt_disable_sprite_entities.GetBool() && ent->model->type == mod_sprite) || (CVars::bxt_disable_studio_entities.GetBool() && ent->model->type == mod_studio))
+	if ((CVars::bxt_disable_sprite_entities.GetBool() && is_sprite) || (CVars::bxt_disable_studio_entities.GetBool() && is_studio))
 		return 0;
 
 	if (pEngfuncs)
 	{
-		if (CVars::bxt_disable_player_corpses.GetBool() && ent->curstate.renderfx == kRenderFxDeadPlayer && pEngfuncs->pDemoAPI->IsPlayingback())
+		if (CVars::bxt_disable_player_corpses.GetBool() && is_deadplayer && pEngfuncs->pDemoAPI->IsPlayingback())
 			return 0;
 
 		#ifndef SDK10_BUILD
