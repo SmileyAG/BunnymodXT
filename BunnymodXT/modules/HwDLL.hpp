@@ -345,6 +345,12 @@ public:
 
 	bool is_cof_steam = false; // Cry of Fear-specific
 
+	#ifdef _WIN32
+	bool is_steamid_build = false;
+	#else
+	bool is_steamid_build = true;
+	#endif
+
 	int CallOnTASPlaybackFrame();
 	void CallOnTASPlaybackStopped();
 	void ResetTASPlaybackState();
@@ -505,6 +511,7 @@ protected:
 	struct Cmd_BXT_Splits_Track_Z;
 	struct Cmd_BXT_Splits_Place_Up;
 	struct Cmd_BXT_Splits_Place_Down;
+	struct Cmd_BXT_Get_SteamID_In_Demo;
 
 	void RegisterCVarsAndCommandsIfNeeded();
 	void InsertCommands();

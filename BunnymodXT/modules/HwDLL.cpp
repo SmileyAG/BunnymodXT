@@ -1394,9 +1394,11 @@ void HwDLL::FindStuff()
 				default:
 				case 0: // HL-Steampipe
 					ClientDLL::GetInstance().pEngfuncs = *reinterpret_cast<cl_enginefunc_t**>(reinterpret_cast<uintptr_t>(ClientDLL_Init) + 181);
+					is_steamid_build = true;
 					break;
 				case 1: // HL-4554
 					ClientDLL::GetInstance().pEngfuncs = *reinterpret_cast<cl_enginefunc_t**>(reinterpret_cast<uintptr_t>(ClientDLL_Init) + 226);
+					is_steamid_build = true;
 					break;
 				case 2: // HL-NGHL
 					ClientDLL::GetInstance().pEngfuncs = *reinterpret_cast<cl_enginefunc_t**>(reinterpret_cast<uintptr_t>(ClientDLL_Init) + 203);
@@ -1406,6 +1408,7 @@ void HwDLL::FindStuff()
 					break;
 				case 4: // CoF-5936
 					ClientDLL::GetInstance().pEngfuncs = *reinterpret_cast<cl_enginefunc_t**>(reinterpret_cast<uintptr_t>(ClientDLL_Init) + 230);
+					is_steamid_build = true;
 					break;
 				}
 			});
@@ -3171,6 +3174,24 @@ struct HwDLL::Cmd_BXT_CH_Get_Other_Player_Info
 		hw.ORIG_Con_Printf("vuser3: %f %f %f; XY = %f; XYZ = %f\n", vusr3.x, vusr3.y, vusr3.z, vusr3.Length2D(), vusr3.Length());
 		hw.ORIG_Con_Printf("vuser4: %f %f %f; XY = %f; XYZ = %f\n", vusr4.x, vusr4.y, vusr4.z, vusr4.Length2D(), vusr4.Length());
 		#endif
+	}
+};
+
+struct HwDLL::Cmd_BXT_Get_SteamID_In_Demo
+{
+	NO_USAGE();
+
+	static void handler()
+	{
+		auto& hw = HwDLL::GetInstance();
+		auto& cl = ClientDLL::GetInstance();
+		if (hw.is_steamid_build && cl.pEngfuncs->pDemoAPI->IsPlayingback())
+		{
+			int player = cl.pEngfuncs->GetLocalPlayer()->index;
+			player_info_s* player_info = hw.pEngStudio->PlayerInfo(player - 1);
+
+			hw.ORIG_Con_Printf("Steam ID: %" PRIu64 "\n", player_info->m_nSteamID);
+		}
 	}
 };
 
@@ -5174,6 +5195,7 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	wrapper::Add<Cmd_BXT_TAS_Split, Handler<const char *>>("bxt_tas_split");
 	wrapper::Add<Cmd_BXT_TAS_Editor_New, Handler<const char *, const char *, int>>("bxt_tas_editor_new");
 	wrapper::Add<Cmd_BXT_TAS_Check_Position, Handler<float, float, float>>("_bxt_tas_check_position");
+	wrapper::Add<Cmd_BXT_Get_SteamID_In_Demo, Handler<>>("bxt_get_steamid_in_demo");
 	wrapper::AddCheat<Cmd_BXT_CH_Set_Health, Handler<float>>("bxt_ch_set_health");
 	wrapper::AddCheat<Cmd_BXT_CH_Set_Armor, Handler<float>>("bxt_ch_set_armor");
 	wrapper::AddCheat<Cmd_BXT_CH_Set_Origin, Handler<float, float, float>>("bxt_ch_set_pos");
