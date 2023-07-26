@@ -91,6 +91,9 @@ public:
 	bool bxt_hud_color_set = false;
 	bool bxt_hud_color_fill = false;
 
+	unsigned char colorize_entities_r, colorize_entities_g, colorize_entities_b;
+	bool colorize_entities_set = false;
+
 	bool insideDrawAmmoHistory = false;
 	bool insideDrawHealthDamage = false;
 	bool insideDrawHealthPain = false;

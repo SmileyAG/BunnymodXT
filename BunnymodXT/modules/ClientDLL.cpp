@@ -1077,6 +1077,9 @@ void ClientDLL::RegisterCVarsAndCommands()
 		REG(bxt_disable_studio_entities);
 		REG(bxt_disable_player_corpses);
 		REG(bxt_hide_other_players);
+		REG(bxt_colorize_entities);
+		REG(bxt_colorize_entities_color);
+		REG(bxt_colorize_entities_alpha);
 	}
 
 	if (ORIG_ScaleColors) {
@@ -1591,9 +1594,13 @@ HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_Reset)
 HOOK_DEF_2(ClientDLL, void, __cdecl, HUD_Redraw, float, time, int, intermission)
 {
 	custom_hud_color_set = false;
+	colorize_entities_set = false;
 
 	if (sscanf(CVars::bxt_hud_game_color.GetString().c_str(), "%hhu %hhu %hhu", &custom_r, &custom_g, &custom_b) == 3)
 		custom_hud_color_set = true;
+
+	if (sscanf(CVars::bxt_colorize_entities_color.GetString().c_str(), "%hhu %hhu %hhu", &colorize_entities_r, &colorize_entities_g, &colorize_entities_b) == 3)
+		colorize_entities_set = true;
 
 	if (!CVars::bxt_disable_hud.GetBool())
 		ORIG_HUD_Redraw(time, intermission);
@@ -1902,6 +1909,14 @@ HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent,
 	if (CVars::bxt_show_hidden_entities_clientside.GetBool()) {
 		if (ent->curstate.rendermode != kRenderNormal)
 			ent->curstate.renderamt = 255;
+	}
+
+	if (CVars::bxt_colorize_entities.GetBool() && colorize_entities_set && (ent->curstate.renderfx != kRenderFxTrigger) && (ent->model->type != mod_sprite)) {
+		ent->curstate.rendermode = kRenderTransColor;
+		ent->curstate.rendercolor.r = colorize_entities_r;
+		ent->curstate.rendercolor.g = colorize_entities_g;
+		ent->curstate.rendercolor.b = colorize_entities_b;
+		ent->curstate.renderamt = std::clamp(CVars::bxt_colorize_entities_alpha.GetInt(), 0, 255);
 	}
 
 	if (ent->curstate.rendermode == kRenderTransColor && ent->curstate.renderfx == kRenderFxTrigger && CVars::bxt_show_triggers_legacy.GetBool())

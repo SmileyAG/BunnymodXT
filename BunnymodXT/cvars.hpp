@@ -97,6 +97,9 @@
 	X(bxt_disable_studio_entities, "0") \
 	X(bxt_disable_player_corpses, "0") \
 	X(bxt_hide_other_players, "0") \
+	X(bxt_colorize_entities, "0") \
+	X(bxt_colorize_entities_color, "0 255 0") \
+	X(bxt_colorize_entities_alpha, "255") \
 	X(bxt_disable_hud, "0") \
 	X(bxt_disable_nightvision_sprite, "0") \
 	X(bxt_autojump_prediction, "0") \
