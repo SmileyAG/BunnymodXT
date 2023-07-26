@@ -95,6 +95,7 @@
 	X(bxt_disable_brush_entities, "0") \
 	X(bxt_disable_sprite_entities, "0") \
 	X(bxt_disable_studio_entities, "0") \
+	X(bxt_disable_temp_entities, "0") \
 	X(bxt_disable_player_corpses, "0") \
 	X(bxt_hide_other_players, "0") \
 	X(bxt_colorize_entities, "0") \

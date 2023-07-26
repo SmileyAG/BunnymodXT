@@ -1075,6 +1075,7 @@ void ClientDLL::RegisterCVarsAndCommands()
 		REG(bxt_disable_brush_entities);
 		REG(bxt_disable_sprite_entities);
 		REG(bxt_disable_studio_entities);
+		REG(bxt_disable_temp_entities);
 		REG(bxt_disable_player_corpses);
 		REG(bxt_hide_other_players);
 		REG(bxt_colorize_entities);
@@ -1940,7 +1941,7 @@ HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent,
 	if (CVars::bxt_disable_brush_entities.GetBool() && ((!CVars::sv_cheats.GetBool() && ent->player) || (is_brush && !is_transcolor && !is_trigger)))
 		return 0;
 
-	if ((CVars::bxt_disable_sprite_entities.GetBool() && is_sprite) || (CVars::bxt_disable_studio_entities.GetBool() && is_studio))
+	if ((CVars::bxt_disable_sprite_entities.GetBool() && is_sprite) || (CVars::bxt_disable_studio_entities.GetBool() && is_studio) || (CVars::bxt_disable_temp_entities.GetBool() && is_tempent))
 		return 0;
 
 	if (pEngfuncs)
