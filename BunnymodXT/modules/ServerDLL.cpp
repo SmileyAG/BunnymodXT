@@ -2342,6 +2342,9 @@ void ServerDLL::DoAutoStopTasks()
 	}
 }
 
+// Attention: don't change the colors for existing triggers in that function!
+// Since it is also used when the server sends the values to the client if 'bxt_show_triggers_legacy' enabled (that helps to figure what exactly class of trigger is)
+// So, if needed to change the color of trigger classes on clientside (e.g. HUD_AddEntity), then you must to make a new function for that purpose
 void ServerDLL::GetTriggerColor(const char *classname, float &r, float &g, float &b)
 {
 	bool is_trigger = std::strncmp(classname, "trigger_", 8) == 0;
@@ -2404,6 +2407,60 @@ void ServerDLL::GetTriggerColor(const char *classname, float &r, float &g, float
 			r = 255; g = 255; b = 255; // White
 		}
 	}
+}
+
+const char* ServerDLL::GetClassNameFromTriggerColor(int r, int g, int b)
+{
+	if ((r == 102) && (g == 178) && (b == 255)) // Sky
+		return "func_ladder";
+	else if ((r == 128) && (g == 128) && (b == 128)) // Grey
+		return "trigger_autosave";
+	else if ((r == 128) && (g == 128) && (b == 0)) // Olive
+		return "trigger_cdaudio";
+	else if ((r == 79) && (g == 255) && (b == 10)) // Bright green
+		return "trigger_changelevel";
+	else if ((r == 150) && (g == 75) && (b == 0)) // Brown
+		return "trigger_endsection";
+	else if ((r == 70) && (g == 130) && (b == 180)) // Steel blue
+		return "trigger_gravity";
+	else if ((r == 255) && (g == 0) && (b == 0)) // Red
+		return "trigger_hurt";
+	else if ((r == 238) && (g == 154) && (b == 77)) // Brown Sand
+		return "trigger_monsterjump";
+	else if ((r == 0) && (g == 0) && (b == 255)) // Blue
+		return "trigger_multiple";
+	else if ((r == 0) && (g == 255) && (b == 255)) // Cyan
+		return "trigger_once";
+	else if ((r == 255) && (g == 255) && (b == 0)) // Bright yellow
+		return "trigger_push";
+	else if ((r == 81) && (g == 147) && (b == 49)) // Dull green
+		return "trigger_teleport";
+	else if ((r == 203) && (g == 103) && (b == 212)) // Magenta
+		return "trigger_transition";
+	else if ((r == 254) && (g == 255) && (b == 255))
+		return "trigger_xen_return";
+	else if ((r == 253) && (g == 255) && (b == 255))
+		return "trigger_usetool";
+	else if ((r == 252) && (g == 255) && (b == 255))
+		return "trigger_stealth";
+	else if ((r == 251) && (g == 255) && (b == 255))
+		return "trigger_tank";
+	else if ((r == 250) && (g == 255) && (b == 255))
+		return "trigger_tankoutofgas";
+	else if ((r == 249) && (g == 255) && (b == 255))
+		return "trigger_tankshell";
+	else if ((r == 248) && (g == 255) && (b == 255))
+		return "trigger_coop_changelevel";
+	else if ((r == 247) && (g == 255) && (b == 255))
+		return "trigger_cofteleport";
+	else if ((r == 246) && (g == 255) && (b == 255))
+		return "trigger_checkbrush";
+	else if ((r == 245) && (g == 255) && (b == 255))
+		return "trigger_booksimon";
+	else if ((r == 255) && (g == 255) && (b == 255)) // White
+		return "trigger_";
+
+	return "";
 }
 
 void ServerDLL::GetTriggerAlpha(const char *classname, bool inactive, bool additive, float &a)
