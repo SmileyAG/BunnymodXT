@@ -864,6 +864,7 @@ void HwDLL::FindStuff()
 		if (cls) {
 			EngineDevMsg("[hw dll] Found cls at %p.\n", cls);
 			demorecording = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cls) + 0x405c);
+			demoplayback = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cls) + 0x4060);
 		} else
 			EngineDevWarning("[hw dll] Could not find cls.\n");
 
@@ -1549,6 +1550,7 @@ void HwDLL::FindStuff()
 				}
 
 				demorecording = *reinterpret_cast<int**>(reinterpret_cast<uintptr_t>(ORIG_CL_Stop_f) + offset);
+				demoplayback = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(demorecording) + 0x4);
 			});
 
 		void *SCR_DrawFPS;
@@ -2139,6 +2141,7 @@ void HwDLL::FindStuff()
 			if (ORIG_CL_Stop_f) {
 				EngineDevMsg("[hw dll] Found CL_Stop_f at %p (using the %s pattern).\n", ORIG_CL_Stop_f, pattern->name());
 				EngineDevMsg("[hw dll] Found demorecording at %p.\n", demorecording);
+				EngineDevMsg("[hw dll] Found demoplayback at %p.\n", demoplayback);
 			} else {
 				EngineDevWarning("[hw dll] Could not find CL_Stop_f.\n");
 				ORIG_Cbuf_Execute = nullptr;
@@ -3185,7 +3188,7 @@ struct HwDLL::Cmd_BXT_Get_SteamID_In_Demo
 	{
 		auto& hw = HwDLL::GetInstance();
 		auto& cl = ClientDLL::GetInstance();
-		if (hw.is_steamid_build && cl.pEngfuncs->pDemoAPI->IsPlayingback())
+		if (hw.is_steamid_build && hw.IsPlayingbackDemo())
 		{
 			int player = cl.pEngfuncs->GetLocalPlayer()->index;
 			player_info_s* player_info = hw.pEngStudio->PlayerInfo(player - 1);
@@ -7576,9 +7579,9 @@ HOOK_DEF_5(HwDLL, void, __cdecl, PF_traceline_DLL, const Vector*, v1, const Vect
 
 HOOK_DEF_1(HwDLL, qboolean, __cdecl, CL_CheckGameDirectory, char*, gamedir)
 {
-	auto& cl = ClientDLL::GetInstance();
+	auto& hw = HwDLL::GetInstance();
 
-	if (cl.pEngfuncs && cl.pEngfuncs->pDemoAPI->IsPlayingback() && CVars::bxt_disable_gamedir_check_in_demo.GetBool())
+	if (hw.IsPlayingbackDemo() && CVars::bxt_disable_gamedir_check_in_demo.GetBool())
 		return true;
 	else
 		return ORIG_CL_CheckGameDirectory(gamedir);

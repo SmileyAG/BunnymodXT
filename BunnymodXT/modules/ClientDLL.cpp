@@ -1719,7 +1719,7 @@ HOOK_DEF_2(ClientDLL, int, __cdecl, HUD_UpdateClientData, client_data_t*, pcldat
 		pEngfuncs->pfnGetScreenInfo = [](SCREENINFO *pscrinfo) { return 0; };
 	}
 
-	if (pEngfuncs && !pEngfuncs->pDemoAPI->IsPlayingback())
+	if (!HwDLL::GetInstance().IsPlayingbackDemo())
 		discord_integration::on_update_client_data();
 
 	const auto rv = ORIG_HUD_UpdateClientData(pcldata, flTime);
@@ -1952,13 +1952,13 @@ HOOK_DEF_3(ClientDLL, int, __cdecl, HUD_AddEntity, int, type, cl_entity_s*, ent,
 	if ((CVars::bxt_disable_sprite_entities.GetBool() && is_sprite) || (CVars::bxt_disable_studio_entities.GetBool() && is_studio) || (CVars::bxt_disable_temp_entities.GetBool() && is_tempent))
 		return 0;
 
-	if (pEngfuncs)
+	if (HwDLL::GetInstance().IsPlayingbackDemo())
 	{
-		if (CVars::bxt_disable_player_corpses.GetBool() && is_deadplayer && pEngfuncs->pDemoAPI->IsPlayingback())
+		if (CVars::bxt_disable_player_corpses.GetBool() && is_deadplayer)
 			return 0;
 
 		#ifndef SDK10_BUILD
-		if (CVars::bxt_hide_other_players.GetBool() && ent->player && ent->index != ent->curstate.iuser2 && pEngfuncs->pDemoAPI->IsPlayingback())
+		if (CVars::bxt_hide_other_players.GetBool() && ent->player && ent->index != ent->curstate.iuser2)
 			return 0;
 		#endif
 	}
@@ -1974,7 +1974,7 @@ HOOK_DEF_0(ClientDLL, int, __cdecl, CL_IsThirdPerson)
 	auto pmove = reinterpret_cast<uintptr_t>(*ppmove);
 	int *iuser1 = reinterpret_cast<int*>(pmove + offIUser1);
 
-	if (pEngfuncs->pDemoAPI->IsPlayingback() && pEngfuncs->IsSpectateOnly() && (*iuser1 != 4))
+	if (HwDLL::GetInstance().IsPlayingbackDemo() && pEngfuncs->IsSpectateOnly() && (*iuser1 != 4))
 		return 1;
 
 	return ORIG_CL_IsThirdPerson();

@@ -210,6 +210,7 @@ public:
 	inline bool IsActive() { return (psv && *reinterpret_cast<int*>(psv)); }
 
 	inline bool IsRecordingDemo() const { return demorecording && *demorecording == 1; }
+	inline bool IsPlayingbackDemo() const { return demoplayback && *demoplayback == 1; }
 	void StoreCommand(const char* command);
 
 	inline double GetTime() const {
@@ -565,6 +566,7 @@ protected:
 	cmdbuf_t *cmd_text;
 	double *host_frametime;
 	int *demorecording;
+	int *demoplayback;
 	cmdalias_t* cmd_alias;
 	cvar_t **cvar_vars;
 	movevars_t *movevars;
