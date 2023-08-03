@@ -5177,6 +5177,18 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	CVars::skill.Assign(FindCVar("skill"));
 	CVars::host_framerate.Assign(FindCVar("host_framerate"));
 	CVars::sensitivity.Assign(FindCVar("sensitivity"));
+	CVars::gl_monolights.Assign(FindCVar("gl_monolights"));
+	CVars::r_fullbright.Assign(FindCVar("r_fullbright"));
+	CVars::pausable.Assign(FindCVar("pausable"));
+
+	CVars::net_graph.Assign(FindCVar("net_graph"));
+	CVars::fps_single.Assign(FindCVar("fps_single"));
+	CVars::fps_modem.Assign(FindCVar("fps_modem"));
+	CVars::fps_lan.Assign(FindCVar("fps_lan"));
+	CVars::rate.Assign(FindCVar("rate"));
+	CVars::cl_showfps.Assign(FindCVar("cl_showfps"));
+	CVars::r_netgraph.Assign(FindCVar("r_netgraph"));
+	CVars::maxfps.Assign(FindCVar("maxfps"));
 
 	FindCVarsIfNeeded();
 

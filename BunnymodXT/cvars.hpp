@@ -14,10 +14,21 @@
 	X(sv_stepsize) \
 	X(sv_bounce) \
 	X(fps_max) \
+	X(net_graph) \
+	X(fps_single) \
+	X(fps_modem) \
+	X(fps_lan) \
+	X(rate) \
+	X(cl_showfps) \
+	X(r_netgraph) \
+	X(maxfps) \
 	X(default_fov) \
 	X(skill) \
 	X(host_framerate) \
-	X(sensitivity)
+	X(sensitivity) \
+	X(gl_monolights) \
+	X(r_fullbright) \
+	X(pausable)
 
 #define DEFINE_CVARS(X) \
 	X(_bxt_taslog, "0") \
