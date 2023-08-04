@@ -91,9 +91,9 @@ namespace discord_integration
 
 				if (cl.pEngfuncs)
 				{
-					char gd[1024];
+					char gd[260];
 					// Game directory.
-					const char* gameDir = cl.pEngfuncs->pfnGetGameDirectory();
+					const char* gameDir = cl.GetGameDirectory();
 					if (gameDir && gameDir[0])
 					{
 						cl.FileBase(gameDir, gd);

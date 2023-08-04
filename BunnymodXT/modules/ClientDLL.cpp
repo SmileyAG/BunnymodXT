@@ -1309,7 +1309,7 @@ float ClientDLL::GetTime()
 	return 0.0f;
 }
 
-const char* ClientDLL::GetGameDir()
+const char* ClientDLL::GetGameDirectory()
 {
 	static char get_gamedir[260];
 
@@ -1379,8 +1379,8 @@ bool ClientDLL::DoesGameDirMatch(const char *game)
 	if (!pEngfuncs)
 		return false;
 
-	const char *gameDir = pEngfuncs->pfnGetGameDirectory();
-	char gd[1024];
+	const char *gameDir = GetGameDirectory();
+	char gd[260];
 
 	if (gameDir && gameDir[0])
 	{
@@ -1396,8 +1396,8 @@ bool ClientDLL::DoesGameDirContain(const char *game)
 	if (!pEngfuncs)
 		return false;
 
-	const char *gameDir = pEngfuncs->pfnGetGameDirectory();
-	char gd[1024];
+	const char *gameDir = GetGameDirectory();
+	char gd[260];
 
 	if (gameDir && gameDir[0])
 	{
@@ -1410,7 +1410,7 @@ bool ClientDLL::DoesGameDirContain(const char *game)
 
 size_t ClientDLL::GetMapName(char* dest, size_t count)
 {
-	auto map_path = pEngfuncs->pfnGetLevelName();
+	auto map_path = GetLevelName();
 
 	const char* slash = strrchr(map_path, '/');
 	if (!slash)

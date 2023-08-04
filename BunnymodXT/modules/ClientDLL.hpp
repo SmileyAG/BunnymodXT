@@ -134,7 +134,7 @@ public:
 	cl_entity_t *GetViewModel();
 	cl_entity_t *GetCurrentEntity();
 	float GetTime();
-	const char *GetGameDir();
+	const char *GetGameDirectory();
 	// WRAPPER FUNCTIONS - END
 
 	void SetupTraceVectors(float start[3], float end[3]);

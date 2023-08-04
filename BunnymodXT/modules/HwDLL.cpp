@@ -3190,7 +3190,7 @@ struct HwDLL::Cmd_BXT_Get_SteamID_In_Demo
 		auto& cl = ClientDLL::GetInstance();
 		if (hw.is_steamid_build && hw.IsPlayingbackDemo())
 		{
-			int player = cl.pEngfuncs->GetLocalPlayer()->index;
+			int player = cl.GetLocalPlayer()->index;
 			player_info_s* player_info = hw.pEngStudio->PlayerInfo(player - 1);
 
 			hw.ORIG_Con_Printf("Steam ID: %" PRIu64 "\n", player_info->m_nSteamID);
@@ -5097,7 +5097,7 @@ void HwDLL::SetTASLogging(bool enabled)
 			return;
 		}
 		const int buildNumber = ORIG_build_number ? ORIG_build_number() : -1;
-		const char *gameDir = ClientDLL::GetInstance().pEngfuncs->pfnGetGameDirectory();
+		const char *gameDir = ClientDLL::GetInstance().GetGameDirectory();
 		logWriter.StartLog(tasLogFile, BUNNYMODXT_VERSION, buildNumber, gameDir);
 		tasLogging = true;
 		ORIG_Con_Printf("Started TAS logging into %s\n", filename.c_str());
