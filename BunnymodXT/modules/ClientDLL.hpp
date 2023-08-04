@@ -122,6 +122,21 @@ public:
 	void FileBase(const char *in, char *out);
 	void ConvertToLowerCase(const char *str);
 
+	bool hlsdk_tables = true; // Only change it if the engine tables is completely differs
+
+	// WRAPPER FUNCTIONS - START
+	void GetViewAngles(float *va);
+	void SetViewAngles(float *va);
+	cl_entity_t *GetLocalPlayer();
+	const char *GetLevelName();
+	const char *GetLevelNameCl();
+	const char *GetLevelNameSv();
+	cl_entity_t *GetViewModel();
+	cl_entity_t *GetCurrentEntity();
+	float GetTime();
+	const char *GetGameDir();
+	// WRAPPER FUNCTIONS - END
+
 	void SetupTraceVectors(float start[3], float end[3]);
 
 private:

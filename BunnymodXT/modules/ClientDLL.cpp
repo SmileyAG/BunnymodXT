@@ -1154,6 +1154,182 @@ void ClientDLL::StudioAdjustViewmodelAttachments(Vector &vOrigin)
 	vOrigin = last_vieworg + vOut;
 }
 
+void ClientDLL::GetViewAngles(float *va)
+{
+	auto &hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		pEngfuncs->GetViewAngles(va);
+	}
+	/*
+	else if (hw.viewangles)
+	{
+		va[0] = hw.viewangles->x;
+		va[1] = hw.viewangles->y;
+		va[2] = hw.viewangles->z;
+	}
+	*/
+}
+
+void ClientDLL::SetViewAngles(float *va)
+{
+	auto &hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		pEngfuncs->SetViewAngles(va);
+	}
+	/*
+	else if (hw.viewangles)
+	{
+		hw.viewangles->x = va[0];
+		hw.viewangles->y = va[1];
+		hw.viewangles->z = va[2];
+	}
+	*/
+}
+
+cl_entity_t* ClientDLL::GetLocalPlayer()
+{
+	auto &hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		return pEngfuncs->GetLocalPlayer();
+	}
+	/*
+	else if (hw.cl_entities && hw.playernum)
+	{
+		int pl_num = *hw.playernum;
+		return (*hw.cl_entities) + pl_num + 1;
+	}
+	*/
+	else 
+	{
+		return NULL;
+	}
+}
+
+const char* ClientDLL::GetLevelName()
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.is_sdk10)
+		return GetLevelNameSv();
+	*/
+
+	return GetLevelNameCl();
+}
+
+const char* ClientDLL::GetLevelNameCl()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		return pEngfuncs->pfnGetLevelName();
+	}
+	/*
+	else if (hw.cls && hw.levelname)
+	{
+		int* state = reinterpret_cast<int*>(hw.cls);
+		if (*state < 3)
+			return "";
+
+		return hw.levelname;
+	}
+	*/
+
+	return "";
+}
+
+const char* ClientDLL::GetLevelNameSv()
+{
+	/*
+	auto &hw = HwDLL::GetInstance();
+	if (hw.psv && hw.offName)
+	{
+		auto levelname = reinterpret_cast<char*>(reinterpret_cast<uintptr_t>(hw.psv) + hw.offName);
+		return levelname;
+	}
+	*/
+
+	return "";
+}
+
+cl_entity_t* ClientDLL::GetViewModel()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		return pEngfuncs->GetViewModel();
+	}
+	/*
+	else if (hw.viewent)
+	{
+		return hw.viewent;
+	}
+	*/
+	else
+	{
+		return NULL;
+	}
+}
+
+cl_entity_t* ClientDLL::GetCurrentEntity()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.pEngStudio && hlsdk_tables)
+	{
+		return hw.pEngStudio->GetCurrentEntity();
+	}
+	/*
+	else if (hw.currententity)
+	{
+		return *hw.currententity;
+	}
+	*/
+	else
+	{
+		return NULL;
+	}
+}
+
+float ClientDLL::GetTime()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+	{
+		return pEngfuncs->GetClientTime();
+	}
+	/*
+	else if (hw.cl_time)
+	{
+		return static_cast<float>(*hw.cl_time);
+	}
+	*/
+
+	return 0.0f;
+}
+
+const char* ClientDLL::GetGameDir()
+{
+	static char get_gamedir[260];
+
+	auto& sv = ServerDLL::GetInstance();
+	if (sv.pEngfuncs && hlsdk_tables)
+	{
+		sv.pEngfuncs->pfnGetGameDir(get_gamedir); // Don't replace it with 'pfnGetGameDirectory', because it doesn't exist in older versions!
+		return get_gamedir;
+	}
+	/*
+	auto& hw = HwDLL::GetInstance();
+	else if (hw.com_gamedir)
+	{
+		return *hw.com_gamedir;
+	}
+	*/
+
+	return "";
+}
+
 void ClientDLL::FileBase(const char *in, char *out)
 {
 	int len, start, end;
