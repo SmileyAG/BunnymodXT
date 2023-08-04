@@ -6,6 +6,12 @@
 
 class ClientDLL : public IHookableNameFilter
 {
+	/*
+		All exported client functions in pre-HLSDK 2.0 versions:
+
+		HUD_Init, HUD_Redraw, HUD_Reset, HUD_UpdateClientData, HUD_VidInit, Initialize
+	*/
+
 	HOOK_DECL(void, __cdecl, PM_Jump)
 	HOOK_DECL(void, __cdecl, PM_PlayerMove, qboolean server)
 	HOOK_DECL(void, __cdecl, PM_PreventMegaBunnyJumping)

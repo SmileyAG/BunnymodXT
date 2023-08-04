@@ -15,6 +15,20 @@ struct client_t;
 
 class HwDLL : public IHookableNameFilterOrdered
 {
+	/*
+		Pre-HLSDK 2.0 engine versions export a large amount of functions, so might to look it for hooking with symbols instead of patterns
+		Don't forget that finding functions besides the hooking with patterns, could be also done by engine tables (cl_enginefunc_t, enginefuncs_t, engine_studio_api_t, engine_api_t)
+		Although, it's not recommendable to use because the HLSDK 1.0 and HLSDK 2.0+ tables is differs
+		To solve that issue partially, had to make the wrapper functions (see: ClientDLL module) and re-implementing those functions based on reverse-engineering from Steampipe linux version of engine
+
+		Addition about engine tables: 'engine_studio_api_t' and 'engine_api_t' started to exist from HLSDK 2.0 (WON 1.1.0.0 and newer)
+		But, 'engine_api_t' was removed somewhere before the 3xxx build, so it's only usable in WON versions that should also based on HLSDK 2.0+
+
+		By the way, if you have questions about how to get knowledge about differs in code of HLSDK 1.0 engine versions,
+		then it's possible to find across of internet the older versions of HLDS for Linux (software engine)
+		To be precise, the archive of Software linux WON 1.0.1.6 version is named as 'hlds_l3016.tar.gz'
+	*/
+
 	HOOK_DECL(void, __cdecl, LoadAndDecryptHwDLL, int a, void* b, void* c)
 	HOOK_DECL(void, __cdecl, Cbuf_Execute)
 	HOOK_DECL(void, __cdecl, Cbuf_AddText, const char* text)
