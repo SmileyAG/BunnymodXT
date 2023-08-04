@@ -2846,7 +2846,7 @@ struct HwDLL::Cmd_BXT_Get_Origin_And_Angles
 		auto &cl = ClientDLL::GetInstance();
 		auto &sv = ServerDLL::GetInstance();
 		float angles[3];
-		cl.pEngfuncs->GetViewAngles(angles);
+		cl.GetViewAngles(angles);
 
 		float view[3], end[3];
 		cl.SetupTraceVectors(view, end);
@@ -2934,7 +2934,7 @@ struct HwDLL::Cmd_BXT_Set_Angles
 		vec[0] = x;
 		vec[1] = y;
 		vec[2] = 0.0f;
-		cl.pEngfuncs->SetViewAngles(vec);
+		cl.SetViewAngles(vec);
 	}
 
 	static void handler(float x, float y, float z)
@@ -2944,7 +2944,7 @@ struct HwDLL::Cmd_BXT_Set_Angles
 		vec[0] = x;
 		vec[1] = y;
 		vec[2] = z;
-		cl.pEngfuncs->SetViewAngles(vec);
+		cl.SetViewAngles(vec);
 	}
 };
 
@@ -5380,7 +5380,7 @@ void HwDLL::InsertCommands()
 						}
 
 						// Hope the viewangles aren't changed in ClientDLL's HUD_UpdateClientData() (that happens later in Host_Frame()).
-						ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
+						ClientDLL::GetInstance().GetViewAngles(player.Viewangles);
 						//ORIG_Con_Printf("Player viewangles: %f %f %f\n", player.Viewangles[0], player.Viewangles[1], player.Viewangles[2]);
 					}
 				}
@@ -6049,7 +6049,7 @@ void HwDLL::InsertCommands()
 					}
 
 					// Hope the viewangles aren't changed in ClientDLL's HUD_UpdateClientData() (that happens later in Host_Frame()).
-					ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
+					ClientDLL::GetInstance().GetViewAngles(player.Viewangles);
 					//ORIG_Con_Printf("Player viewangles: %f %f %f\n", player.Viewangles[0], player.Viewangles[1], player.Viewangles[2]);
 				}
 			}
@@ -6184,7 +6184,7 @@ HLStrafe::PlayerData HwDLL::GetPlayerData()
 		player.HasLJModule = false;
 	}
 
-	ClientDLL::GetInstance().pEngfuncs->GetViewAngles(player.Viewangles);
+	ClientDLL::GetInstance().GetViewAngles(player.Viewangles);
 
 	return player;
 }
@@ -7321,13 +7321,11 @@ HOOK_DEF_0(HwDLL, void, __cdecl, SV_SetMoveVars)
 
 HOOK_DEF_0(HwDLL, void, __cdecl, R_StudioCalcAttachments)
 {
-	const auto &cl = ClientDLL::GetInstance();
+	auto &cl = ClientDLL::GetInstance();
 
-	if (cl.pEngfuncs && pEngStudio) {
-		auto currententity = pEngStudio->GetCurrentEntity();
-		if (currententity == cl.pEngfuncs->GetViewModel() && NeedViewmodelAdjustments())
-			insideRStudioCalcAttachmentsViewmodel = true;
-	}
+	auto currententity = cl.GetCurrentEntity();
+	if (currententity && (currententity == cl.GetViewModel()) && NeedViewmodelAdjustments())
+		insideRStudioCalcAttachmentsViewmodel = true;
 
 	ORIG_R_StudioCalcAttachments();
 	insideRStudioCalcAttachmentsViewmodel = false;
@@ -7382,12 +7380,12 @@ HOOK_DEF_0(HwDLL, void, __cdecl, R_StudioSetupBones)
 {
 	if (pstudiohdr && pEngStudio) {
 		auto& cl = ClientDLL::GetInstance();
-		auto currententity = pEngStudio->GetCurrentEntity();
+		auto currententity = cl.GetCurrentEntity();
 		auto pseqdesc = reinterpret_cast<mstudioseqdesc_t*>(reinterpret_cast<byte*>(*pstudiohdr) +
 			(*pstudiohdr)->seqindex) + currententity->curstate.sequence;
 
 		if (cl.pEngfuncs) {
-			if (currententity == cl.pEngfuncs->GetViewModel()) {
+			if (currententity == cl.GetViewModel()) {
 				if (cl.orig_righthand_not_found && CVars::cl_righthand.GetFloat() > 0)
 				{
 					float(*rotationmatrix)[3][4] = reinterpret_cast<float(*)[3][4]>(pEngStudio->StudioGetRotationMatrix());
@@ -7491,19 +7489,23 @@ HOOK_DEF_0(HwDLL, int, __cdecl, BUsesSDLInput)
 
 HOOK_DEF_0(HwDLL, void, __cdecl, R_StudioRenderModel)
 {
-	if (pEngStudio) {
-		auto& cl = ClientDLL::GetInstance();
-		auto currententity = pEngStudio->GetCurrentEntity();
+	auto& cl = ClientDLL::GetInstance();
+	if (cl.pEngfuncs && pEngStudio) 
+	{
+		auto currententity = cl.GetCurrentEntity();
 
 		int old_rendermode = currententity->curstate.rendermode;
 
-		if (cl.pEngfuncs) {
-			if (currententity == cl.pEngfuncs->GetViewModel()) {
-				if (CVars::bxt_viewmodel_semitransparent.GetBool()) {
+		if (currententity == cl.GetViewModel()) 
+		{
+			if (CVars::bxt_viewmodel_semitransparent.GetBool()) 
+			{
 				cl.pEngfuncs->pTriAPI->RenderMode(kRenderTransAdd);
 				cl.pEngfuncs->pTriAPI->Brightness(2);
-			} else {
-				cl.pEngfuncs->pTriAPI->RenderMode(old_rendermode); }
+			} 
+			else 
+			{
+				cl.pEngfuncs->pTriAPI->RenderMode(old_rendermode);
 			}
 		}
 	}

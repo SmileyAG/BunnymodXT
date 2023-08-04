@@ -1099,7 +1099,7 @@ namespace TriangleDrawing
 					origin_before_rmb_adjustment = hw.cameraOverrideOrigin;
 					angles_before_rmb_adjustment = cl.last_viewangles;
 
-					cl.pEngfuncs->SetViewAngles(viewangles);
+					cl.SetViewAngles(viewangles);
 
 					const auto& player = player_datas[selection.initial_frame];
 					hw.cameraOverrideOrigin = player.Origin;
@@ -1123,7 +1123,7 @@ namespace TriangleDrawing
 					origin_before_rmb_adjustment = hw.cameraOverrideOrigin;
 					angles_before_rmb_adjustment = cl.last_viewangles;
 
-					cl.pEngfuncs->SetViewAngles(viewangles);
+					cl.SetViewAngles(viewangles);
 
 					const auto& player = player_datas[selection.initial_frame];
 					hw.cameraOverrideOrigin = player.Origin;
@@ -1183,7 +1183,7 @@ namespace TriangleDrawing
 			if (right_got_released) {
 				if (origin_before_rmb_adjustment != Vector()) {
 					hw.cameraOverrideOrigin = origin_before_rmb_adjustment;
-					cl.pEngfuncs->SetViewAngles(angles_before_rmb_adjustment);
+					cl.SetViewAngles(angles_before_rmb_adjustment);
 				}
 				origin_before_rmb_adjustment = Vector();
 				angles_before_rmb_adjustment = Vector();

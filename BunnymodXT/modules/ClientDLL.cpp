@@ -1281,9 +1281,9 @@ cl_entity_t* ClientDLL::GetCurrentEntity()
 		return hw.pEngStudio->GetCurrentEntity();
 	}
 	/*
-	else if (hw.currententity)
+	else if (hw.currentent)
 	{
-		return *hw.currententity;
+		return *hw.currentent;
 	}
 	*/
 	else
@@ -1672,7 +1672,7 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, V_CalcRefdef, ref_params_t*, pparams)
 	float up_offset = CVars::bxt_viewmodel_ofs_up.GetFloat();
 
 	if (pEngfuncs) {
-		auto view = pEngfuncs->GetViewModel();
+		auto view = GetViewModel();
 
 		if (!paused) {
 			if (orig_righthand_not_found && CVars::cl_righthand.GetFloat() > 0)
@@ -1933,8 +1933,8 @@ HOOK_DEF_1(ClientDLL, void, __fastcall, CStudioModelRenderer__StudioCalcAttachme
 
 	if (pEngfuncs && hw.pEngStudio)
 	{
-		auto currententity = hw.pEngStudio->GetCurrentEntity();
-		if (currententity == pEngfuncs->GetViewModel() && HwDLL::GetInstance().NeedViewmodelAdjustments())
+		auto currententity = GetCurrentEntity();
+		if (currententity == GetViewModel() && hw.NeedViewmodelAdjustments())
 			insideStudioCalcAttachmentsViewmodel = true;
 	}
 	ORIG_CStudioModelRenderer__StudioCalcAttachments(thisptr);
@@ -1947,8 +1947,8 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, CStudioModelRenderer__StudioCalcAttachments
 
 	if (pEngfuncs && hw.pEngStudio)
 	{
-		auto currententity = hw.pEngStudio->GetCurrentEntity();
-		if (currententity == pEngfuncs->GetViewModel() && HwDLL::GetInstance().NeedViewmodelAdjustments())
+		auto currententity = GetCurrentEntity();
+		if (currententity == GetViewModel() && hw.NeedViewmodelAdjustments())
 			insideStudioCalcAttachmentsViewmodel = true;
 	}
 	ORIG_CStudioModelRenderer__StudioCalcAttachments_Linux(thisptr);
@@ -1999,7 +1999,7 @@ HOOK_DEF_1(ClientDLL, void, __fastcall, CStudioModelRenderer__StudioSetupBones, 
 		pStudioHeader->seqindex) + pCurrentEntity->curstate.sequence;
 
 	if (pEngfuncs) {
-		if (pCurrentEntity == pEngfuncs->GetViewModel()) {
+		if (pCurrentEntity == GetViewModel()) {
 			if (orig_righthand_not_found && CVars::cl_righthand.GetFloat() > 0)
 			{
 				float(*rotationmatrix)[3][4] = reinterpret_cast<float(*)[3][4]>(HwDLL::GetInstance().pEngStudio->StudioGetRotationMatrix());
@@ -2050,7 +2050,7 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, CStudioModelRenderer__StudioSetupBones_Linu
 		pStudioHeader->seqindex) + pCurrentEntity->curstate.sequence;
 
 	if (pEngfuncs) {
-		if (pCurrentEntity == pEngfuncs->GetViewModel()) {
+		if (pCurrentEntity == GetViewModel()) {
 			if (orig_righthand_not_found && CVars::cl_righthand.GetFloat() > 0)
 			{
 				float(*rotationmatrix)[3][4] = reinterpret_cast<float(*)[3][4]>(HwDLL::GetInstance().pEngStudio->StudioGetRotationMatrix());
@@ -2169,7 +2169,7 @@ HOOK_DEF_1(ClientDLL, void, __fastcall, CStudioModelRenderer__StudioRenderModel,
 	int old_rendermode = pCurrentEntity->curstate.rendermode;
 
 	if (pEngfuncs) {
-		if (pCurrentEntity == pEngfuncs->GetViewModel()) {
+		if (pCurrentEntity == GetViewModel()) {
 			if (CVars::bxt_viewmodel_semitransparent.GetBool()) {
 				pEngfuncs->pTriAPI->RenderMode(kRenderTransAdd);
 				pEngfuncs->pTriAPI->Brightness(2);
@@ -2195,7 +2195,7 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, CStudioModelRenderer__StudioRenderModel_Lin
 	int old_rendermode = pCurrentEntity->curstate.rendermode;
 
 	if (pEngfuncs) {
-		if (pCurrentEntity == pEngfuncs->GetViewModel()) {
+		if (pCurrentEntity == GetViewModel()) {
 			if (CVars::bxt_viewmodel_semitransparent.GetBool()) {
 				pEngfuncs->pTriAPI->RenderMode(kRenderTransAdd);
 				pEngfuncs->pTriAPI->Brightness(2);
