@@ -1292,7 +1292,7 @@ cl_entity_t* ClientDLL::GetCurrentEntity()
 	}
 }
 
-float ClientDLL::GetTime()
+float ClientDLL::GetTimeCl()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
@@ -1323,11 +1323,121 @@ const char* ClientDLL::GetGameDirectory()
 	auto& hw = HwDLL::GetInstance();
 	else if (hw.com_gamedir)
 	{
-		return *hw.com_gamedir;
+		return hw.com_gamedir;
 	}
 	*/
 
 	return "";
+}
+
+void ClientDLL::DrawSetTextColor(float r, float g, float b)
+{
+	#ifndef SDK10_BUILD
+	if (pEngfuncs && hlsdk_tables)
+	{
+		pEngfuncs->pfnDrawSetTextColor(r, g, b);
+		return;
+	}
+	#endif
+
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ORIG_Draw_SetTextColor)
+	{
+		hw.ORIG_Draw_SetTextColor(r, g, b);
+	}
+	*/
+}
+
+int ClientDLL::DrawString(int x, int y, const char* str)
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ORIG_Draw_String)
+	{
+		return hw.ORIG_Draw_String(x, y, const_cast<char*>(str));
+	}	
+	else*/ if (pEngfuncs && hlsdk_tables)
+	{
+		return pEngfuncs->pfnDrawConsoleString(x, y, const_cast<char*>(str));
+	}
+
+	return 0;
+}
+
+Vector ClientDLL::GetRefdefViewAngles()
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.r_refdef && !ORIG_V_CalcRefdef)
+	{
+		return hw.r_refdef->viewangles;
+	}
+	*/
+
+	return last_viewangles;
+}
+
+Vector ClientDLL::GetRefdefViewOrigin()
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.r_refdef && !ORIG_V_CalcRefdef)
+	{
+		return hw.r_refdef->vieworg;
+	}
+	*/
+
+	return last_vieworg;
+}
+
+/*
+Vector ClientDLL::GetRefdefSimVelocity()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.simvel && !ORIG_V_CalcRefdef)
+	{
+		return *hw.simvel;
+	}
+
+	return last_simvel;
+}
+
+Vector ClientDLL::GetRefdefSimOrigin()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.simorg && !ORIG_V_CalcRefdef)
+	{
+		return *hw.simorg;
+	}
+
+	return last_simorg;
+}
+*/
+
+float ClientDLL::GetFOV()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.scr_fov_value)
+		return *hw.scr_fov_value;
+	else if (ORIG_HUD_UpdateClientData)
+		return hw.currentRenderFOV;
+
+	return 0.0f;
+}
+
+float ClientDLL::GetFOVFromCvar()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.scr_fov_value && (CVars::bxt_force_fov.GetFloat() >= 1.0) && (CVars::bxt_force_fov.GetFloat() <= 179.0))
+	{
+		if (CVars::bxt_fix_widescreen_fov.GetBool())
+			return *hw.scr_fov_value;
+		else
+			return CVars::bxt_force_fov.GetFloat();
+	}
+
+	return CVars::default_fov.GetFloat();
 }
 
 void ClientDLL::FileBase(const char *in, char *out)

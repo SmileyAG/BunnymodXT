@@ -125,6 +125,7 @@ public:
 	bool hlsdk_tables = true; // Only change it if the engine tables is completely differs
 
 	// WRAPPER FUNCTIONS - START
+
 	void GetViewAngles(float *va);
 	void SetViewAngles(float *va);
 	cl_entity_t *GetLocalPlayer();
@@ -133,8 +134,17 @@ public:
 	const char *GetLevelNameSv();
 	cl_entity_t *GetViewModel();
 	cl_entity_t *GetCurrentEntity();
-	float GetTime();
+	float GetTimeCl();
 	const char *GetGameDirectory();
+	void DrawSetTextColor(float r, float g, float b);
+	int DrawString(int x, int y, const char* str);
+	Vector GetRefdefViewAngles();
+	Vector GetRefdefViewOrigin();
+	//Vector GetRefdefSimVelocity();
+	//Vector GetRefdefSimOrigin();
+	float GetFOV();
+	float GetFOVFromCvar();
+
 	// WRAPPER FUNCTIONS - END
 
 	void SetupTraceVectors(float start[3], float end[3]);

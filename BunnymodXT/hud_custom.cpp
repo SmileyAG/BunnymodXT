@@ -513,7 +513,7 @@ namespace CustomHud
 			out.setf(std::ios::fixed);
 			out.precision(precision);
 
-			auto time = ServerDLL::GetInstance().GetTime();
+			auto time = ServerDLL::GetInstance().GetTimeSv();
 			auto v_forward = ClientDLL::GetInstance().AnglesToForward(player.viewangles);
 			float flDamage = 200;
 			if (time < 4.0f)

@@ -3337,7 +3337,7 @@ struct HwDLL::Cmd_BXT_Get_Server_Time
 
 	static void handler()
 	{
-		HwDLL::GetInstance().ORIG_Con_Printf("Server time: %f\n", ServerDLL::GetInstance().GetTime());
+		HwDLL::GetInstance().ORIG_Con_Printf("Server time: %f\n", ServerDLL::GetInstance().GetTimeSv());
 	}
 };
 
@@ -7515,7 +7515,7 @@ HOOK_DEF_0(HwDLL, void, __cdecl, R_StudioRenderModel)
 
 HOOK_DEF_0(HwDLL, void, __cdecl, R_SetFrustum)
 {
-	if (CVars::bxt_force_fov.GetFloat() >= 1.0)
+	if ((CVars::bxt_force_fov.GetFloat() >= 1.0) && (CVars::bxt_force_fov.GetFloat() <= 179.0))
 		*scr_fov_value = CVars::bxt_force_fov.GetFloat();
 
 	static float prev_calc_fov;
@@ -7535,7 +7535,7 @@ HOOK_DEF_0(HwDLL, void, __cdecl, R_SetFrustum)
 			*scr_fov_value = std::clamp(calc_fov, 10.0f, 150.0f); 
 			
 			// Engine does the clamp of FOV if less 10 or higher than 150
-			// Although, it could be extended to 1 for min. value and 180 for max. value
+			// Although, it could be extended to 1 for min. value and 179 for max. value
 
 			prev_calc_fov = calc_fov;
 		}

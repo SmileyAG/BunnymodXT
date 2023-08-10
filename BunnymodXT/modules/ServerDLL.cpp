@@ -2860,7 +2860,7 @@ bool ServerDLL::GetGlobalState(const std::string& name, int& state)
 	return false;
 }
 
-float ServerDLL::GetTime()
+float ServerDLL::GetTimeSv()
 {
 	if (HwDLL::GetInstance().ppGlobals)
 		return HwDLL::GetInstance().ppGlobals->time;
