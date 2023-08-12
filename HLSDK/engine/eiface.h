@@ -15,10 +15,16 @@
 #ifndef EIFACE_H
 #define EIFACE_H
 
-#ifdef SDK10_BUILD
-#define INTERFACE_VERSION		138
+#ifdef HL_DAYONE_BUILD
+#define INTERFACE_VERSION		121 // Only used in Half-Life: Day One (676 build)
+#elif HL_RELEASE_BUILD
+#define INTERFACE_VERSION		129 // Used from release (738 build), the final version is 1.0.0.6
+#elif HL_1008_VERSION_BUILD
+#define INTERFACE_VERSION		130 // Only used in 1.0.0.8 patch
+#elif SDK10_BUILD
+#define INTERFACE_VERSION		138 // Used from 1.0.0.9 patch, the final version is 1.0.1.6 (1202 build)
 #else
-#define INTERFACE_VERSION		140
+#define INTERFACE_VERSION		140 // Used from 1.1.0.0 patch
 #endif
 
 #include <stdio.h>
@@ -96,6 +102,14 @@ typedef struct
 
 #include "../common/crc.h"
 
+/* 
+	Interface aligns in HLSDK 2.0+, Cry of Fear [Steam] and Sven Co-op engines
+	It's could be also used for HLSDK 1.0 builds if removing a few unimplemented functions with preprocessor flags as it presented below
+
+	That interface is completely differs in James Bond 007: Nightfire [PC]
+	But it's possible to find the macOS version of the game, that would a lot help with reversing it due of more debug info
+*/
+
 // Engine hands this to DLLs for functionality callbacks
 typedef struct enginefuncs_s
 {
@@ -139,7 +153,11 @@ typedef struct enginefuncs_s
 	void		(*pfnTraceSphere)			(const float *v1, const float *v2, int fNoMonsters, float radius, edict_t *pentToSkip, TraceResult *ptr);
 	void		(*pfnGetAimVector)			(edict_t* ent, float speed, float *rgflReturn);
 	void		(*pfnServerCommand)			(char* str);
+
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
 	void		(*pfnServerExecute)			(void);
+#endif
+
 	void		(*pfnClientCommand)			(edict_t* pEdict, char* szFmt, ...);
 	void		(*pfnParticleEffect)		(const float *org, const float *dir, float color, float count);
 	void		(*pfnLightStyle)			(int style, char* val);
@@ -155,7 +173,11 @@ typedef struct enginefuncs_s
 	void		(*pfnWriteCoord)			(float flValue);
 	void		(*pfnWriteString)			(const char *sz);
 	void		(*pfnWriteEntity)			(int iValue);
+
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
 	void		(*pfnCVarRegister)			(cvar_t *pCvar);
+#endif
+
 	float		(*pfnCVarGetFloat)			(const char *szVarName);
 	const char*	(*pfnCVarGetString)			(const char *szVarName);
 	void		(*pfnCVarSetFloat)			(const char *szVarName, float flValue);
@@ -180,7 +202,11 @@ typedef struct enginefuncs_s
 	unsigned long (*pfnFunctionFromName)	( const char *pName );
 	const char *(*pfnNameForFunction)		( unsigned long function );
 	void		(*pfnClientPrintf)			( edict_t* pEdict, PRINT_TYPE ptype, const char *szMsg ); // JOHN: engine callbacks so game DLL can print messages to individual clients
+
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
 	void		(*pfnServerPrint)			( const char *szMsg );
+#endif
+
 	const char *(*pfnCmd_Args)				( void );		// these 3 added 
 	const char *(*pfnCmd_Argv)				( int argc );	// so game DLL can easily 
 	int			(*pfnCmd_Argc)				( void );		// access client 'cmd' strings
@@ -199,6 +225,9 @@ typedef struct enginefuncs_s
 	void        (*pfnEndSection)            (const char *pszSectionName); // trigger_endsection
 	int 		(*pfnCompareFileTime)       (char *filename1, char *filename2, int *iCompare);
 	void        (*pfnGetGameDir)            (char *szGetGameDir);
+
+	// Functions below are present only in builds > 676
+
 	void		(*pfnCvar_RegisterVariable) (cvar_t *variable);
 	void        (*pfnFadeClientVolume)      (const edict_t *pEdict, int fadePercent, int fadeOutSeconds, int holdTime, int fadeInSeconds);
 	void        (*pfnSetClientMaxspeed)     (const edict_t *pEdict, float fNewMaxspeed);
@@ -208,8 +237,15 @@ typedef struct enginefuncs_s
 	char*		(*pfnGetInfoKeyBuffer)		(edict_t *e);	// passing in NULL gets the serverinfo
 	char*		(*pfnInfoKeyValue)			(char *infobuffer, char *key);
 	void		(*pfnSetKeyValue)			(char *infobuffer, char *key, char *value);
+
+#if !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
 	void		(*pfnSetClientKeyValue)		(int clientIndex, char *infobuffer, char *key, char *value);
+#endif
+
 	int			(*pfnIsMapValid)			(char *filename);
+
+	// Functions below are present only in builds > 738
+
 	void		(*pfnStaticDecal)			( const float *origin, int decalIndex, int entityIndex, int modelIndex );
 	int			(*pfnPrecacheGeneric)		(char* s);
 	int			(*pfnGetPlayerUserId)		(edict_t *e ); // returns the server assigned userid for this player.  useful for logging frags, etc.  returns -1 if the edict couldn't be found in the list of clients
@@ -408,8 +444,11 @@ typedef struct
 
 typedef struct 
 {
+	#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
 	// Initialize/shutdown the game (one-time call after loading of game .dll )
-	void			(*pfnGameInit)			( void );				
+	void			(*pfnGameInit)			( void );
+	#endif
+		
 	int				(*pfnSpawn)				( edict_t *pent );
 	void			(*pfnThink)				( edict_t *pent );
 	void			(*pfnUse)				( edict_t *pentUsed, edict_t *pentOther );
@@ -418,7 +457,10 @@ typedef struct
 	void			(*pfnKeyValue)			( edict_t *pentKeyvalue, KeyValueData *pkvd );
 	void			(*pfnSave)				( edict_t *pent, SAVERESTOREDATA *pSaveData );
 	int 			(*pfnRestore)			( edict_t *pent, SAVERESTOREDATA *pSaveData, int globalEntity );
+
+	#ifndef HL_DAYONE_BUILD
 	void			(*pfnSetAbsBox)			( edict_t *pent );
+	#endif
 
 	void			(*pfnSaveWriteFields)	( SAVERESTOREDATA *, const char *, void *, TYPEDESCRIPTION *, int );
 	void			(*pfnSaveReadFields)	( SAVERESTOREDATA *, const char *, void *, TYPEDESCRIPTION *, int );
@@ -433,7 +475,10 @@ typedef struct
 	void			(*pfnClientKill)		( edict_t *pEntity );
 	void			(*pfnClientPutInServer)	( edict_t *pEntity );
 	void			(*pfnClientCommand)		( edict_t *pEntity );
+
+	#ifndef HL_DAYONE_BUILD
 	void			(*pfnClientUserInfoChanged)( edict_t *pEntity, char *infobuffer );
+	#endif
 
 	void			(*pfnServerActivate)	( edict_t *pEdictList, int edictCount, int clientMax );
 

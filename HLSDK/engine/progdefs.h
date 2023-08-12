@@ -18,6 +18,12 @@
 #pragma once
 #endif
 
+/*
+	Size of 'globalvars_t' in HL: Day One is definitely differs from the HLSDK version
+	Size of 'globalvars_t' in HLSDK is 0xAC (172)
+	Size of 'globalvars_t' in James Bond 007: Nightfire [PC] is longer by at least 4 bytes (that variable should be located somewhere after 'trace_flags' and before 'maxClients')
+*/
+
 typedef struct
 {	
 	float		time;
@@ -54,6 +60,13 @@ typedef struct
 	vec3_t		vecLandmarkOffset;
 } globalvars_t;
 
+/*
+	Size of 'entvars_t' in HLSDK 1.0 [WON 1.0 - 1.0.0.8] is 0x1F0 (496)
+	Size of 'entvars_t' in HLSDK 1.0 [WON 1.0.0.9 - 1.0.1.6] is 0x1EC (492)
+	Size of 'entvars_t' in HLSDK 2.0+ builds is 0x2A4 (676)
+	Size of 'entvars_t' in Cry of Fear [Steam] is 0x2AC (684)
+	Size of 'entvars_t' in James Bond 007: Nightfire [PC] is 0x2C0 (704)
+*/
 
 typedef struct entvars_s
 {

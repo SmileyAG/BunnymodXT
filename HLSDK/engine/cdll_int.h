@@ -108,6 +108,13 @@ typedef struct hud_player_info_s
 	uint64 m_nSteamID;
 } hud_player_info_t;
 
+/* 
+	Interface aligns in HLSDK 2.0+, Cry of Fear [Steam] and Sven Co-op engines
+	It's could be also used for HLSDK 1.0 builds if removing a few unimplemented functions with preprocessor flags as it presented below
+
+	That interface is completely differs in James Bond 007: Nightfire [PC]
+	But it's possible to find the macOS version of the game, that would a lot help with reversing it due of more debug info
+*/
 
 typedef struct cl_enginefuncs_s
 {
@@ -152,6 +159,9 @@ typedef struct cl_enginefuncs_s
 	// text message system
 	client_textmessage_t		*( *pfnTextMessageGet )		( const char *pName );
 	int							( *pfnDrawCharacter )		( int x, int y, int number, int r, int g, int b );
+
+	// Functions below are present only in builds > 676
+
 	int							( *pfnDrawConsoleString )	( int x, int y, char *string );
 
 	#ifndef SDK10_BUILD
@@ -161,6 +171,9 @@ typedef struct cl_enginefuncs_s
 	void						( *pfnDrawConsoleStringLen )(  const char *string, int *length, int *height );
 
 	void						( *pfnConsolePrint )		( const char *string );
+
+	// Functions below are present only in builds > 738
+
 	void						( *pfnCenterPrint )			( const char *string );
 
 	// Functions below are present only in builds > 1202
@@ -320,7 +333,17 @@ typedef struct cl_enginefuncs_s
 #include "../common/in_buttons.h"
 #endif
 
+#ifdef HL_DAYONE_BUILD
+#define CLDLL_INTERFACE_VERSION		2
+#elif HL_RELEASE_BUILD
+#define CLDLL_INTERFACE_VERSION		3
+#elif HL_1008_VERSION_BUILD
+#define CLDLL_INTERFACE_VERSION		3
+#elif SDK10_BUILD
+#define CLDLL_INTERFACE_VERSION		6
+#else
 #define CLDLL_INTERFACE_VERSION		7
+#endif
 
 extern void ClientDLL_Init( void ); // from cdll_int.c
 extern void ClientDLL_Shutdown( void );

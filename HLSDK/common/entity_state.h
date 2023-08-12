@@ -26,6 +26,13 @@
 //  entities that is sent to a client.
 typedef struct entity_state_s entity_state_t;
 
+/*
+	Size of 'entity_state_t' in HLSDK 1.0 [WON 1.0 - 1.0.0.8] is 0x8C (140)
+	Size of 'entity_state_t' in HLSDK 1.0 [WON 1.0.0.9 - 1.0.1.6] is 0x90 (144)
+	Size of 'entity_state_t' in HLSDK 2.0+ builds is 0x154 (340)
+	Size of 'entity_state_t' in James Bond 007: Nightfire [PC] is 0x160 (352)
+*/
+
 #ifdef SDK10_BUILD
 struct entity_state_s
 {
