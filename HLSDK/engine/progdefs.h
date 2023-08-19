@@ -109,7 +109,7 @@ typedef struct entvars_s
 
 	int			weaponmodel;	// what other players see
 
-#if defined(HL_RELEASE_BUILD) || defined(HL_1008_VERSION_BUILD)
+#ifdef HL_RELEASE_BUILD
 	byte unknown[8];
 #elif HL_DAYONE_BUILD
 	float weaponframe;
@@ -142,7 +142,7 @@ typedef struct entvars_s
 	byte		cof_unknown[4];
 	#endif
 
-#if defined(HL_DAYONE_BUILD) || defined(HL_RELEASE_BUILD) || defined(HL_1008_VERSION_BUILD)
+#if defined(HL_DAYONE_BUILD) || defined(HL_RELEASE_BUILD)
 	float		frame;			// % playback position in animation sequences (0..255)
 	float		scale;			// sprite rendering scale (0..255)
 	int			sequence;		// animation sequence

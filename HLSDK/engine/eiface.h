@@ -154,7 +154,7 @@ typedef struct enginefuncs_s
 	void		(*pfnGetAimVector)			(edict_t* ent, float speed, float *rgflReturn);
 	void		(*pfnServerCommand)			(char* str);
 
-#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD)
 	void		(*pfnServerExecute)			(void);
 #endif
 
@@ -174,7 +174,7 @@ typedef struct enginefuncs_s
 	void		(*pfnWriteString)			(const char *sz);
 	void		(*pfnWriteEntity)			(int iValue);
 
-#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD)
 	void		(*pfnCVarRegister)			(cvar_t *pCvar);
 #endif
 
@@ -203,7 +203,7 @@ typedef struct enginefuncs_s
 	const char *(*pfnNameForFunction)		( unsigned long function );
 	void		(*pfnClientPrintf)			( edict_t* pEdict, PRINT_TYPE ptype, const char *szMsg ); // JOHN: engine callbacks so game DLL can print messages to individual clients
 
-#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
+#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD)
 	void		(*pfnServerPrint)			( const char *szMsg );
 #endif
 
@@ -238,7 +238,7 @@ typedef struct enginefuncs_s
 	char*		(*pfnInfoKeyValue)			(char *infobuffer, char *key);
 	void		(*pfnSetKeyValue)			(char *infobuffer, char *key, char *value);
 
-#if !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
+#ifndef HL_RELEASE_BUILD
 	void		(*pfnSetClientKeyValue)		(int clientIndex, char *infobuffer, char *key, char *value);
 #endif
 
@@ -444,7 +444,7 @@ typedef struct
 
 typedef struct 
 {
-	#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD) && !defined(HL_1008_VERSION_BUILD)
+	#if !defined(HL_DAYONE_BUILD) && !defined(HL_RELEASE_BUILD)
 	// Initialize/shutdown the game (one-time call after loading of game .dll )
 	void			(*pfnGameInit)			( void );
 	#endif
