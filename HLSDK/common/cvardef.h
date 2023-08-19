@@ -29,7 +29,15 @@ typedef struct cvar_s
 {
 	char	*name;
 	char	*string;
+
+	#if defined(HL_DAYONE_BUILD) || defined(HL_RELEASE_BUILD)
+	qboolean archive;
+	qboolean server;
+	qboolean info;
+	#else
 	int		flags;
+	#endif
+
 	float	value;
 	struct cvar_s *next;
 } cvar_t;
