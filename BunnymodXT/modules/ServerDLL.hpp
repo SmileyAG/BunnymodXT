@@ -93,7 +93,7 @@ public:
 
 	TraceResult TraceLine(const float v1[3], const float v2[3], int fNoMonsters, edict_t *pentToSkip) const;
 
-	enginefuncs_t *pEngfuncs;
+	enginefuncs_t *pEngfuncs; // g_engfuncsExportedToDlls (struct: enginefuncs_t)
 
 	entvars_t *obboPushable = nullptr;
 

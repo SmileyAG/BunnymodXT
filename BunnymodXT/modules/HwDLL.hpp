@@ -110,7 +110,7 @@ class HwDLL : public IHookableNameFilterOrdered
 	struct svs_t
 	{
 		char unk[4];
-		client_t *clients;
+		client_t *clients; // clients (struct: client_t)
 		int num_clients;
 	};
 
@@ -347,9 +347,9 @@ public:
 
 	int lastRecordedHealth;
 
-	globalvars_t *ppGlobals;
-	engine_studio_api_t *pEngStudio;
-	engine_api_t *pEngineAPI;
+	globalvars_t *ppGlobals; // gGlobalVariables (struct: globalvars_t)
+	engine_studio_api_t *pEngStudio; // engine_studio_api (struct: engine_studio_api_t)
+	engine_api_t *pEngineAPI; // engineapi (struct: engine_api_t)
 
 	inline const char* GetString(int string) const {
 		assert(ppGlobals);
@@ -541,9 +541,9 @@ public:
 	void GetOriginOfEntity(Vector& origin, const edict_t* ent);
 
 	bool ducktap;
-	edict_t **sv_player;
-	qboolean *noclip_anglehack;
-	float *scr_fov_value;
+	edict_t **sv_player; // sv_player (struct: edict_t)
+	qboolean *noclip_anglehack; // noclip_anglehack (type: qboolean)
+	float *scr_fov_value; // scr_fov_value (type: float)
 protected:
 	void KeyDown(Key& btn);
 	void KeyUp(Key& btn);
@@ -563,29 +563,29 @@ protected:
 	bool insideHost_Loadgame_f;
 	bool insideHost_Reload_f;
 
-	void *pcl;
-	void *cls;
-	void *psv;
-	ptrdiff_t offTime;
+	void *pcl; // cl (struct: client_state_t)
+	void *cls; // cls (struct: client_static_t)
+	void *psv; // sv (struct: server_t)
+	ptrdiff_t offTime; // sv.time (type: double)
 	ptrdiff_t offWorldmodel;
-	ptrdiff_t offModels;
-	ptrdiff_t offNumEdicts;
-	ptrdiff_t offMaxEdicts;
-	ptrdiff_t offEdicts;
-	svs_t *svs;
-	ptrdiff_t offEdict;
-	void *svmove;
-	void **ppmove;
-	client_t **host_client;
-	char *sv_areanodes;
-	cmdbuf_t *cmd_text;
-	double *host_frametime;
-	int *demorecording;
-	int *demoplayback;
-	cmdalias_t* cmd_alias;
-	cvar_t **cvar_vars;
-	movevars_t *movevars;
-	studiohdr_t **pstudiohdr;
+	ptrdiff_t offModels; // sv.models (type: model_t)
+	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
+	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
+	ptrdiff_t offEdicts; // sv.edicts (type: edict_t)
+	svs_t *svs; // svs (struct: server_static_t)
+	ptrdiff_t offEdict; // svs.clients->edict (type: edict_t)
+	void *svmove; // g_svmove (struct: playermove_t)
+	void **ppmove; // pmove (struct: playermove_t)
+	client_t **host_client; // host_client (struct: client_t)
+	char *sv_areanodes; // sv_areanodes (struct: areanode_t)
+	cmdbuf_t *cmd_text; // cmd_text (struct: sizebuf_t)
+	double *host_frametime; // host_frametime (type: double)
+	int *demorecording; // cls.demorecording (type: qboolean)
+	int *demoplayback; // cls.demoplayback (type: qboolean)
+	cmdalias_t* cmd_alias; // cmd_alias (struct: cmdalias_t)
+	cvar_t **cvar_vars; // cvar_vars (struct: cvar_t)
+	movevars_t *movevars; // movevars (struct: movevars_t)
+	studiohdr_t **pstudiohdr; // pstudiohdr (struct: studiohdr_t)
 	ptrdiff_t pHost_FilterTime_FPS_Cap_Byte;
 	qboolean *cofSaveHack; // Cry of Fear-specific
 

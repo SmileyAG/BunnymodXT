@@ -72,7 +72,7 @@ public:
 
 	inline bool IsInsideKeyEvent() const { return insideKeyEvent; }
 
-	cl_enginefunc_t *pEngfuncs;
+	cl_enginefunc_t *pEngfuncs; // cl_enginefuncs (struct: cl_enginefunc_t)
 
 	Vector last_vieworg;
 	Vector last_viewangles;
