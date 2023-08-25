@@ -371,7 +371,10 @@ void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* modul
 
 #ifdef _WIN32
 	// Make it possible to run multiple Half-Life instances.
-	auto mutex = OpenMutexA(SYNCHRONIZE, FALSE, "ValveHalfLifeLauncherMutex");
+	auto mutex = OpenMutexA(SYNCHRONIZE, FALSE, "SvenCoopLauncherMutex");
+	if (!mutex)
+		mutex = OpenMutexA(SYNCHRONIZE, FALSE, "ValveHalfLifeLauncherMutex");
+
 	if (mutex) {
 		EngineMsg("Releasing the launcher mutex.\n");
 		ReleaseMutex(mutex);
