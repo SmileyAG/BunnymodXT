@@ -16,7 +16,7 @@ struct client_t;
 class HwDLL : public IHookableNameFilterOrdered
 {
 	/*
-		Pre-HLSDK 2.0 engine versions export a large amount of functions, so might to look it for hooking with symbols instead of patterns
+		Pre-HLSDK 2.0 engine versions export a large amount of functions, so might to look it for hooking with symbols in older versions instead of patterns
 		Don't forget that finding functions besides the hooking with patterns, could be also done by engine tables (cl_enginefunc_t, enginefuncs_t, engine_studio_api_t, engine_api_t)
 		Although, it's not recommendable to use because the HLSDK 1.0 and HLSDK 2.0+ tables is differs
 		To solve that issue partially, had to make the wrapper functions (see: ClientDLL module) and re-implementing those functions based on reverse-engineering from Steampipe linux version of engine
@@ -97,6 +97,16 @@ class HwDLL : public IHookableNameFilterOrdered
 	HOOK_DECL(void, __cdecl, ReleaseEntityDlls)
 	HOOK_DECL(qboolean, __cdecl, ValidStuffText, char* buf)
 	HOOK_DECL(qboolean, __cdecl, CL_ReadDemoMessage_OLD)
+	//HOOK_DECL(qboolean, __cdecl, Cvar_Command)
+	//HOOK_DECL(qboolean, __cdecl, Cvar_CommandWithPrivilegeCheck, qboolean bIsPrivileged)
+	//HOOK_DECL(void, __cdecl, R_ForceCvars, qboolean mp)
+	//HOOK_DECL(void, __cdecl, GL_EndRendering)
+	//HOOK_DECL(int, __cdecl, SV_AddToFullPack, struct entity_state_s* state, int e, unsigned char* pSet) // The last argument may have the wrong data type!
+	//HOOK_DECL(void, __cdecl, LoadAdjacentEntities, char* pOldLevel, char* pLandmarkName)
+	//HOOK_DECL(int, __cdecl, Q_stricmp, char *s1, char *s2)
+	//HOOK_DECL(void, __cdecl, CL_ParseServerInfo)
+	//HOOK_DECL(void, __cdecl, Host_AutoSave_f)
+	//HOOK_DECL(void, __cdecl, Host_Changelevel_f)
 
 	struct cmdbuf_t
 	{
@@ -393,6 +403,10 @@ public:
 	_Host_Notarget_f ORIG_Host_Notarget_f;
 	typedef void(__cdecl* _Host_Noclip_f) ();
 	_Host_Noclip_f ORIG_Host_Noclip_f;
+	//typedef qboolean(__cdecl *_Cmd_Exists) (const char* cmd_name);
+	//_Cmd_Exists ORIG_Cmd_Exists;
+	//typedef int(__cdecl* _Draw_String) (int x, int y, char* str);
+	//_Draw_String ORIG_Draw_String;
 
 	HLStrafe::PlayerData GetPlayerData();
 
@@ -403,6 +417,8 @@ protected:
 	_Cvar_DirectSet ORIG_Cvar_DirectSet;
 	typedef void(__cdecl *_Cmd_AddMallocCommand) (const char* name, void(*func)(void), int flags);
 	_Cmd_AddMallocCommand ORIG_Cmd_AddMallocCommand;
+	//typedef void(__cdecl *_Cmd_AddHUDCommand) (const char* name, void(*func)(void));
+	//_Cmd_AddHUDCommand ORIG_Cmd_AddHUDCommand;
 	typedef int(__cdecl *_Cmd_Argc) ();
 	_Cmd_Argc ORIG_Cmd_Argc;
 	typedef char*(__cdecl *_Cmd_Args) ();
@@ -423,6 +439,16 @@ protected:
 	_VGuiWrap2_IsGameUIVisible ORIG_VGuiWrap2_IsGameUIVisible;
 	typedef void(__cdecl *_SCR_DrawPause) ();
 	_SCR_DrawPause ORIG_SCR_DrawPause;
+	//typedef void(__cdecl *_R_LoadSkys) ();
+	//_R_LoadSkys ORIG_R_LoadSkys;
+	//typedef void(__cdecl *_GL_BuildLightmaps) ();
+	//_GL_BuildLightmaps ORIG_GL_BuildLightmaps;
+	//typedef void(__cdecl *_VID_FlipScreen) ();
+	//_VID_FlipScreen ORIG_VID_FlipScreen;
+	//typedef void(__cdecl *_Cmd_ForwardToServer) ();
+	//_Cmd_ForwardToServer ORIG_Cmd_ForwardToServer;
+	//typedef void(__cdecl *_MSG_WriteByte) (sizebuf_t* sb, int c);
+	//_MSG_WriteByte ORIG_MSG_WriteByte;
 
 	void FindStuff();
 
