@@ -439,8 +439,8 @@ protected:
 	_VGuiWrap2_IsGameUIVisible ORIG_VGuiWrap2_IsGameUIVisible;
 	typedef void(__cdecl *_SCR_DrawPause) ();
 	_SCR_DrawPause ORIG_SCR_DrawPause;
-	//typedef void(__cdecl *_R_LoadSkys) ();
-	//_R_LoadSkys ORIG_R_LoadSkys;
+	typedef void(__cdecl *_R_LoadSkys) ();
+	_R_LoadSkys ORIG_R_LoadSkys;
 	//typedef void(__cdecl *_GL_BuildLightmaps) ();
 	//_GL_BuildLightmaps ORIG_GL_BuildLightmaps;
 	//typedef void(__cdecl *_VID_FlipScreen) ();
@@ -553,6 +553,7 @@ protected:
 	struct Cmd_BXT_Splits_Place_Up;
 	struct Cmd_BXT_Splits_Place_Down;
 	struct Cmd_BXT_Get_SteamID_In_Demo;
+	struct Cmd_BXT_Skybox_Name;
 
 	void RegisterCVarsAndCommandsIfNeeded();
 	void InsertCommands();
@@ -614,6 +615,7 @@ protected:
 	studiohdr_t **pstudiohdr; // pstudiohdr (struct: studiohdr_t)
 	ptrdiff_t pHost_FilterTime_FPS_Cap_Byte;
 	qboolean *cofSaveHack; // Cry of Fear-specific
+	int *gLoadSky;
 
 	int framesTillExecuting;
 	bool executing;
