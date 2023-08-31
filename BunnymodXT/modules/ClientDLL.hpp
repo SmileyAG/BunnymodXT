@@ -56,8 +56,8 @@ class ClientDLL : public IHookableNameFilter
 	HOOK_DECL(int, __cdecl, CHudIcons__Draw_Linux, void *thisptr, float flTime) // _ZN9CHudIcons4DrawEf (Game: Counter-Strike Condition Zero Deleted Scenes)
 	HOOK_DECL(void, __cdecl, V_PunchAxis, int axis, float punch) // _Z11V_PunchAxisif (Linux)
 	HOOK_DECL(void, __cdecl, HUD_Shutdown) // HUD_Shutdown (exported)
-	//HOOK_DECL(void, __cdecl, PM_Duck) // PM_Duck (non-exported)
-	//HOOK_DECL(void, __cdecl, PM_UnDuck) // PM_UnDuck (non-exported)
+	HOOK_DECL(void, __cdecl, PM_Duck) // PM_Duck (non-exported)
+	HOOK_DECL(void, __cdecl, PM_UnDuck) // PM_UnDuck (non-exported)
 	//HOOK_DECL(int, __fastcall, CHud__DrawHudNumber, void* thisptr, int edx, int x, int y, int iFlags, int iNumber, int r, int g, int b) // ?DrawHudNumber@CHud@@QAEHHHHHHHH@Z (non-exported)
 	//HOOK_DECL(int, __cdecl, CHud__DrawHudNumber_Linux, void* thisptr, int x, int y, int iFlags, int iNumber, int r, int g, int b) // _ZN4CHud13DrawHudNumberEiiiiiii
 	//HOOK_DECL(int, __fastcall, CHudHealth__Draw, void* thisptr, int edx, float flTime) // ?Draw@CHudHealth@@UAEHM@Z (non-exported)
@@ -101,6 +101,8 @@ public:
 
 	bool orig_forcehltv_found = false;
 	bool orig_righthand_not_found = false;
+
+	bool is_cof_client = false;
 
 	unsigned char custom_r, custom_g, custom_b;
 	bool custom_hud_color_set = false;
@@ -179,6 +181,12 @@ protected:
 	ptrdiff_t offOldbuttons;
 	ptrdiff_t offOnground;
 	ptrdiff_t offIUser1;
+
+	ptrdiff_t offFlags;
+	ptrdiff_t offInDuck;
+	ptrdiff_t offCmd;
+	ptrdiff_t offVelocity;
+	ptrdiff_t offWaterlevel;
 
 	ptrdiff_t offBhopcap;
 	ptrdiff_t pBhopcapWindows;
