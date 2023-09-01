@@ -153,6 +153,44 @@ namespace patterns
 			"A1 ?? ?? ?? ?? 83 EC 68 56"
 		);
 
+		PATTERNS(Cvar_Command,
+			"HL-SteamPipe",
+			"56 6A 00 E8 ?? ?? ?? ?? 50 E8",
+			"CoF-5936",
+			"55 8B EC 83 EC 08 C7 45 ?? 00 00 00 00 6A 00 E8",
+			"Sven-v525",
+			"56 57 33 F6 56 E8",
+			"HL-1202",
+			"56 6A 00 E8 ?? ?? ?? ?? 83 C4 04 50 E8"
+		);
+
+		PATTERNS(Cvar_CommandWithPrivilegeCheck,
+			"HL-SteamPipe-8684",
+			"55 8B EC 83 EC 14 53 56 57 6A 00"
+		);
+
+		PATTERNS(R_ForceCvars,
+			"HL-4554",
+			"8B 44 24 ?? 85 C0 0F 84 ?? ?? ?? ?? D9 05",
+			"HL-Steampipe",
+			"55 8B EC 8B 45 ?? 85 C0 0F 84 ?? ?? ?? ?? D9 05",
+			"CoF-5936",
+			"55 8B EC 83 7D ?? 00 0F 84 ?? ?? ?? ?? D9 05",
+			"Sven-v525",
+			"83 7C 24 ?? 00 0F 84 ?? ?? ?? ?? 81 3D ?? ?? ?? ?? FF 00 00 00"
+		);
+
+		PATTERNS(GL_BuildLightmaps,
+			"HL-4554",
+			"51 68 00 80 00 00 6A 00",
+			"HL-Steampipe",
+			"55 8B EC 51 53 56 57 68 00 80 00 00",
+			"CoF-5936",
+			"55 8B EC 83 EC 10 68 00 80 00 00",
+			"Sven-v525",
+			"83 EC 24 53 55"
+		);
+
 		PATTERNS(Host_Changelevel2_f,
 			"HL-SteamPipe",
 			"55 8B EC 81 EC C4 00 00 00 53 56 33 DB 57 89 5D FC C7 05 ?? ?? ?? ?? 04 00 00 00 E8 ?? ?? ?? ?? 83 F8 02 7D 14 68 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C4 04 5F 5E 5B 8B E5 5D C3 39 1D ?? ?? ?? ?? 0F 84 7F",

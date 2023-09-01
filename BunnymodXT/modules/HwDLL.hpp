@@ -97,9 +97,9 @@ class HwDLL : public IHookableNameFilterOrdered
 	HOOK_DECL(void, __cdecl, ReleaseEntityDlls)
 	HOOK_DECL(qboolean, __cdecl, ValidStuffText, char* buf)
 	HOOK_DECL(qboolean, __cdecl, CL_ReadDemoMessage_OLD)
-	//HOOK_DECL(qboolean, __cdecl, Cvar_Command)
-	//HOOK_DECL(qboolean, __cdecl, Cvar_CommandWithPrivilegeCheck, qboolean bIsPrivileged)
-	//HOOK_DECL(void, __cdecl, R_ForceCvars, qboolean mp)
+	HOOK_DECL(qboolean, __cdecl, Cvar_Command)
+	HOOK_DECL(qboolean, __cdecl, Cvar_CommandWithPrivilegeCheck, qboolean bIsPrivileged)
+	HOOK_DECL(void, __cdecl, R_ForceCvars, qboolean mp)
 	//HOOK_DECL(void, __cdecl, GL_EndRendering)
 	//HOOK_DECL(int, __cdecl, SV_AddToFullPack, struct entity_state_s* state, int e, unsigned char* pSet) // The last argument may have the wrong data type!
 	//HOOK_DECL(void, __cdecl, LoadAdjacentEntities, char* pOldLevel, char* pLandmarkName)
@@ -441,8 +441,8 @@ protected:
 	_SCR_DrawPause ORIG_SCR_DrawPause;
 	typedef void(__cdecl *_R_LoadSkys) ();
 	_R_LoadSkys ORIG_R_LoadSkys;
-	//typedef void(__cdecl *_GL_BuildLightmaps) ();
-	//_GL_BuildLightmaps ORIG_GL_BuildLightmaps;
+	typedef void(__cdecl *_GL_BuildLightmaps) ();
+	_GL_BuildLightmaps ORIG_GL_BuildLightmaps;
 	//typedef void(__cdecl *_VID_FlipScreen) ();
 	//_VID_FlipScreen ORIG_VID_FlipScreen;
 	//typedef void(__cdecl *_Cmd_ForwardToServer) ();

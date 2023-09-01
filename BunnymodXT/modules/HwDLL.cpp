@@ -346,6 +346,21 @@ extern "C" qboolean __cdecl CL_ReadDemoMessage_OLD()
 {
 	return HwDLL::HOOKED_CL_ReadDemoMessage_OLD();
 }
+
+extern "C" qboolean __cdecl Cvar_Command()
+{
+	return HwDLL::HOOKED_Cvar_Command();
+}
+
+extern "C" qboolean __cdecl Cvar_CommandWithPrivilegeCheck(qboolean bIsPrivileged)
+{
+	return HwDLL::HOOKED_Cvar_CommandWithPrivilegeCheck(bIsPrivileged);
+}
+
+extern "C" void __cdecl R_ForceCvars(qboolean mp)
+{
+	return HwDLL::HOOKED_R_ForceCvars(mp);
+}
 #endif
 
 void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* moduleBase, size_t moduleLength, bool needToIntercept)
@@ -473,6 +488,9 @@ void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* modul
 			MemUtils::MarkAsExecutable(ORIG_ReleaseEntityDlls);
 			MemUtils::MarkAsExecutable(ORIG_ValidStuffText);
 			MemUtils::MarkAsExecutable(ORIG_CL_ReadDemoMessage_OLD);
+			MemUtils::MarkAsExecutable(ORIG_Cvar_Command);
+			MemUtils::MarkAsExecutable(ORIG_Cvar_CommandWithPrivilegeCheck);
+			MemUtils::MarkAsExecutable(ORIG_R_ForceCvars);
 		}
 
 		MemUtils::Intercept(moduleName,
@@ -535,7 +553,10 @@ void HwDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* modul
 			ORIG_ReleaseEntityDlls, HOOKED_ReleaseEntityDlls,
 			ORIG_ValidStuffText, HOOKED_ValidStuffText,
 			ORIG_CL_ReadDemoMessage_OLD, HOOKED_CL_ReadDemoMessage_OLD,
-			ORIG_Host_Shutdown, HOOKED_Host_Shutdown);
+			ORIG_Host_Shutdown, HOOKED_Host_Shutdown,
+			ORIG_Cvar_Command, HOOKED_Cvar_Command,
+			ORIG_Cvar_CommandWithPrivilegeCheck, HOOKED_Cvar_CommandWithPrivilegeCheck,
+			ORIG_R_ForceCvars, HOOKED_R_ForceCvars);
 	}
 
 	#ifdef _WIN32
@@ -619,7 +640,10 @@ void HwDLL::Unhook()
 			ORIG_ReleaseEntityDlls,
 			ORIG_ValidStuffText,
 			ORIG_CL_ReadDemoMessage_OLD,
-			ORIG_Host_Shutdown);
+			ORIG_Host_Shutdown,
+			ORIG_Cvar_Command,
+			ORIG_Cvar_CommandWithPrivilegeCheck,
+			ORIG_R_ForceCvars);
 	}
 
 	for (auto cvar : CVars::allCVars)
@@ -720,6 +744,10 @@ void HwDLL::Clear()
 	ORIG_ValidStuffText = nullptr;
 	ORIG_CL_ReadDemoMessage_OLD = nullptr;
 	ORIG_R_LoadSkys = nullptr;
+	ORIG_Cvar_Command = nullptr;
+	ORIG_Cvar_CommandWithPrivilegeCheck = nullptr;
+	ORIG_R_ForceCvars = nullptr;
+	ORIG_GL_BuildLightmaps = nullptr;
 
 	ClientDLL::GetInstance().pEngfuncs = nullptr;
 	ServerDLL::GetInstance().pEngfuncs = nullptr;
@@ -1054,6 +1082,30 @@ void HwDLL::FindStuff()
 		else
 			EngineDevWarning("[hw dll] Could not find CL_CheckGameDirectory.\n");
 
+		ORIG_Cvar_Command = reinterpret_cast<_Cvar_Command>(MemUtils::GetSymbolAddress(m_Handle, "Cvar_Command"));
+		if (ORIG_Cvar_Command)
+			EngineDevMsg("[hw dll] Found Cvar_Command at %p.\n", ORIG_Cvar_Command);
+		else
+			EngineDevWarning("[hw dll] Could not find Cvar_Command.\n");
+
+		ORIG_Cvar_CommandWithPrivilegeCheck = reinterpret_cast<_Cvar_CommandWithPrivilegeCheck>(MemUtils::GetSymbolAddress(m_Handle, "Cvar_CommandWithPrivilegeCheck"));
+		if (ORIG_Cvar_CommandWithPrivilegeCheck)
+			EngineDevMsg("[hw dll] Found Cvar_CommandWithPrivilegeCheck at %p.\n", ORIG_Cvar_CommandWithPrivilegeCheck);
+		else
+			EngineDevWarning("[hw dll] Could not find Cvar_CommandWithPrivilegeCheck.\n");
+
+		ORIG_R_ForceCvars = reinterpret_cast<_R_ForceCvars>(MemUtils::GetSymbolAddress(m_Handle, "R_ForceCvars"));
+		if (ORIG_R_ForceCvars)
+			EngineDevMsg("[hw dll] Found R_ForceCvars at %p.\n", ORIG_R_ForceCvars);
+		else
+			EngineDevWarning("[hw dll] Could not find R_ForceCvars.\n");
+
+		ORIG_GL_BuildLightmaps = reinterpret_cast<_GL_BuildLightmaps>(MemUtils::GetSymbolAddress(m_Handle, "GL_BuildLightmaps"));
+		if (ORIG_GL_BuildLightmaps)
+			EngineDevMsg("[hw dll] Found GL_BuildLightmaps at %p.\n", ORIG_GL_BuildLightmaps);
+		else
+			EngineDevWarning("[hw dll] Could not find GL_BuildLightmaps.\n");
+
 		ORIG_ValidStuffText = reinterpret_cast<_ValidStuffText>(MemUtils::GetSymbolAddress(m_Handle, "ValidStuffText"));
 		if (ORIG_ValidStuffText)
 			EngineDevMsg("[hw dll] Found ValidStuffText at %p.\n", ORIG_ValidStuffText);
@@ -1349,6 +1401,10 @@ void HwDLL::FindStuff()
 		DEF_FUTURE(ReleaseEntityDlls)
 		DEF_FUTURE(ValidStuffText)
 		DEF_FUTURE(CL_ReadDemoMessage_OLD)
+		DEF_FUTURE(Cvar_Command)
+		DEF_FUTURE(Cvar_CommandWithPrivilegeCheck)
+		DEF_FUTURE(R_ForceCvars)
+		DEF_FUTURE(GL_BuildLightmaps)
 		#undef DEF_FUTURE
 
 		bool oldEngine = (m_Name.find(L"hl.exe") != std::wstring::npos);
@@ -2357,6 +2413,10 @@ void HwDLL::FindStuff()
 		GET_FUTURE(ReleaseEntityDlls);
 		GET_FUTURE(ValidStuffText);
 		GET_FUTURE(CL_ReadDemoMessage_OLD);
+		GET_FUTURE(Cvar_Command);
+		GET_FUTURE(Cvar_CommandWithPrivilegeCheck);
+		GET_FUTURE(R_ForceCvars);
+		GET_FUTURE(GL_BuildLightmaps);
 
 		if (oldEngine) {
 			GET_FUTURE(LoadAndDecryptHwDLL);
@@ -5226,6 +5286,8 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	RegisterCVar(CVars::bxt_disable_particles);
 	RegisterCVar(CVars::bxt_tas_ducktap_priority);
 
+	if (ORIG_Cvar_Command || ORIG_Cvar_CommandWithPrivilegeCheck || ORIG_R_ForceCvars)
+		RegisterCVar(CVars::bxt_disable_cheats_check_in_demo);
 	if (ORIG_R_SetFrustum && scr_fov_value)
 	{
 		RegisterCVar(CVars::bxt_force_fov);
@@ -7745,4 +7807,71 @@ HOOK_DEF_0(HwDLL, qboolean, __cdecl, CL_ReadDemoMessage_OLD)
 	runtimeDataBuffer.clear();
 
 	return rv;
+}
+
+HOOK_DEF_0(HwDLL, qboolean, __cdecl, Cvar_Command)
+{
+	int *state;
+	int orig_state;
+	bool return_orig_value = false;
+
+	// We can avoid the multiplayer check if cls.state <= 1
+	if (cls && CVars::bxt_disable_cheats_check_in_demo.GetBool() && IsPlayingbackDemo())
+	{
+		state = reinterpret_cast<int*>(cls);
+		orig_state = *state;
+		*state = 1;
+		return_orig_value = true;
+	}
+
+	auto ret = ORIG_Cvar_Command();
+	if (return_orig_value)
+		*state = orig_state;
+
+	return ret;
+}
+
+HOOK_DEF_1(HwDLL, qboolean, __cdecl, Cvar_CommandWithPrivilegeCheck, qboolean, bIsPrivileged)
+{
+	int *state;
+	int orig_state;
+	bool return_orig_value = false;
+
+	// We can avoid the multiplayer check if cls.state <= 1
+	if (cls && CVars::bxt_disable_cheats_check_in_demo.GetBool() && IsPlayingbackDemo())
+	{
+		state = reinterpret_cast<int*>(cls);
+		orig_state = *state;
+		*state = 1;
+		return_orig_value = true;
+	}
+
+	auto ret = ORIG_Cvar_CommandWithPrivilegeCheck(bIsPrivileged);
+	if (return_orig_value)
+		*state = orig_state;
+
+	return ret;
+}
+
+HOOK_DEF_1(HwDLL, void, __cdecl, R_ForceCvars, qboolean, mp)
+{
+	static bool is_monolights_changed = CVars::gl_monolights.GetBool();
+	static bool is_fullbright_changed = CVars::r_fullbright.GetBool();
+
+	if (CVars::bxt_disable_cheats_check_in_demo.GetBool() && IsPlayingbackDemo())
+	{
+		if ((is_monolights_changed != CVars::gl_monolights.GetBool()) || (is_fullbright_changed != CVars::r_fullbright.GetBool()))
+		{
+			if (ORIG_GL_BuildLightmaps)
+				ORIG_GL_BuildLightmaps();
+		}
+		is_monolights_changed = CVars::gl_monolights.GetBool();
+		is_fullbright_changed = CVars::r_fullbright.GetBool();
+		return;
+	}
+
+	ORIG_R_ForceCvars(mp);
+
+	is_monolights_changed = CVars::gl_monolights.GetBool();
+	is_fullbright_changed = CVars::r_fullbright.GetBool();
 }
