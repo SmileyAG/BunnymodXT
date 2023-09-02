@@ -70,7 +70,7 @@ if (MSVC)
 		add_definitions(-DSDK10_BUILD)
 	endif()
 else ()
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium-m -mfpmath=387 -mno-sse -g -Wall -Wextra -Wno-unused-parameter -Wno-format-truncation")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=pentium-m -mfpmath=387 -mno-sse -g -Wall -Wextra -Wno-unused-parameter")
 
 	if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		# Not supported on Clang.
