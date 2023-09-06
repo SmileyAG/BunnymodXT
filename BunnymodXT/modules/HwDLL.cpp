@@ -913,7 +913,7 @@ void HwDLL::FindStuff()
 		} else
 			EngineDevWarning("[hw dll] Could not find sv.\n");
 
-		svs = reinterpret_cast<svs_t*>(MemUtils::GetSymbolAddress(m_Handle, "svs"));
+		svs = reinterpret_cast<server_static_t*>(MemUtils::GetSymbolAddress(m_Handle, "svs"));
 		if (svs) {
 			EngineDevMsg("[hw dll] Found svs at %p.\n", svs);
 			offEdict = 0x4a84;
@@ -950,7 +950,7 @@ void HwDLL::FindStuff()
 		else
 			EngineDevWarning("[hw dll] Could not find sv_areanodes.\n");
 
-		cmd_text = reinterpret_cast<cmdbuf_t*>(MemUtils::GetSymbolAddress(m_Handle, "cmd_text"));
+		cmd_text = reinterpret_cast<sizebuf_t*>(MemUtils::GetSymbolAddress(m_Handle, "cmd_text"));
 		if (cmd_text)
 			EngineDevMsg("[hw dll] Found cmd_text at %p.\n", cmd_text);
 		else
@@ -1538,16 +1538,16 @@ void HwDLL::FindStuff()
 				{
 				case 0: // HL-SteamPipe-8183
 				case 3: // HL-SteamPipe-8308
-					cmd_text = reinterpret_cast<cmdbuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 3));
+					cmd_text = reinterpret_cast<sizebuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 3));
 					break;
 				case 1: // HL-SteamPipe
-					cmd_text = reinterpret_cast<cmdbuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 11) - offsetof(cmdbuf_t, cursize));
+					cmd_text = reinterpret_cast<sizebuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 11) - offsetof(sizebuf_t, cursize));
 					break;
 				case 2: // HL-NGHL
-					cmd_text = reinterpret_cast<cmdbuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 2) - offsetof(cmdbuf_t, cursize));
+					cmd_text = reinterpret_cast<sizebuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 2) - offsetof(sizebuf_t, cursize));
 					break;
 				case 4: // CoF-5936
-					cmd_text = reinterpret_cast<cmdbuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 21) - offsetof(cmdbuf_t, cursize));
+					cmd_text = reinterpret_cast<sizebuf_t*>(*reinterpret_cast<uintptr_t*>(reinterpret_cast<uintptr_t>(ORIG_Cbuf_Execute) + 21) - offsetof(sizebuf_t, cursize));
 					break;
 				}
 			});
@@ -1723,7 +1723,7 @@ void HwDLL::FindStuff()
 						);
 					pcl = reinterpret_cast<void*>(*reinterpret_cast<uintptr_t*>(f + 86) - 0x2AF80);
 					cls = *reinterpret_cast<void**>(f + 69);
-					svs = reinterpret_cast<svs_t*>(*reinterpret_cast<uintptr_t*>(f + 45) - 8);
+					svs = reinterpret_cast<server_static_t*>(*reinterpret_cast<uintptr_t*>(f + 45) - 8);
 					offEdict = *reinterpret_cast<ptrdiff_t*>(f + 122);
 					break;
 				case 1: // CoF-5936
@@ -1740,7 +1740,7 @@ void HwDLL::FindStuff()
 						);
 					pcl = reinterpret_cast<void*>(*reinterpret_cast<uintptr_t*>(f + 140) - 0x3BF88);
 					cls = *reinterpret_cast<void**>(f + 105);
-					svs = reinterpret_cast<svs_t*>(*reinterpret_cast<uintptr_t*>(f + 79) - 8);
+					svs = reinterpret_cast<server_static_t*>(*reinterpret_cast<uintptr_t*>(f + 79) - 8);
 					offEdict = *reinterpret_cast<ptrdiff_t*>(f + 182);
 					cofSaveHack = *reinterpret_cast<qboolean**>(f + 21);
 					is_cof_steam = true;

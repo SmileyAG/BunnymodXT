@@ -108,18 +108,94 @@ class HwDLL : public IHookableNameFilterOrdered
 	//HOOK_DECL(void, __cdecl, Host_AutoSave_f)
 	//HOOK_DECL(void, __cdecl, Host_Changelevel_f)
 
-	struct cmdbuf_t
+	typedef enum
 	{
-		char *name;
+		// A dedicated server with no ability to start a client
+		ca_dedicated,
+		// Full screen console with no connection
+		ca_disconnected,
+		// Challenge requested, waiting for response or to resend connection request.
+		ca_connecting,
+		// valid netcon, talking to a server, waiting for server data
+		ca_connected,
+		// valid netcon, autodownloading
+		ca_uninitialized,
+		// d/l complete, ready game views should be displayed
+		ca_active
+	} cactive_t;
+
+	typedef enum 
+	{
+		// No server
+		ss_dead,
+		// Spawning
+		ss_loading,
+		// Running
+		ss_active
+	} server_state_t;
+
+	typedef enum {key_game, key_message, key_menu} keydest_t;
+
+	typedef struct vrect_s
+	{
+		int				x,y,width,height;
+		struct vrect_s	*pnext;
+	} vrect_t;
+
+	typedef struct
+	{
+		vrect_t		vrect;
+		vrect_t		aliasvrect;
+		int			vrectright, vrectbottom;
+		int			aliasvrectright, aliasvrectbottom;
+		float		vrectrightedge;
+		float		fvrectx, fvrecty;
+		float		fvrectx_adj, fvrecty_adj;
+		int			vrect_x_adj_shift20;
+		int			vrectright_adj_shift20;
+		float		fvrectright_adj, fvrectbottom_adj;
+		float		fvrectright;
+		float		fvrectbottom;
+		float		horizontalFieldOfView;
+		float		xOrigin;
+		float		yOrigin;
+
+		vec3_t		vieworg;
+		vec3_t		viewangles;
+
+		color24		ambientlight;
+
+		qboolean	onlyClientDraws;
+	} refdef_t;
+
+	typedef void (*xcommand_t) (void);
+	typedef struct cmd_function_s
+	{
+		struct cmd_function_s	*next;
+		char					*name;
+		xcommand_t				function;
+		int						flags;
+	} cmd_function_t;
+
+	typedef enum
+	{
+		src_client,		// came in over a net connection as a clc_stringcmd
+							// host_client will be valid during this state.
+		src_command		// from the command buffer
+	} cmd_source_t;
+
+	struct sizebuf_t
+	{
+		char *buffername;
 		unsigned flags;
 		char *data;
 		unsigned maxsize;
 		unsigned cursize;
 	};
 
-	struct svs_t
+	struct server_static_t
 	{
-		char unk[4];
+		int dll_initialized;
 		client_t *clients; // clients (struct: client_t)
 		int num_clients;
 	};
@@ -599,13 +675,13 @@ protected:
 	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
 	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
 	ptrdiff_t offEdicts; // sv.edicts (type: edict_t)
-	svs_t *svs; // svs (struct: server_static_t)
+	server_static_t *svs; // svs (struct: server_static_t)
 	ptrdiff_t offEdict; // svs.clients->edict (type: edict_t)
 	void *svmove; // g_svmove (struct: playermove_t)
 	void **ppmove; // pmove (struct: playermove_t)
 	client_t **host_client; // host_client (struct: client_t)
 	char *sv_areanodes; // sv_areanodes (struct: areanode_t)
-	cmdbuf_t *cmd_text; // cmd_text (struct: sizebuf_t)
+	sizebuf_t *cmd_text; // cmd_text (struct: sizebuf_t)
 	double *host_frametime; // host_frametime (type: double)
 	int *demorecording; // cls.demorecording (type: qboolean)
 	int *demoplayback; // cls.demoplayback (type: qboolean)
