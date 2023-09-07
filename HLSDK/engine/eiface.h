@@ -17,10 +17,10 @@
 
 #ifdef HL_DAYONE_BUILD
 #define INTERFACE_VERSION		121 // Only used in Half-Life: Day One (676 build)
-#elif HL_RELEASE_BUILD
-#define INTERFACE_VERSION		129 // Used from release (738 build), the final version is 1.0.0.6
 #elif HL_1008_VERSION_BUILD
 #define INTERFACE_VERSION		130 // Only used in 1.0.0.8 patch
+#elif HL_RELEASE_BUILD
+#define INTERFACE_VERSION		129 // Used from release (738 build), the final version is 1.0.0.6
 #elif SDK10_BUILD
 #define INTERFACE_VERSION		138 // Used from 1.0.0.9 patch, the final version is 1.0.1.6 (1202 build)
 #else

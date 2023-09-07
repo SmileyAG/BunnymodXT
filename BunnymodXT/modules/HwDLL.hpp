@@ -134,8 +134,6 @@ class HwDLL : public IHookableNameFilterOrdered
 		ss_active
 	} server_state_t;
 
-	typedef enum {key_game, key_message, key_menu} keydest_t;
-
 	typedef struct vrect_s
 	{
 		int				x,y,width,height;
@@ -193,12 +191,29 @@ class HwDLL : public IHookableNameFilterOrdered
 		unsigned cursize;
 	};
 
+	#ifdef SDK10_BUILD
+	struct server_static_t
+	{
+		int maxclients;
+
+		#ifdef HL_DAYONE_BUILD
+		byte align[28680];
+		#elif HL_RELEASE_BUILD
+		byte align[29708];
+		#else
+		byte align[28684];
+		#endif
+
+		client_t *clients; // clients (struct: client_t)
+	};
+	#else
 	struct server_static_t
 	{
 		int dll_initialized;
 		client_t *clients; // clients (struct: client_t)
-		int num_clients;
+		int maxclients;
 	};
+	#endif
 
 	struct Key
 	{
@@ -317,7 +332,7 @@ public:
 		return *reinterpret_cast<double *>(reinterpret_cast<uintptr_t>(psv) + offTime);
 	}
 	inline edict_t* GetPlayerEdict() const {
-		if (!svs || svs->num_clients == 0)
+		if (!svs || svs->maxclients == 0)
 			return nullptr;
 
 		return *reinterpret_cast<edict_t**>(reinterpret_cast<uintptr_t>(svs->clients) + offEdict);
@@ -644,9 +659,29 @@ public:
 	void GetOriginOfEntity(Vector& origin, const edict_t* ent);
 
 	bool ducktap;
+
 	edict_t **sv_player; // sv_player (struct: edict_t)
 	qboolean *noclip_anglehack; // noclip_anglehack (type: qboolean)
 	float *scr_fov_value; // scr_fov_value (type: float)
+	void *pcl; // cl (struct: client_state_t)
+	/*
+	Vector *viewangles; // cl.viewangles (type: vec3_t)
+	Vector *simorg; // cl.simorg (type: vec3_t)
+	Vector *simvel; // cl.simvel (type: vec3_t)
+	int* cl_paused; // cl.paused (type: qboolean)
+	double* cl_time; // cl.time (type: double)
+	int *playernum; // cl.playernum (type: int)
+	char *levelname; // cl.levelname (type: char[40])
+	cl_entity_t *viewent; // cl.viewent (type: cl_entity_t)
+	cl_entity_t **cl_entities; // cl_entities (struct: cl_entity_t)
+	cl_entity_t **currentent; // currententity (struct: cl_entity_t)
+	refdef_t* r_refdef; // r_refdef (struct: refdef_t)
+	*/
+	void *cls; // cls (struct: client_static_t)
+	int *demorecording; // cls.demorecording (type: qboolean)
+	int *demoplayback; // cls.demoplayback (type: qboolean)
+	void *psv; // sv (struct: server_t)
+	ptrdiff_t offName; // sv.name (type: char[64])
 protected:
 	void KeyDown(Key& btn);
 	void KeyUp(Key& btn);
@@ -666,15 +701,12 @@ protected:
 	bool insideHost_Loadgame_f;
 	bool insideHost_Reload_f;
 
-	void *pcl; // cl (struct: client_state_t)
-	void *cls; // cls (struct: client_static_t)
-	void *psv; // sv (struct: server_t)
 	ptrdiff_t offTime; // sv.time (type: double)
-	ptrdiff_t offWorldmodel;
 	ptrdiff_t offModels; // sv.models (type: model_t)
 	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
 	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
 	ptrdiff_t offEdicts; // sv.edicts (type: edict_t)
+	//sizebuf_t *reliable_datagram; // sv.reliable_datagram (type: sizebuf_t)
 	server_static_t *svs; // svs (struct: server_static_t)
 	ptrdiff_t offEdict; // svs.clients->edict (type: edict_t)
 	void *svmove; // g_svmove (struct: playermove_t)
@@ -683,8 +715,6 @@ protected:
 	char *sv_areanodes; // sv_areanodes (struct: areanode_t)
 	sizebuf_t *cmd_text; // cmd_text (struct: sizebuf_t)
 	double *host_frametime; // host_frametime (type: double)
-	int *demorecording; // cls.demorecording (type: qboolean)
-	int *demoplayback; // cls.demoplayback (type: qboolean)
 	cmdalias_t* cmd_alias; // cmd_alias (struct: cmdalias_t)
 	cvar_t **cvar_vars; // cvar_vars (struct: cvar_t)
 	movevars_t *movevars; // movevars (struct: movevars_t)
@@ -692,6 +722,8 @@ protected:
 	ptrdiff_t pHost_FilterTime_FPS_Cap_Byte;
 	qboolean *cofSaveHack; // Cry of Fear-specific
 	int *gLoadSky;
+	//cmd_source_t *cmd_source; // cmd_source (struct: cmd_source_t)
+	//int *signon; // cls.signon (type: int)
 
 	int framesTillExecuting;
 	bool executing;
