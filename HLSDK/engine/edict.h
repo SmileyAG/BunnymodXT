@@ -13,6 +13,8 @@
 
 #ifdef SDK10_BUILD
 #define	MAX_ENT_LEAFS	24
+#elif NIGHTFIRE_BUILD
+#define	MAX_ENT_LEAFS	64
 #else
 #define	MAX_ENT_LEAFS	48
 #endif
@@ -38,7 +40,12 @@ struct edict_s
 	#endif
 
 	int			num_leafs;
+
+	#ifdef NIGHTFIRE_BUILD
+	int		leafnums[MAX_ENT_LEAFS];
+	#else
 	short		leafnums[MAX_ENT_LEAFS];
+	#endif
 
 	#ifdef SDK10_BUILD
 	entity_state_t	baseline;

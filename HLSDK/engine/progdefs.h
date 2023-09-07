@@ -50,6 +50,11 @@ typedef struct
 	float		trace_inwater;
 	int			trace_hitgroup;
 	int			trace_flags;
+
+	#ifdef NIGHTFIRE_BUILD
+	int			trace_unknown;	
+	#endif
+
 	int			msg_entity;
 	int			cdAudioTrack;
 	int			maxClients;
@@ -187,7 +192,10 @@ typedef struct entvars_s
 	int			spawnflags;
 	int			flags;
 	
+	#ifndef NIGHTFIRE_BUILD
 	int			colormap;		// lowbyte topcolor, highbyte bottomcolor
+	#endif
+
 	int			team;
 
 	float		max_health;
@@ -219,7 +227,7 @@ typedef struct entvars_s
 	
 	edict_t		*pContainingEntity;
 
-	#ifndef SDK10_BUILD
+	#if !defined(SDK10_BUILD) && !defined(NIGHTFIRE_BUILD)
 	int			playerclass;
 	float		maxspeed;
 
@@ -240,7 +248,13 @@ typedef struct entvars_s
 	int			oldbuttons;
 
 	int			groupinfo;
+	#elif NIGHTFIFE_BUILD
+	int			playerclass;
+	byte		nightfire_unknown[68];
+	int			jetpackfuel;
+	#endif
 
+	#ifndef SDK10_BUILD
 	// For mods
 	int			iuser1;
 	int			iuser2;
@@ -262,6 +276,10 @@ typedef struct entvars_s
 
 	#ifdef COF_BUILD
 	byte		cof_unknown2[4];
+	#endif
+
+	#ifdef NIGHTFIRE_BUILD
+	vec3_t		fixedlight;
 	#endif
 } entvars_t;
 
