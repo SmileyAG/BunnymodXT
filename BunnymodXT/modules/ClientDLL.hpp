@@ -10,6 +10,8 @@ class ClientDLL : public IHookableNameFilter
 		All exported client functions in pre-HLSDK 2.0 versions:
 
 		HUD_Init, HUD_Redraw, HUD_Reset, HUD_UpdateClientData, HUD_VidInit, Initialize
+
+		Engine calls client-side functions from cl_funcs (global variable)
 	*/
 
 	HOOK_DECL(void, __cdecl, PM_Jump) // PM_Jump (non-exported)
@@ -66,6 +68,10 @@ class ClientDLL : public IHookableNameFilter
 	//HOOK_DECL(int, __cdecl, WeaponsResource__CountAmmo_Linux, void *thisptr, int iId) // _ZN15WeaponsResource9CountAmmoEi
 	//HOOK_DECL(int, __fastcall, CHudAmmo__Draw, void *thisptr, int edx, float flTime) // ?Draw@CHudAmmo@@UAEHM@Z (non-exported)
 	//HOOK_DECL(int, __cdecl, CHudAmmo__Draw_Linux, void *thisptr, float flTime) // _ZN8CHudAmmo4DrawEf
+	//HOOK_DECL(int, __fastcall, CHudAmmo__DrawCrosshair, void *thisptr, int edx, float flTime, int weaponid)
+	//HOOK_DECL(int, __cdecl, CHudAmmo__DrawCrosshair_Linux, void *thisptr, float flTime, int weaponid) // _ZN8CHudAmmo13DrawCrosshairEfi (Game: Counter-Strike Condition Zero Deleted Scenes)
+	//HOOK_DECL(void, __cdecl, HUD_PlayerMove, struct playermove_s* ppmove, int server) // HUD_PlayerMove (exported)
+	//HOOK_DECL(void, __cdecl, CL_CreateMove, float frametime, usercmd_s *cmd, int active) // CL_CreateMove (exported)
 
 public:
 	static ClientDLL& GetInstance()
@@ -82,13 +88,14 @@ public:
 
 	inline bool IsInsideKeyEvent() const { return insideKeyEvent; }
 
-	cl_enginefunc_t *pEngfuncs; // cl_enginefuncs (struct: cl_enginefunc_t)
+	cl_enginefunc_t *pEngfuncs; // cl_enginefuncs (type: cl_enginefunc_t, global variable)
 
-	Vector last_vieworg;
-	Vector last_viewangles;
-	Vector last_viewforward;
-	Vector last_viewright;
-	Vector last_viewup;
+	Vector last_vieworg; // vieworg (struct: ref_params_t, type: float[3])
+	Vector last_viewangles; // viewangles (struct: ref_params_t, type: float[3])
+	Vector last_viewforward; // forward (struct: ref_params_t, type: float[3])
+	Vector last_viewright; // right (struct: ref_params_t, type: float[3])
+	Vector last_viewup; // up (struct: ref_params_t, type: float[3])
+	Vector last_cl_viewangles; // cl_viewangles (struct: ref_params_t, type: float[3])
 
 	void StudioAdjustViewmodelAttachments(Vector &vOrigin);
 
@@ -99,8 +106,8 @@ public:
 	bool DoesMapNameMatch(const char *map);
 	bool DoesMapNameContain(const char *map);
 
-	bool orig_forcehltv_found = false;
-	bool orig_righthand_not_found = false;
+	bool orig_forcehltv_found = false; // dem_forcehltv
+	bool orig_righthand_not_found = false; // cl_righthand
 
 	bool is_cof_client = false;
 
@@ -112,15 +119,24 @@ public:
 	unsigned char colorize_entities_r, colorize_entities_g, colorize_entities_b;
 	bool colorize_entities_set = false;
 
-	bool insideDrawAmmoHistory = false;
-	bool insideDrawHealthDamage = false;
-	bool insideDrawHealthPain = false;
-	bool insideDrawNightVision = false;
-	bool insideDrawFiberCameraCZDS = false;
-	bool insideDrawHudIconsCZDS = false;
-	float drawdamage_flTime;
+	bool insideDrawAmmoHistory = false; // HistoryResource::DrawAmmoHistory
+	bool insideDrawHealthDamage = false; // CHudHealth::DrawDamage
+	bool insideDrawHealthPain = false; // CHudHealth::DrawPain
+	bool insideDrawNightVision = false; // CHudFlashlight::drawNightVision or CHud::DrawHudNightVision
+	bool insideDrawFiberCameraCZDS = false; // CHud::DrawHudFiberCamera
+	bool insideDrawHudIconsCZDS = false; // CHudIcons::Draw
+	float drawdamage_flTime; // flTime from CHudHealth::DrawDamage
 
-	unsigned short last_buttons;
+	unsigned short last_buttons; // buttons (struct: usercmd_t, type: unsigned short)
+
+	int last_paused; // paused (struct: ref_params_t, type: int)
+	int last_spectator; // spectator (struct: ref_params_t, type: int)
+	int last_maxclients; // maxclients (struct: ref_params_t, type: int)
+	int last_playernum; // playernum (struct: ref_params_t, type: int)
+	int last_maxentities; // max_entities (struct: ref_params_t, type: int)
+	int last_demoplayback; // demoplayback (struct: ref_params_t, type: int)
+	unsigned short last_refdef_buttons; // buttons (struct: usercmd_t, type: unsigned short)
+	float last_refdef_zmax = 0; // zmax (struct: movevars_t, type: float)
 
 	// When set to false, the mouse won't move the camera.
 	void SetMouseState(bool active);
@@ -131,13 +147,12 @@ public:
 
 	void SetSpeedScaling(bool scaled);
 
-	void FileBase(const char *in, char *out);
+	void FileBase(const char *in, char *out); // COM_FileBase
 	void ConvertToLowerCase(const char *str);
 
-	bool hlsdk_tables = true; // Only change it if the engine tables is completely differs
+	const bool hlsdk_tables = true; // Only change it if the engine tables is completely differs
 
 	// WRAPPER FUNCTIONS - START
-
 	void GetViewAngles(float *va);
 	void SetViewAngles(float *va);
 	cl_entity_t *GetLocalPlayer();
@@ -146,7 +161,17 @@ public:
 	const char *GetLevelNameSv();
 	cl_entity_t *GetViewModel();
 	cl_entity_t *GetCurrentEntity();
+	float GetClientMaxspeed();
+	float GetMaxspeed();
 	float GetTimeCl();
+	float GetTimeSv();
+	int MaxClientsCl();
+	int MaxClientsSv();
+	bool IsCoOp();
+	bool IsDeathmatch();
+	bool IsTeamplay();
+	bool IsPaused();
+	bool IsSpectateOnly();
 	const char *GetGameDirectory();
 	void DrawSetTextColor(float r, float g, float b);
 	int DrawString(int x, int y, const char* str);
@@ -154,10 +179,17 @@ public:
 	Vector GetRefdefViewOrigin();
 	//Vector GetRefdefSimVelocity();
 	//Vector GetRefdefSimOrigin();
+	//unsigned short GetRefdefCmdButtons();
+	//float GetRefdefMovevarsZmax();
+	bool Intersects(const entvars_t *pevVolume, const entvars_t *pevToucher);
+	int MaxEdictsCl();
+	int MaxEdictsSv();
+	int NumEdictsSv();
+	// WRAPPER FUNCTIONS - END
+
 	float GetFOV();
 	float GetFOVFromCvar();
-
-	// WRAPPER FUNCTIONS - END
+	//float GetFPS(int &type);
 
 	void SetupTraceVectors(float start[3], float end[3]);
 
@@ -177,16 +209,15 @@ protected:
 	void RegisterCVarsAndCommands();
 	void AddHudElem(void* pHudElem);
 
-	void **ppmove;
-	ptrdiff_t offOldbuttons;
-	ptrdiff_t offOnground;
-	ptrdiff_t offIUser1;
-
-	ptrdiff_t offFlags;
-	ptrdiff_t offInDuck;
-	ptrdiff_t offCmd;
-	ptrdiff_t offVelocity;
-	ptrdiff_t offWaterlevel;
+	void **ppmove; // pmove (type: playermove_t*, global variable)
+	ptrdiff_t offVelocity; // velocity (struct: playermove_t, type: vec3_t)
+	ptrdiff_t offInDuck; // bInDuck (struct: playermove_t, type: qboolean)
+	ptrdiff_t offFlags; // flags (struct: playermove_t, type: int)
+	ptrdiff_t offOldbuttons; // oldbuttons (struct: playermove_t, type: int)
+	ptrdiff_t offOnground; // onground (struct: playermove_t, type: int)
+	ptrdiff_t offWaterlevel; // waterlevel (struct: playermove_t, type: int)
+	ptrdiff_t offIUser1; // iuser1 (struct: playermove_t, type: int)
+	ptrdiff_t offCmd; // cmd (struct: playermove_t, type: usercmd_t)
 
 	ptrdiff_t offBhopcap;
 	ptrdiff_t pBhopcapWindows;
@@ -204,9 +235,9 @@ protected:
 
 	unsigned SeedsQueued;
 
-	bool insideKeyEvent;
-	bool insideStudioCalcAttachmentsViewmodel;
+	bool insideKeyEvent; // HUD_Key_Event
+	bool insideStudioCalcAttachmentsViewmodel; // CStudioModelRenderer::StudioCalcAttachments
 
-	ptrdiff_t offpCurrentEntity; // m_pCurrentEntity (class: CStudioModelRenderer)
-	ptrdiff_t offpStudioHeader; // m_pStudioHeader (class: CStudioModelRenderer)
+	ptrdiff_t offpCurrentEntity; // m_pCurrentEntity (class: CStudioModelRenderer, type: cl_entity_t*)
+	ptrdiff_t offpStudioHeader; // m_pStudioHeader (class: CStudioModelRenderer, type: studiohdr_t*)
 };

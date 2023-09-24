@@ -28,9 +28,13 @@
 	X(sensitivity) \
 	X(gl_monolights) \
 	X(r_fullbright) \
-	X(pausable)
+	X(pausable) \
+	X(deathmatch) \
+	X(coop)
 
 #define DEFINE_CVARS(X) \
+	X(r_shadows, "0") \
+	X(cl_righthand, "0") \
 	X(_bxt_taslog, "0") \
 	X(_bxt_min_frametime, "0") \
 	X(_bxt_norefresh, "0") \
@@ -105,7 +109,6 @@
 	X(bxt_cof_slowdown_if_use_on_ground_prediction, "0") \
 	X(bxt_cof_disable_monsters_teleport_to_spawn_after_load, "0") \
 	X(bxt_cof_disable_viewpunch_from_jump, "0") \
-	X(cl_righthand, "0") \
 	X(bxt_remove_punchangles, "0") \
 	X(bxt_disable_beams, "0") \
 	X(bxt_disable_brush_entities, "0") \

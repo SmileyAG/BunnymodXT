@@ -3459,7 +3459,7 @@ struct HwDLL::Cmd_BXT_Get_Server_Time
 
 	static void handler()
 	{
-		HwDLL::GetInstance().ORIG_Con_Printf("Server time: %f\n", ServerDLL::GetInstance().GetTimeSv());
+		HwDLL::GetInstance().ORIG_Con_Printf("Server time: %f\n", ClientDLL::GetInstance().GetTimeSv());
 	}
 };
 
@@ -5304,6 +5304,8 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	CVars::gl_monolights.Assign(FindCVar("gl_monolights"));
 	CVars::r_fullbright.Assign(FindCVar("r_fullbright"));
 	CVars::pausable.Assign(FindCVar("pausable"));
+	CVars::deathmatch.Assign(FindCVar("deathmatch"));
+	CVars::coop.Assign(FindCVar("coop"));
 
 	CVars::net_graph.Assign(FindCVar("net_graph"));
 	CVars::fps_single.Assign(FindCVar("fps_single"));
@@ -6368,17 +6370,18 @@ HLStrafe::MovementVars HwDLL::GetMovementVars()
 	vars.Bounce = CVars::sv_bounce.GetFloat();
 	vars.Bhopcap = CVars::bxt_bhopcap.GetBool();
 
-	static bool is_paranoia = cl.DoesGameDirMatch("paranoia");
-	static bool is_cstrike = cl.DoesGameDirMatch("cstrike");
-	static bool is_czero = cl.DoesGameDirMatch("czero");
-	static bool is_tfc = cl.DoesGameDirMatch("tfc");
+	static bool is_cstrike = false, is_czero = false, is_tfc = false;
+	static bool find_dirs = true;
+	if (find_dirs)
+	{
+		ServerDLL::GetInstance().is_paranoia = cl.DoesGameDirMatch("paranoia");
+		is_cstrike = cl.DoesGameDirMatch("cstrike");
+		is_czero = cl.DoesGameDirMatch("czero");
+		is_tfc = cl.DoesGameDirMatch("tfc");
+		find_dirs = false;
+	}
 
-	if (is_paranoia)
-		vars.Maxspeed = cl.pEngfuncs->GetClientMaxspeed() * CVars::sv_maxspeed.GetFloat() / 100.0f; // GetMaxSpeed is factor here
-	else if (cl.pEngfuncs && (cl.pEngfuncs->GetClientMaxspeed() > 0.0f) && (CVars::sv_maxspeed.GetFloat() > cl.pEngfuncs->GetClientMaxspeed()))
-		vars.Maxspeed = cl.pEngfuncs->GetClientMaxspeed(); // Get true maxspeed in other mods (example: CS 1.6)
-	else
-		vars.Maxspeed = CVars::sv_maxspeed.GetFloat();
+	vars.Maxspeed = cl.GetMaxspeed();
 
 	if (is_cstrike || is_czero) {
 		vars.BhopcapMultiplier = 0.8f;
@@ -7427,6 +7430,13 @@ HOOK_DEF_1(HwDLL, void, __cdecl, VGuiWrap_Paint, int, paintAll)
 
 HOOK_DEF_3(HwDLL, int, __cdecl, DispatchDirectUserMsg, char*, pszName, int, iSize, void*, pBuf)
 {
+	/*
+		Initially, that function is called only by 'CL_HudMessage' with HudText message.
+		But, after the some Steampipe engine update, it started also to be called by 'CL_PlayDemo_f' and 'CL_ViewDemo_f' functions with InitHUD message.
+		That's leaded to crash in Counter-Strike games if we would start the demo playback.
+		Here described from game code side: https://github.com/ValveSoftware/halflife/issues/2734
+	*/
+
 	if (ClientDLL::GetInstance().DoesGameDirContain("czeror") && !std::strcmp(pszName, "InitHUD"))
 		return ORIG_DispatchDirectUserMsg(0, iSize, pBuf);
 	else
@@ -7493,10 +7503,12 @@ HOOK_DEF_8(HwDLL, void, __cdecl, S_StartDynamicSound, int, entnum, int, entchann
 
 HOOK_DEF_3(HwDLL, void, __cdecl, VGuiWrap2_NotifyOfServerConnect, const char*, game, int, IP, int, port)
 {
-	// This function calls a function of interest in GameUI.dll and passes its
-	// arguments there, so it is hooked to avoid adding a separate module.
-	// This fixes MP3 sound stopping on level transitions in mods.
-	// https://github.com/ValveSoftware/halflife/issues/570#issuecomment-486069492
+	/*
+		This function calls a function of interest in GameUI.dll and passes its
+		arguments there, so it is hooked to avoid adding a separate module.
+		This fixes MP3 sound stopping on level transitions in mods.
+		https://github.com/ValveSoftware/halflife/issues/570#issuecomment-486069492
+	*/
 
 	ORIG_VGuiWrap2_NotifyOfServerConnect("valve", IP, port);
 }

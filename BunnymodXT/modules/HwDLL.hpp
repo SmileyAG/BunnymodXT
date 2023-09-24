@@ -101,12 +101,29 @@ class HwDLL : public IHookableNameFilterOrdered
 	HOOK_DECL(qboolean, __cdecl, Cvar_CommandWithPrivilegeCheck, qboolean bIsPrivileged)
 	HOOK_DECL(void, __cdecl, R_ForceCvars, qboolean mp)
 	//HOOK_DECL(void, __cdecl, GL_EndRendering)
-	//HOOK_DECL(int, __cdecl, SV_AddToFullPack, struct entity_state_s* state, int e, unsigned char* pSet) // The last argument may have the wrong data type!
 	//HOOK_DECL(void, __cdecl, LoadAdjacentEntities, char* pOldLevel, char* pLandmarkName)
-	//HOOK_DECL(int, __cdecl, Q_stricmp, char *s1, char *s2)
 	//HOOK_DECL(void, __cdecl, CL_ParseServerInfo)
 	//HOOK_DECL(void, __cdecl, Host_AutoSave_f)
 	//HOOK_DECL(void, __cdecl, Host_Changelevel_f)
+	//HOOK_DECL(int, __cdecl, SV_CheckVisibility, const edict_t *entity, unsigned char *pset)
+	//HOOK_DECL(void, __cdecl, PF_changelevel_I, char *s1, char *s2)
+	//HOOK_DECL(int, __cdecl, Q_strcmp, char *s1, char *s2)
+	//HOOK_DECL(int, __cdecl, Q_strncmp, char *s1, char *s2, int count)
+	//HOOK_DECL(int, __cdecl, Q_strncasecmp, char *s1, char *s2, int n)
+	//HOOK_DECL(int, __cdecl, Q_strcasecmp, char *s1, char *s2)
+	//HOOK_DECL(int, __cdecl, Q_stricmp, char *s1, char *s2)
+	//HOOK_DECL(int, __cdecl, Q_strnicmp, char *s1, char *s2, int n)
+	//HOOK_DECL(char *, __cdecl, Q_strstr, char *s1, char *search)
+	//HOOK_DECL(char *, __cdecl, Q_stristr, char *pStr, char *pSearch)
+	//HOOK_DECL(void, __cdecl, SV_LoadEntities)
+	//HOOK_DECL(void, __cdecl, SV_ActivateServer, int runPhysics)
+	//HOOK_DECL(void, __cdecl, Host_Restart_f)
+
+	// HLSDK 1.0 FUNCTIONS - START
+	//HOOK_DECL(int, __cdecl, SV_AddToFullPack, struct entity_state_s* state, int e, unsigned char* pSet)
+	//HOOK_DECL(void, __cdecl, JumpButton)
+	//HOOK_DECL(void, __cdecl, PlayerMove, qboolean server)
+	// HLSDK 1.0 FUNCTIONS - END
 
 	typedef enum
 	{
@@ -184,17 +201,17 @@ class HwDLL : public IHookableNameFilterOrdered
 
 	struct sizebuf_t
 	{
-		char *buffername;
-		unsigned flags;
-		char *data;
-		unsigned maxsize;
-		unsigned cursize;
+		char *buffername; // buffername (type: char*)
+		unsigned flags; // flags (type: unsigned short)
+		char *data; // data (type: unsigned char*)
+		unsigned maxsize; // maxsize (type: int)
+		unsigned cursize; // cursize (type: int)
 	};
 
 	#ifdef SDK10_BUILD
 	struct server_static_t
 	{
-		int maxclients;
+		int maxclients; // maxclients (type: int)
 
 		#ifdef HL_DAYONE_BUILD
 		byte align[28680];
@@ -204,16 +221,105 @@ class HwDLL : public IHookableNameFilterOrdered
 		byte align[28684];
 		#endif
 
-		client_t *clients; // clients (struct: client_t)
+		client_t *clients; // clients (type: client_t*)
 	};
 	#else
 	struct server_static_t
 	{
-		int dll_initialized;
-		client_t *clients; // clients (struct: client_t)
-		int maxclients;
+		int dll_initialized; // dll_initialized (type: qboolean)
+		client_t *clients; // clients (type: client_t*)
+		int maxclients; // maxclients (type: int)
 	};
 	#endif
+
+	typedef struct svc_func_s
+	{
+		unsigned char opcode;  // Opcode
+		char *pszname;         // Display Name
+		void ( *pfnParse )( void );    // Parse function
+	} svc_func_t;
+
+	typedef enum
+	{
+		clc_bad = 0, // 0 (NULL)
+		clc_nop, // 1 (NULL)
+		clc_move, // 2 (SV_ParseMove)
+		clc_stringcmd, // 3 (SV_ParseStringCommand)
+		clc_delta, // 4 (SV_ParseDelta)
+		clc_resourcelist, // 5 (SV_ParseResourceList)
+		clc_tmove, // 6 (NULL)
+		clc_fileconsistency, // 7 (SV_ParseConsistencyResponse)
+		clc_voicedata, // 8 (SV_ParseVoiceData)
+		clc_hltv, // 9 (SV_IgnoreHLTV)
+		clc_cvarvalue, // 10 (SV_ParseCvarValue)
+		clc_cvarvalue2, // 11 (SV_ParseCvarValue2)
+		clc_endoflist = 255, // 12 (NULL)
+	} sv_clcfuncs;
+
+	typedef enum
+	{
+		svc_bad = 0, // 0 (NULL)
+		svc_nop, // 1 (NULL)
+		svc_disconnect, // 2 (CL_Parse_Disconnect)
+		svc_event, // 3 (CL_ParseEvent)
+		svc_version, // 4 (CL_Parse_Version)
+		svc_setview, // 5 (CL_Parse_SetView)
+		svc_sound, // 6 (CL_Parse_Sound)
+		svc_time, // 7 (CL_Parse_Time)
+		svc_print, // 8 (CL_Parse_Print)
+		svc_stufftext, // 9 (CL_Parse_StuffText)
+		svc_setangle, // 10 (CL_Parse_SetAngle)
+		svc_serverinfo, // 11 (CL_Parse_ServerInfo)
+		svc_lightstyle, // 12 (CL_Parse_LightStyle)
+		svc_updateuserinfo, // 13 (CL_Parse_UpdateUserInfo)
+		svc_deltadescription, // 14 (CL_Parse_DeltaDescription)
+		svc_clientdata, // 15 (CL_Parse_ClientData)
+		svc_stopsound, // 16 (CL_Parse_StopSound)
+		svc_pings, // 17 (CL_Parse_Pings)
+		svc_particle, // 18 (CL_Parse_Particle)
+		svc_damage, // 19 (CL_Parse_Damage)
+		svc_spawnstatic, // 20 (CL_Parse_SpawnStatic)
+		svc_event_reliable, // 21 (CL_Parse_ReliableEvent)
+		svc_spawnbaseline, // 22 (CL_Parse_SpawnBaseline)
+		svc_temp_entity, // 23 (CL_Parse_TempEntity)
+		svc_setpause, // 24 (CL_Parse_SetPause)
+		svc_signonnum, // 25 (CL_Parse_SignonNum)
+		svc_centerprint, // 26 (CL_Parse_CenterPrint)
+		svc_killedmonster, // 27 (CL_Parse_KilledMonster)
+		svc_foundsecret, // 28 (CL_Parse_FoundSecret)
+		svc_spawnstaticsound, // 29 (CL_Parse_SpawnStaticSound)
+		svc_intermission, // 30 (CL_Parse_Intermission)
+		svc_finale, // 31 (CL_Parse_Finale)
+		svc_cdtrack, // 32 (CL_Parse_CDTrack)
+		svc_restore, // 33 (CL_Parse_Restore)
+		svc_cutscene, // 34 (CL_Parse_CutScene)
+		svc_weaponanim, // 35 (CL_Parse_WeaponAnim)
+		svc_decalname, // 36 (CL_Parse_DecalName)
+		svc_roomtype, // 37 (CL_Parse_RoomType)
+		svc_addangle, // 38 (CL_Parse_AddAngle)
+		svc_newusermsg, // 39 (CL_Parse_NewUserMsg)
+		svc_packetentities, // 40 (CL_Parse_PacketEntities)
+		svc_deltapacketentities, // 41 (CL_Parse_DeltaPacketEntities)
+		svc_choke, // 42 (CL_Parse_Choke)
+		svc_resourcelist, // 43 (CL_Parse_ResourceList)
+		svc_newmovevars, // 44 (CL_Parse_NewMoveVars)
+		svc_resourcerequest, // 45 (CL_Parse_ResourceRequest)
+		svc_customization, // 46 (CL_Parse_Customization)
+		svc_crosshairangle, // 47 (CL_Parse_CrosshairAngle)
+		svc_soundfade, // 48 (CL_Parse_SoundFade)
+		svc_filetxferfailed, // 49 (CL_ParseFileTxferFailed)
+		svc_hltv, // 50 (CL_Parse_HLTV)
+		svc_director, // 51 (CL_Parse_Director)
+		svc_voiceinit, // 52 (CL_Parse_VoiceInit)
+		svc_voicedata, // 53 (CL_Parse_VoiceData)
+		svc_sendextrainfo, // 54 (CL_Set_ServerExtraInfo)
+		svc_timescale, // 55 (CL_Parse_Timescale)
+		svc_resourcelocation, // 56 (CL_Parse_ResourceLocation)
+		svc_sendcvarvalue, // 57 (CL_Send_CvarValue)
+		svc_sendcvarvalue2, // 58 (CL_Send_CvarValue2)
+		svc_exec, // 59 (CL_Exec)
+		svc_endoflist = 255, // 60 (NULL)
+	} cl_parsefuncs;
 
 	struct Key
 	{
@@ -444,13 +550,13 @@ public:
 
 	float currentRenderFOV = 0;
 
-	bool insideDrawCrosshair = false;
+	bool insideDrawCrosshair = false; // DrawCrosshair
 
 	int lastRecordedHealth;
 
-	globalvars_t *ppGlobals; // gGlobalVariables (struct: globalvars_t)
-	engine_studio_api_t *pEngStudio; // engine_studio_api (struct: engine_studio_api_t)
-	engine_api_t *pEngineAPI; // engineapi (struct: engine_api_t)
+	globalvars_t *ppGlobals; // gGlobalVariables (type: globalvars_t, global variable)
+	engine_studio_api_t *pEngStudio; // engine_studio_api (type: engine_studio_api_t, global variable)
+	engine_api_t *pEngineAPI; // engineapi (type: engine_api_t, global variable)
 
 	inline const char* GetString(int string) const {
 		assert(ppGlobals);
@@ -484,6 +590,8 @@ private:
 public:
 	typedef cmd_function_t*(__cdecl *_Cmd_FindCmd) (const char* cmd_name);
 	_Cmd_FindCmd ORIG_Cmd_FindCmd;
+	//typedef qboolean(__cdecl *_Cmd_Exists) (const char* cmd_name);
+	//_Cmd_Exists ORIG_Cmd_Exists;
 	typedef void(__cdecl *_Con_Printf) (const char* fmt, ...);
 	_Con_Printf ORIG_Con_Printf;
 	typedef cvar_t*(__cdecl *_Cvar_FindVar) (const char* name);
@@ -494,8 +602,6 @@ public:
 	_Host_Notarget_f ORIG_Host_Notarget_f;
 	typedef void(__cdecl* _Host_Noclip_f) ();
 	_Host_Noclip_f ORIG_Host_Noclip_f;
-	//typedef qboolean(__cdecl *_Cmd_Exists) (const char* cmd_name);
-	//_Cmd_Exists ORIG_Cmd_Exists;
 	//typedef int(__cdecl* _Draw_String) (int x, int y, char* str);
 	//_Draw_String ORIG_Draw_String;
 
@@ -540,6 +646,11 @@ protected:
 	//_Cmd_ForwardToServer ORIG_Cmd_ForwardToServer;
 	//typedef void(__cdecl *_MSG_WriteByte) (sizebuf_t* sb, int c);
 	//_MSG_WriteByte ORIG_MSG_WriteByte;
+
+	// HLSDK 1.0 FUNCTIONS - START
+	//typedef int(__cdecl* _PM_CheckStuck) ();
+	//_PM_CheckStuck ORIG_PM_CheckStuck;
+	// HLSDK 1.0 FUNCTIONS - END
 
 	void FindStuff();
 
@@ -660,28 +771,36 @@ public:
 
 	bool ducktap;
 
-	edict_t **sv_player; // sv_player (struct: edict_t)
-	qboolean *noclip_anglehack; // noclip_anglehack (type: qboolean)
-	float *scr_fov_value; // scr_fov_value (type: float)
-	void *pcl; // cl (struct: client_state_t)
+	edict_t **sv_player; // sv_player (type: edict_t*, global variable)
+	qboolean *noclip_anglehack; // noclip_anglehack (type: qboolean, global variable)
+	float *scr_fov_value; // scr_fov_value (type: float, global variable)
+	void *pcl; // cl (type: client_state_t, global variable)
 	/*
+	usercmd_t *cl_cmd // cl.cmd (type: usercmd_t)
 	Vector *viewangles; // cl.viewangles (type: vec3_t)
 	Vector *simorg; // cl.simorg (type: vec3_t)
 	Vector *simvel; // cl.simvel (type: vec3_t)
 	int* cl_paused; // cl.paused (type: qboolean)
+	float *cl_maxspeed; // cl.maxspeed (type: float)
 	double* cl_time; // cl.time (type: double)
 	int *playernum; // cl.playernum (type: int)
 	char *levelname; // cl.levelname (type: char[40])
+	int *cl_maxclients; // cl.maxclients (type: int)
+	int *num_entities; // cl.num_entities (type: int)
 	cl_entity_t *viewent; // cl.viewent (type: cl_entity_t)
-	cl_entity_t **cl_entities; // cl_entities (struct: cl_entity_t)
-	cl_entity_t **currentent; // currententity (struct: cl_entity_t)
-	refdef_t* r_refdef; // r_refdef (struct: refdef_t)
+	cl_entity_t **cl_entities; // cl_entities (type: cl_entity_t*, global variable)
+	cl_entity_t **currentent; // currententity (type: cl_entity_t*, global variable)
+	refdef_t* r_refdef; // r_refdef (type: refdef_t, global variable)
 	*/
-	void *cls; // cls (struct: client_static_t)
+	void *cls; // cls (type: client_static_t, global variable)
 	int *demorecording; // cls.demorecording (type: qboolean)
 	int *demoplayback; // cls.demoplayback (type: qboolean)
-	void *psv; // sv (struct: server_t)
+	//int *spectator; // cls.spectator (type: qboolean)
+	void *psv; // sv (type: server_t, global variable)
 	ptrdiff_t offName; // sv.name (type: char[64])
+	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
+	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
+	server_static_t *svs; // svs (type: server_static_t, global variable)
 protected:
 	void KeyDown(Key& btn);
 	void KeyUp(Key& btn);
@@ -702,28 +821,30 @@ protected:
 	bool insideHost_Reload_f;
 
 	ptrdiff_t offTime; // sv.time (type: double)
-	ptrdiff_t offModels; // sv.models (type: model_t)
-	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
-	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
-	ptrdiff_t offEdicts; // sv.edicts (type: edict_t)
+	ptrdiff_t offModels; // sv.models (type: model_t*[MAX_MODELS], MAX_MODELS is 512)
+	ptrdiff_t offEdicts; // sv.edicts (type: edict_t*)
 	//sizebuf_t *reliable_datagram; // sv.reliable_datagram (type: sizebuf_t)
-	server_static_t *svs; // svs (struct: server_static_t)
-	ptrdiff_t offEdict; // svs.clients->edict (type: edict_t)
-	void *svmove; // g_svmove (struct: playermove_t)
-	void **ppmove; // pmove (struct: playermove_t)
-	client_t **host_client; // host_client (struct: client_t)
-	char *sv_areanodes; // sv_areanodes (struct: areanode_t)
-	sizebuf_t *cmd_text; // cmd_text (struct: sizebuf_t)
-	double *host_frametime; // host_frametime (type: double)
-	cmdalias_t* cmd_alias; // cmd_alias (struct: cmdalias_t)
-	cvar_t **cvar_vars; // cvar_vars (struct: cvar_t)
-	movevars_t *movevars; // movevars (struct: movevars_t)
-	studiohdr_t **pstudiohdr; // pstudiohdr (struct: studiohdr_t)
+	ptrdiff_t offEdict; // svs.clients->edict (type: edict_t*)
+	//void *clmove // g_clmove (type: playermove_t, global variable)
+	void *svmove; // g_svmove (type: playermove_t, global variable)
+	void **ppmove; // pmove (type: playermove_t*, global variable)
+	client_t **host_client; // host_client (type: client_t*, global variable)
+	char *sv_areanodes; // sv_areanodes (type: areanode_t[AREA_NODES], AREA_NODES is 32, global variable)
+	sizebuf_t *cmd_text; // cmd_text (type: sizebuf_t, global variable)
+	double *host_frametime; // host_frametime (type: double, global variable)
+	//cmd_function_t **cmd_functions // cmd_functions (type: cmd_function_t*, global variable)
+	cmdalias_t* cmd_alias; // cmd_alias (type: cmdalias_t*, global variable)
+	cvar_t **cvar_vars; // cvar_vars (type: cvar_t*, global variable)
+	movevars_t *movevars; // movevars (type: movevars_t, global variable)
+	studiohdr_t **pstudiohdr; // pstudiohdr (type: studiohdr_t*, global variable)
 	ptrdiff_t pHost_FilterTime_FPS_Cap_Byte;
 	qboolean *cofSaveHack; // Cry of Fear-specific
-	int *gLoadSky;
-	//cmd_source_t *cmd_source; // cmd_source (struct: cmd_source_t)
+	int *gLoadSky; // gLoadSky (type: int, global variable)
+	//cmd_source_t *cmd_source; // cmd_source (type: cmd_source_t, global variable)
 	//int *signon; // cls.signon (type: int)
+	//int *key_dest // key_dest (type: keydest_t, global variable)
+
+	//typedef enum {key_game, key_console, key_message, key_menu} keydest_t; // key_console has been removed starting from 3xxx build
 
 	int framesTillExecuting;
 	bool executing;
@@ -888,13 +1009,13 @@ protected:
 	bool insideKeyEvent;
 	bool insideExec;
 	std::string execScript;
-	bool insideHost_Changelevel2_f;
+	bool insideHost_Changelevel2_f; // Host_Changelevel2_f
 	bool dontStopAutorecord;
-	bool insideRStudioCalcAttachmentsViewmodel;
-	bool insideHideGameUI;
+	bool insideRStudioCalcAttachmentsViewmodel; // R_StudioCalcAttachments
+	bool insideHideGameUI; // CBaseUI::HideGameUI
 
 	bool extendPlayerTraceDistanceLimit;
 
-	bool insideCL_ReadDemoMessage;
+	bool insideCL_ReadDemoMessage; // CL_ReadDemoMessage_OLD
 	std::vector<char> runtimeDataBuffer;
 };

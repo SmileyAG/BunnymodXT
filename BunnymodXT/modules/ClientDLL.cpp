@@ -340,7 +340,14 @@ void ClientDLL::Clear()
 	last_viewforward = Vector();
 	last_viewup = Vector();
 	last_viewright = Vector();
+	last_cl_viewangles = Vector();
 	last_buttons = 0;
+	last_refdef_buttons = 0;
+	last_paused = 0;
+	last_maxentities = 0;
+	last_playernum = 0;
+	last_maxclients = 0;
+	last_demoplayback = 0;
 	pCS_AngleSpeedCap = 0;
 	pCS_AngleSpeedCap_Linux = 0;
 	pCS_SpeedScaling = 0;
@@ -1309,55 +1316,159 @@ cl_entity_t* ClientDLL::GetViewModel()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
-	{
 		return pEngfuncs->GetViewModel();
-	}
 	/*
 	else if (hw.viewent)
-	{
 		return hw.viewent;
-	}
 	*/
 	else
-	{
 		return NULL;
-	}
 }
 
 cl_entity_t* ClientDLL::GetCurrentEntity()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (hw.pEngStudio && hlsdk_tables)
-	{
 		return hw.pEngStudio->GetCurrentEntity();
-	}
 	/*
 	else if (hw.currentent)
-	{
 		return *hw.currentent;
-	}
 	*/
 	else
-	{
 		return NULL;
-	}
+}
+
+float ClientDLL::GetClientMaxspeed()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+		return pEngfuncs->GetClientMaxspeed();
+	/*
+	else if (hw.cl_maxspeed)
+		return *hw.cl_maxspeed;
+	*/
+
+	return 0.0f;
+}
+
+float ClientDLL::GetMaxspeed()
+{
+	auto& sv = ServerDLL::GetInstance();
+	if (sv.is_paranoia)
+		return GetClientMaxspeed() * CVars::sv_maxspeed.GetFloat() / 100.0f;
+	else if ((GetClientMaxspeed() > 0.0f) && (CVars::sv_maxspeed.GetFloat() > GetClientMaxspeed()))
+		return GetClientMaxspeed();
+	else
+		return CVars::sv_maxspeed.GetFloat();
 }
 
 float ClientDLL::GetTimeCl()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
-	{
 		return pEngfuncs->GetClientTime();
-	}
 	/*
 	else if (hw.cl_time)
-	{
 		return static_cast<float>(*hw.cl_time);
-	}
 	*/
 
 	return 0.0f;
+}
+
+float ClientDLL::GetTimeSv()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ppGlobals)
+		return hw.ppGlobals->time;
+
+	return 0.0f;
+}
+
+int ClientDLL::MaxClientsCl()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && hw.pEngStudio && hlsdk_tables)
+		return pEngfuncs->GetMaxClients();
+	/*
+	else if (hw.cl_maxclients)
+		return hw.cl_maxclients;
+	*/
+
+	return last_maxclients;
+}
+
+int ClientDLL::MaxClientsSv()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.svs)
+		return hw.svs->maxclients;
+	else if (hw.ppGlobals)
+		return hw.ppGlobals->maxClients;
+
+	return 0;
+}
+
+bool ClientDLL::IsCoOp()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ppGlobals && hw.ppGlobals->coop)
+		return true;
+	else if (CVars::coop.GetBool())
+		return true;
+
+	return false;
+}
+
+bool ClientDLL::IsDeathmatch()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ppGlobals && hw.ppGlobals->deathmatch)
+		return true;
+	else if (CVars::deathmatch.GetBool())
+		return true;
+
+	return false;
+}
+
+bool ClientDLL::IsTeamplay()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.ppGlobals && hw.ppGlobals->teamplay)
+		return true;
+	/*
+	else if (CVars::mp_teamplay.GetBool())
+		return true;
+	*/
+
+	return false;
+}
+
+bool ClientDLL::IsPaused()
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.cl_paused && *hw.cl_paused)
+		return true;
+	else if (last_paused)
+		return true;
+	*/
+
+	return false;
+}
+
+bool ClientDLL::IsSpectateOnly()
+{
+	//auto& hw = HwDLL::GetInstance();
+	if (pEngfuncs && orig_forcehltv_found && hlsdk_tables)
+		return pEngfuncs->IsSpectateOnly();
+	/*
+	else if (hw.spectator && *hw.spectator)
+		return true;
+	*/
+	else if (last_spectator)
+		return true;
+
+	return false;
 }
 
 const char* ClientDLL::GetGameDirectory()
@@ -1394,9 +1505,7 @@ void ClientDLL::DrawSetTextColor(float r, float g, float b)
 	/*
 	auto& hw = HwDLL::GetInstance();
 	if (hw.ORIG_Draw_SetTextColor)
-	{
 		hw.ORIG_Draw_SetTextColor(r, g, b);
-	}
 	*/
 }
 
@@ -1405,13 +1514,9 @@ int ClientDLL::DrawString(int x, int y, const char* str)
 	/*
 	auto& hw = HwDLL::GetInstance();
 	if (hw.ORIG_Draw_String)
-	{
 		return hw.ORIG_Draw_String(x, y, const_cast<char*>(str));
-	}	
 	else*/ if (pEngfuncs && hlsdk_tables)
-	{
 		return pEngfuncs->pfnDrawConsoleString(x, y, const_cast<char*>(str));
-	}
 
 	return 0;
 }
@@ -1421,9 +1526,7 @@ Vector ClientDLL::GetRefdefViewAngles()
 	/*
 	auto& hw = HwDLL::GetInstance();
 	if (hw.r_refdef && !ORIG_V_CalcRefdef)
-	{
 		return hw.r_refdef->viewangles;
-	}
 	*/
 
 	return last_viewangles;
@@ -1434,9 +1537,7 @@ Vector ClientDLL::GetRefdefViewOrigin()
 	/*
 	auto& hw = HwDLL::GetInstance();
 	if (hw.r_refdef && !ORIG_V_CalcRefdef)
-	{
 		return hw.r_refdef->vieworg;
-	}
 	*/
 
 	return last_vieworg;
@@ -1447,9 +1548,7 @@ Vector ClientDLL::GetRefdefSimVelocity()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (hw.simvel && !ORIG_V_CalcRefdef)
-	{
 		return *hw.simvel;
-	}
 
 	return last_simvel;
 }
@@ -1458,11 +1557,27 @@ Vector ClientDLL::GetRefdefSimOrigin()
 {
 	auto& hw = HwDLL::GetInstance();
 	if (hw.simorg && !ORIG_V_CalcRefdef)
-	{
 		return *hw.simorg;
-	}
 
 	return last_simorg;
+}
+
+unsigned short ClientDLL::GetRefdefCmdButtons()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.cl_cmd && !ORIG_V_CalcRefdef)
+		return hw.cl_cmd->buttons;
+
+	return last_refdef_buttons;
+}
+
+float ClientDLL::GetRefdefMovevarsZmax()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.movevars && !ORIG_V_CalcRefdef)
+		return hw.movevars->zmax;
+
+	return last_refdef_zmax;
 }
 */
 
@@ -1483,12 +1598,64 @@ float ClientDLL::GetFOVFromCvar()
 	if (hw.scr_fov_value && (CVars::bxt_force_fov.GetFloat() >= 1.0) && (CVars::bxt_force_fov.GetFloat() <= 179.0))
 	{
 		if (CVars::bxt_fix_widescreen_fov.GetBool())
-			return *hw.scr_fov_value;
+			return GetFOV();
 		else
 			return CVars::bxt_force_fov.GetFloat();
 	}
 
 	return CVars::default_fov.GetFloat();
+}
+
+bool ClientDLL::Intersects(const entvars_t *pevVolume, const entvars_t *pevToucher)
+{
+	if (pevToucher->absmin.x > pevVolume->absmax.x ||
+			pevToucher->absmin.y > pevVolume->absmax.y ||
+			pevToucher->absmin.z > pevVolume->absmax.z ||
+			pevToucher->absmax.x < pevVolume->absmin.x ||
+			pevToucher->absmax.y < pevVolume->absmin.y ||
+			pevToucher->absmax.z < pevVolume->absmin.z)
+		return false;
+
+	return true;
+}
+
+int ClientDLL::MaxEdictsCl()
+{
+	/*
+	auto& hw = HwDLL::GetInstance();
+	if (hw.cl_maxedicts)
+		return *hw.cl_maxedicts;
+	*/
+
+	return last_maxentities;
+}
+
+int ClientDLL::MaxEdictsSv()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.offMaxEdicts && hw.psv)
+	{
+		const int maxEdicts = *reinterpret_cast<int *>(reinterpret_cast<uintptr_t>(hw.psv) + hw.offMaxEdicts);
+		return maxEdicts;
+	}
+	else if (hw.ppGlobals)
+	{
+		return hw.ppGlobals->maxEntities;
+	}
+
+	return 0;
+}
+
+int ClientDLL::NumEdictsSv()
+{
+	auto& hw = HwDLL::GetInstance();
+	if (hw.offNumEdicts && hw.psv)
+	{
+		const int numEdicts = *reinterpret_cast<int *>(reinterpret_cast<uintptr_t>(hw.psv) + hw.offNumEdicts);
+		return numEdicts;
+	}
+
+	return 0;
 }
 
 void ClientDLL::FileBase(const char *in, char *out)
@@ -1499,7 +1666,7 @@ void ClientDLL::FileBase(const char *in, char *out)
 
 	// scan backward for '.'
 	end = len - 1;
-	while (0 != end && in[end] != '.' && in[end] != '/' && in[end] != '\\')
+	while (end && in[end] != '.' && in[end] != '/' && in[end] != '\\')
 		end--;
 
 	if (in[end] != '.')		// no '.', copy to end
@@ -1808,6 +1975,12 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, V_CalcRefdef, ref_params_t*, pparams)
 
 	CustomHud::UpdatePlayerInfoInaccurate(pparams->simvel, pparams->simorg);
 
+	last_refdef_buttons = pparams->cmd->buttons;
+	last_maxentities = pparams->max_entities;
+	last_playernum = pparams->playernum;
+	last_maxclients = pparams->maxclients; 
+	last_demoplayback = pparams->demoplayback;
+
 	const HwDLL &hwDLL = HwDLL::GetInstance();
 
 	static bool free_cam_was_active = false;
@@ -1896,6 +2069,9 @@ HOOK_DEF_1(ClientDLL, void, __cdecl, V_CalcRefdef, ref_params_t*, pparams)
 	last_viewforward = pparams->forward;
 	last_viewright = pparams->right;
 	last_viewup = pparams->up;
+	last_cl_viewangles = pparams->cl_viewangles;
+	last_paused = pparams->paused;
+	last_refdef_zmax = pparams->movevars->zmax;
 }
 
 HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_Init)
