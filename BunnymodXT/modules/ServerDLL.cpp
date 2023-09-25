@@ -90,6 +90,11 @@ extern "C" Vector __cdecl _ZN11CBaseEntity17FireBulletsPlayerEj6VectorS0_S0_fiii
 {
 	return ServerDLL::HOOKED_CBaseEntity__FireBulletsPlayer_Linux(thisptr, cShots, vecSrc, vecDirShooting, vecSpread, flDistance, iBulletType, iTracerFreq, iDamage, pevAttacker, shared_rand);
 }
+
+extern "C" void __cdecl _Z15PlayerPostThinkP7edict_s(edict_t* pEntity)
+{
+	return ServerDLL::HOOKED_PlayerPostThink(pEntity);
+}
 #endif
 
 void ServerDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* moduleBase, size_t moduleLength, bool needToIntercept)
@@ -129,6 +134,7 @@ void ServerDLL::Hook(const std::wstring& moduleName, void* moduleHandle, void* m
 			ORIG_AddToFullPack, HOOKED_AddToFullPack,
 			ORIG_CTriggerVolume__Spawn, HOOKED_CTriggerVolume__Spawn,
 			ORIG_ClientCommand, HOOKED_ClientCommand,
+			ORIG_PlayerPostThink, HOOKED_PlayerPostThink,
 			ORIG_CPushable__Move, HOOKED_CPushable__Move,
 			ORIG_CBasePlayer__TakeDamage, HOOKED_CBasePlayer__TakeDamage,
 			ORIG_CGraph__InitGraph, HOOKED_CGraph__InitGraph,
@@ -179,6 +185,7 @@ void ServerDLL::Unhook()
 			ORIG_AddToFullPack,
 			ORIG_CTriggerVolume__Spawn,
 			ORIG_ClientCommand,
+			ORIG_PlayerPostThink,
 			ORIG_CPushable__Move,
 			ORIG_CBasePlayer__TakeDamage,
 			ORIG_CGraph__InitGraph,
@@ -241,6 +248,7 @@ void ServerDLL::Clear()
 	ORIG_CBasePlayer__GiveNamedItem_Linux = nullptr;
 	ORIG_CoF_CBasePlayer__GiveNamedItem = nullptr;
 	ORIG_ClientCommand = nullptr;
+	ORIG_PlayerPostThink = nullptr;
 	ORIG_CPushable__Move = nullptr;
 	ORIG_CPushable__Move_Linux = nullptr;
 	ORIG_CBasePlayer__TakeDamage = nullptr;
@@ -281,7 +289,6 @@ void ServerDLL::Clear()
 	pBhopcapWindows = 0;
 	pCZDS_Velocity_Byte = 0;
 	pAddToFullPack_PVS_Byte = 0;
-	pCoF_Noclip_Preventing_Check_Byte = 0;
 	pCBasePlayer__Jump_OldButtons_Check_Byte = 0;
 	offm_iClientFOV = 0;
 	offm_rgAmmoLast = 0;
@@ -758,20 +765,6 @@ void ServerDLL::FindStuff()
 			}
 		});
 
-	auto fCoF_Noclip_Preventing_Check_Byte = FindAsync(
-		pCoF_Noclip_Preventing_Check_Byte,
-		patterns::server::CoF_Noclip_Preventing_Check_Byte,
-		[&](auto pattern) {
-			switch (pattern - patterns::server::CoF_Noclip_Preventing_Check_Byte.cbegin()) {
-			case 0: // CoF-5936
-			case 1: // CoF-Mod-155
-				pCoF_Noclip_Preventing_Check_Byte += 10;
-				break;
-			default:
-				assert(false);
-			}
-		});
-
 	auto fCBasePlayer__Jump_OldButtons_Check_Byte = FindAsync(
 		pCBasePlayer__Jump_OldButtons_Check_Byte,
 		patterns::server::CBasePlayer__Jump_OldButtons_Check_Byte,
@@ -898,12 +891,6 @@ void ServerDLL::FindStuff()
 		} else {
 			EngineDevWarning("[server dll] Could not find AddToFullPack PVS Byte.\n");
 		}
-	}
-
-	{
-		auto pattern = fCoF_Noclip_Preventing_Check_Byte.get();
-		if (pCoF_Noclip_Preventing_Check_Byte)
-			EngineDevMsg("[server dll] Found noclip preventing check in CoF at %p (using the %s pattern).\n", pCoF_Noclip_Preventing_Check_Byte, pattern->name());
 	}
 
 	{
@@ -1239,13 +1226,15 @@ void ServerDLL::FindStuff()
 		}
 	}
 
-	ORIG_CmdStart = reinterpret_cast<_CmdStart>(MemUtils::GetSymbolAddress(m_Handle, "_Z8CmdStartPK7edict_sPK9usercmd_sj"));
-	ORIG_AddToFullPack = reinterpret_cast<_AddToFullPack>(MemUtils::GetSymbolAddress(m_Handle, "_Z13AddToFullPackP14entity_state_siP7edict_sS2_iiPh"));
 	ORIG_ClientCommand = reinterpret_cast<_ClientCommand>(MemUtils::GetSymbolAddress(m_Handle, "_Z13ClientCommandP7edict_s"));
+	ORIG_PlayerPostThink = reinterpret_cast<_PlayerPostThink>(MemUtils::GetSymbolAddress(m_Handle, "_Z15PlayerPostThinkP7edict_s"));
 	ORIG_PM_Move = reinterpret_cast<_PM_Move>(MemUtils::GetSymbolAddress(m_Handle, "PM_Move"));
+	ORIG_AddToFullPack = reinterpret_cast<_AddToFullPack>(MemUtils::GetSymbolAddress(m_Handle, "_Z13AddToFullPackP14entity_state_siP7edict_sS2_iiPh"));
+	ORIG_CmdStart = reinterpret_cast<_CmdStart>(MemUtils::GetSymbolAddress(m_Handle, "_Z8CmdStartPK7edict_sPK9usercmd_sj"));
 
-	if (ORIG_ClientCommand && ORIG_PM_Move && ORIG_AddToFullPack && ORIG_CmdStart) {
+	if (ORIG_ClientCommand && ORIG_PlayerPostThink && ORIG_PM_Move && ORIG_AddToFullPack && ORIG_CmdStart) {
 		EngineDevMsg("[server dll] Found ClientCommand at %p.\n", ORIG_ClientCommand);
+		EngineDevMsg("[server dll] Found PlayerPostThink at %p.\n", ORIG_PlayerPostThink);
 		EngineDevMsg("[server dll] Found PM_Move at %p.\n", ORIG_PM_Move);
 		EngineDevMsg("[server dll] Found AddToFullPack at %p.\n", ORIG_AddToFullPack);
 		EngineDevMsg("[server dll] Found CmdStart at %p.\n", ORIG_CmdStart);
@@ -1256,7 +1245,9 @@ void ServerDLL::FindStuff()
 			if (ORIG_GetEntityAPI(&funcs, INTERFACE_VERSION)) {
 				// Gets our hooked addresses on Windows.
 				ORIG_ClientCommand = funcs.pfnClientCommand;
+				ORIG_PlayerPostThink = funcs.pfnPlayerPostThink;
 				EngineDevMsg("[server dll] Found ClientCommand at %p.\n", ORIG_ClientCommand);
+				EngineDevMsg("[server dll] Found PlayerPostThink at %p.\n", ORIG_PlayerPostThink);
 				if (INTERFACE_VERSION == 140)
 				{
 					ORIG_PM_Move = funcs.pfnPM_Move;
@@ -1806,14 +1797,6 @@ void ServerDLL::CoFChanges()
 {
 	if (is_cof)
 	{
-		if (pCoF_Noclip_Preventing_Check_Byte)
-		{
-			if ((*reinterpret_cast<byte*>(pCoF_Noclip_Preventing_Check_Byte) == 0x75) && (*HwDLL::GetInstance().noclip_anglehack))
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pCoF_Noclip_Preventing_Check_Byte), 1, reinterpret_cast<const byte*>("\xEB"));
-			else if ((*reinterpret_cast<byte*>(pCoF_Noclip_Preventing_Check_Byte) == 0xEB) && !(*HwDLL::GetInstance().noclip_anglehack))
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pCoF_Noclip_Preventing_Check_Byte), 1, reinterpret_cast<const byte*>("\x75"));
-		}
-
 		if (pCBasePlayer__Jump_OldButtons_Check_Byte)
 		{
 			if (offm_rgAmmoLast == 0x25C0) { // CoF-5936
@@ -2666,6 +2649,25 @@ HOOK_DEF_1(ServerDLL, void, __cdecl, ClientCommand, edict_t*, pEntity)
 	} else {
 		ORIG_ClientCommand(pEntity);
 		return;
+	}
+}
+
+HOOK_DEF_1(ServerDLL, void, __cdecl, PlayerPostThink, edict_t*, pEntity)
+{
+	bool set_cof_noclip = false;
+
+	auto &hw = HwDLL::GetInstance();
+	if (is_cof && CVars::sv_cheats.GetBool() && ((*hw.sv_player)->v.movetype == MOVETYPE_NOCLIP))
+	{
+		(*hw.sv_player)->v.movetype = MOVETYPE_WALK;
+		set_cof_noclip = true;
+	}
+
+	ORIG_PlayerPostThink(pEntity);
+
+	if (set_cof_noclip)
+	{
+		(*hw.sv_player)->v.movetype = MOVETYPE_NOCLIP;
 	}
 }
 

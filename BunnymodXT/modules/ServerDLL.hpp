@@ -67,7 +67,7 @@ class ServerDLL : public IHookableDirFilter
 	HOOK_DECL(void, __fastcall, CBasePlayer__Jump, void* thisptr) // ?Jump@CBasePlayer@@UAEXXZ (non-exported, 4 entries above of CBasePlayer::UpdateClientData in CBasePlayer vtable)
 	//HOOK_DECL(void, __cdecl, CBasePlayer__Jump_Linux, void* thisptr) // _ZN11CBasePlayer4JumpEv
 	//HOOK_DECL(void, __cdecl, PlayerPreThink, edict_t* pEntity) // _Z14PlayerPreThinkP7edict_s (Linux, for Windows it's exported from DLL_FUNCTIONS struct)
-	//HOOK_DECL(void, __cdecl, PlayerPostThink, edict_t* pEntity) // _Z15PlayerPostThinkP7edict_s (Linux, for Windows it's exported from DLL_FUNCTIONS struct)
+	HOOK_DECL(void, __cdecl, PlayerPostThink, edict_t* pEntity) // _Z15PlayerPostThinkP7edict_s (Linux, for Windows it's exported from DLL_FUNCTIONS struct)
 	//HOOK_DECL(void, __fastcall, COsprey__DyingThink, void* thisptr, int edx) // ?DyingThink@COsprey@@QAEXXZ (exported)
 	//HOOK_DECL(void, __cdecl, COsprey__DyingThink_Linux, void* thisptr) // _ZN7COsprey10DyingThinkEv
 	//HOOK_DECL(void, __fastcall, CBaseTrigger__TeleportTouch, void* thisptr, int edx, void* pOther) // ?TeleportTouch@CBaseTrigger@@QAEXPAVCBaseEntity@@@Z (exported)
@@ -238,7 +238,6 @@ protected:
 
 	ptrdiff_t pCBasePlayer__Jump_OldButtons_Check_Byte;
 
-	ptrdiff_t pCoF_Noclip_Preventing_Check_Byte; // Cry of Fear-specific
 	ptrdiff_t offm_bInfiniteStamina; // m_bInfiniteStamina (class: CBasePlayer, type: bool, game: Cry of Fear)
 	ptrdiff_t offm_old_iAmmo; // old_m_iAmmo (class: CBasePlayerItem, type: int, game: Cry of Fear)
 	ptrdiff_t offm_iPlayerSaveLock; // m_iPlayerSaveLock (class: CBasePlayer, type: int, game: Cry of Fear)
