@@ -288,7 +288,6 @@ void ServerDLL::Clear()
 	offBhopcap = 0;
 	pBhopcapWindows = 0;
 	pCZDS_Velocity_Byte = 0;
-	pAddToFullPack_PVS_Byte = 0;
 	pCBasePlayer__Jump_OldButtons_Check_Byte = 0;
 	offm_iClientFOV = 0;
 	offm_rgAmmoLast = 0;
@@ -745,26 +744,6 @@ void ServerDLL::FindStuff()
 			}
 		});
 
-	auto fAddToFullPack_PVS_Byte = FindAsync(
-		pAddToFullPack_PVS_Byte,
-		patterns::server::AddToFullPack_PVS_Byte,
-		[&](auto pattern) {
-			switch (pattern - patterns::server::AddToFullPack_PVS_Byte.cbegin()) {
-			case 0: // HL-SteamPipe
-			case 1: // Parasomnia
-				pAddToFullPack_PVS_Byte += 2;
-				break;
-			case 2: // AoMDC
-				pAddToFullPack_PVS_Byte += 6;
-				break;
-			case 3: // Counter-Strike 1.6
-				pAddToFullPack_PVS_Byte += 17;
-				break;
-			default:
-				assert(false);
-			}
-		});
-
 	auto fCBasePlayer__Jump_OldButtons_Check_Byte = FindAsync(
 		pCBasePlayer__Jump_OldButtons_Check_Byte,
 		patterns::server::CBasePlayer__Jump_OldButtons_Check_Byte,
@@ -881,15 +860,6 @@ void ServerDLL::FindStuff()
 			EngineDevMsg("[server dll] Found CZDS Velocity Reset Byte at %p (using the %s pattern).\n", pCZDS_Velocity_Byte, pattern->name());
 		} else {
 			EngineDevWarning("[server dll] Could not find CZDS Velocity Reset Byte.\n");
-		}
-	}
-
-	{
-		auto pattern = fAddToFullPack_PVS_Byte.get();
-		if (pAddToFullPack_PVS_Byte) {
-			EngineDevMsg("[server dll] Found AddToFullPack PVS Byte at %p (using the %s pattern).\n", pAddToFullPack_PVS_Byte, pattern->name());
-		} else {
-			EngineDevWarning("[server dll] Could not find AddToFullPack PVS Byte.\n");
 		}
 	}
 
@@ -1574,7 +1544,6 @@ void ServerDLL::RegisterCVarsAndCommands()
 		REG(bxt_show_hidden_entities);
 		REG(bxt_show_triggers_legacy);
 		REG(bxt_show_triggers_legacy_alpha);
-		REG(bxt_render_far_entities);
 	}
 	if (ORIG_PM_CheckStuck)
 		REG(bxt_fire_on_stuck);
@@ -2478,43 +2447,13 @@ HOOK_DEF_7(ServerDLL, int, __cdecl, AddToFullPack, struct entity_state_s*, state
 	auto oldRenderFx = ent->v.renderfx;
 	auto oldFlags = ent->v.flags;
 
+	if (CVars::bxt_render_far_entities.GetBool())
+		pSet = 0;
+
 	#ifndef SDK10_BUILD
 	auto oldIUser1 = ent->v.iuser1;
 	auto oldIUser2 = ent->v.iuser2;
 	#endif
-
-	static bool is_0x75 = false;
-
-	if (pAddToFullPack_PVS_Byte)
-	{
-		if (CVars::bxt_render_far_entities.GetBool())
-		{
-			if (*reinterpret_cast<byte*>(pAddToFullPack_PVS_Byte) == 0x75)
-				is_0x75 = true;
-
-			if ((*reinterpret_cast<byte*>(pAddToFullPack_PVS_Byte) == 0x74) || (*reinterpret_cast<byte*>(pAddToFullPack_PVS_Byte) == 0x75))
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pAddToFullPack_PVS_Byte), 1, reinterpret_cast<const byte*>("\xEB"));
-		}
-		else if (*reinterpret_cast<byte*>(pAddToFullPack_PVS_Byte) == 0xEB)
-		{
-			if (is_0x75)
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pAddToFullPack_PVS_Byte), 1, reinterpret_cast<const byte*>("\x75"));
-			else
-				MemUtils::ReplaceBytes(reinterpret_cast<void*>(pAddToFullPack_PVS_Byte), 1, reinterpret_cast<const byte*>("\x74"));
-		}
-	}
-
-	#ifndef SDK10_BUILD
-	if (ClientDLL::GetInstance().DoesGameDirContain("czeror") && CVars::bxt_render_far_entities.GetBool())
-	{
-		ent->v.flags |= FL_IMMUNE_LAVA; // Because the PVS check in AddToFullPack points to '524288' flags bit
-		ent->v.iuser1 = 1; // Similar to above explanation
-		ent->v.iuser2 = 1; // Mappers used on some entities 'nopvs = 1' keyvalue, which is 'iuser2 = 1` in game code
-	}
-	#endif
-
-	if (CVars::bxt_render_far_entities.GetInt() == 2 || (CVars::bxt_render_far_entities.GetBool() && spirit_sdk))
-		ent->v.renderfx = 22; // kRenderFxEntInPVS from Spirit SDK
 
 	const char *classname = HwDLL::GetInstance().ppGlobals->pStringBase + ent->v.classname;
 	bool is_trigger = std::strncmp(classname, "trigger_", 8) == 0;

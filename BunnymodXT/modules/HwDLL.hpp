@@ -105,7 +105,6 @@ class HwDLL : public IHookableNameFilterOrdered
 	//HOOK_DECL(void, __cdecl, CL_ParseServerInfo)
 	//HOOK_DECL(void, __cdecl, Host_AutoSave_f)
 	//HOOK_DECL(void, __cdecl, Host_Changelevel_f)
-	//HOOK_DECL(int, __cdecl, SV_CheckVisibility, const edict_t *entity, unsigned char *pset)
 	//HOOK_DECL(void, __cdecl, PF_changelevel_I, char *s1, char *s2)
 	//HOOK_DECL(int, __cdecl, Q_strcmp, char *s1, char *s2)
 	//HOOK_DECL(int, __cdecl, Q_strncmp, char *s1, char *s2, int count)

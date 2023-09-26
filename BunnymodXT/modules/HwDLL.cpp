@@ -5249,6 +5249,7 @@ void HwDLL::RegisterCVarsAndCommandsIfNeeded()
 	RegisterCVar(CVars::bxt_disable_world);
 	RegisterCVar(CVars::bxt_disable_particles);
 	RegisterCVar(CVars::bxt_tas_ducktap_priority);
+	RegisterCVar(CVars::bxt_render_far_entities);
 
 	if (ORIG_Cvar_Command || ORIG_Cvar_CommandWithPrivilegeCheck || ORIG_R_ForceCvars)
 		RegisterCVar(CVars::bxt_disable_cheats_check_in_demo);
