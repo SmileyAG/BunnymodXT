@@ -2447,6 +2447,9 @@ HOOK_DEF_7(ServerDLL, int, __cdecl, AddToFullPack, struct entity_state_s*, state
 	auto oldRenderFx = ent->v.renderfx;
 	auto oldFlags = ent->v.flags;
 
+	/*
+		WARNING: GoldSrc can handle max to 256 entities being a visible
+	*/
 	if (CVars::bxt_render_far_entities.GetBool())
 		pSet = 0;
 

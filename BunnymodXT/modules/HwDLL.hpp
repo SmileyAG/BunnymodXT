@@ -253,7 +253,7 @@ class HwDLL : public IHookableNameFilterOrdered
 		clc_cvarvalue, // 10 (SV_ParseCvarValue)
 		clc_cvarvalue2, // 11 (SV_ParseCvarValue2)
 		clc_endoflist = 255, // 12 (NULL)
-	} sv_clcfuncs;
+	} sv_clcfuncs_enum;
 
 	typedef enum
 	{
@@ -318,7 +318,14 @@ class HwDLL : public IHookableNameFilterOrdered
 		svc_sendcvarvalue2, // 58 (CL_Send_CvarValue2)
 		svc_exec, // 59 (CL_Exec)
 		svc_endoflist = 255, // 60 (NULL)
-	} cl_parsefuncs;
+	} cl_parsefuncs_enum;
+
+	typedef struct packet_entities_s
+	{
+		int num_entities;
+		unsigned char flags[32];
+		entity_state_t *entities;
+	} packet_entities_t;
 
 	struct Key
 	{
@@ -771,10 +778,10 @@ public:
 	bool ducktap;
 
 	edict_t **sv_player; // sv_player (type: edict_t*, global variable)
-	qboolean *noclip_anglehack; // noclip_anglehack (type: qboolean, global variable)
 	float *scr_fov_value; // scr_fov_value (type: float, global variable)
 	void *pcl; // cl (type: client_state_t, global variable)
 	/*
+	int *parsecountmod; // cl.parsecountmod (type: int)
 	usercmd_t *cl_cmd // cl.cmd (type: usercmd_t)
 	Vector *viewangles; // cl.viewangles (type: vec3_t)
 	Vector *simorg; // cl.simorg (type: vec3_t)
@@ -782,6 +789,7 @@ public:
 	int* cl_paused; // cl.paused (type: qboolean)
 	float *cl_maxspeed; // cl.maxspeed (type: float)
 	double* cl_time; // cl.time (type: double)
+	int *cl_frames // cl.frames (type: frame_t[UPDATE_BACKUP], UPDATE_BACKUP is 64)
 	int *playernum; // cl.playernum (type: int)
 	char *levelname; // cl.levelname (type: char[40])
 	int *cl_maxclients; // cl.maxclients (type: int)
@@ -800,6 +808,13 @@ public:
 	ptrdiff_t offNumEdicts; // sv.num_edicts (type: int)
 	ptrdiff_t offMaxEdicts; // sv.max_edicts (type: int)
 	server_static_t *svs; // svs (type: server_static_t, global variable)
+	client_t **host_client; // host_client (type: client_t*, global variable)
+	//void *client_netchan; // host_client.netchan (type: netchan_t)
+	//client_frame_t **client_frames // host_client->frames (type: client_frame_t*)
+	//int *CL_UPDATE_MASK // CL_UPDATE_MASK (type: int, global variable)
+	//int *CL_UPDATE_BACKUP // CL_UPDATE_BACKUP (type: int, global variable)
+	//int *SV_UPDATE_MASK // SV_UPDATE_MASK (type: int, global variable)
+	//int *SV_UPDATE_BACKUP // SV_UPDATE_BACKUP (type: int, global variable)
 protected:
 	void KeyDown(Key& btn);
 	void KeyUp(Key& btn);
@@ -827,7 +842,6 @@ protected:
 	//void *clmove // g_clmove (type: playermove_t, global variable)
 	void *svmove; // g_svmove (type: playermove_t, global variable)
 	void **ppmove; // pmove (type: playermove_t*, global variable)
-	client_t **host_client; // host_client (type: client_t*, global variable)
 	char *sv_areanodes; // sv_areanodes (type: areanode_t[AREA_NODES], AREA_NODES is 32, global variable)
 	sizebuf_t *cmd_text; // cmd_text (type: sizebuf_t, global variable)
 	double *host_frametime; // host_frametime (type: double, global variable)
