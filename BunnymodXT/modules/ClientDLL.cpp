@@ -1371,6 +1371,108 @@ void ClientDLL::SetSpeedScaling(bool scaled)
 	}
 }
 
+void ClientDLL::ParseEntityData(const model_s *model, const bool reinit)
+{
+	if (!reinit && !entityData.empty()) // If reinit is false and the data is not empty, do not re-initialize!
+		return;
+
+	entityData.clear(); // Clearing old data.
+
+	if (!model)
+		return;
+
+	int	n;
+	char keyname[256];
+	char token[1024];
+
+	char *data = model->entities;
+
+	while (data)
+	{
+		data = pEngfuncs->COM_ParseFile(data, token);
+
+		if ((token[0] == '}') || (token[0] == 0))
+			break;
+
+		if (!data)
+		{
+			pEngfuncs->Con_DPrintf(const_cast<char*>("ParseEntityData: EOF without closing brace\n"));
+			return;
+		}
+
+		if (token[0] != '{')
+		{
+			pEngfuncs->Con_DPrintf(const_cast<char*>("ParseEntityData: expected {\n"));
+			return;
+		}
+
+		// we parse the first { now parse entities properties
+		
+		ShortenedEntityData newEntity;
+
+		while (1)
+		{	
+			// parse key
+			data = pEngfuncs->COM_ParseFile(data, token);
+			if (token[0] == '}')
+				break; // finish parsing this entity
+
+			if (!data)
+			{	
+				pEngfuncs->Con_DPrintf(const_cast<char*>("ParseEntityData: EOF without closing brace\n"));
+				return;
+			};
+			
+			strcpy(keyname, token);
+
+			// another hack to fix keynames with trailing spaces
+			n = strlen(keyname);
+			while (n && keyname[n-1] == ' ')
+			{
+				keyname[n-1] = 0;
+				n--;
+			}
+			
+			// parse value	
+			data = pEngfuncs->COM_ParseFile(data, token);
+			if (!data)
+			{	
+				pEngfuncs->Con_DPrintf(const_cast<char*>("ParseEntityData: EOF without closing brace\n"));
+				return;
+			};
+	
+			if (token[0] == '}')
+			{
+				pEngfuncs->Con_DPrintf(const_cast<char*>("ParseEntityData: closing brace without data\n"));
+				return;
+			}
+
+			// Custom code for parsing triggers starts here 		@ _Smiley
+
+			if (!strcmp(keyname, "classname"))
+			{
+				newEntity.classname = token;
+			};
+
+			if (!strcmp(keyname, "model"))
+			{
+				newEntity.model = token;
+			};
+
+			if (!strcmp(keyname, "origin"))
+			{
+				std::istringstream ss(token); // Replaced UTIL_StringToVector with std::istringstream
+				ss >> newEntity.origin[0] >> newEntity.origin[1] >> newEntity.origin[2];
+			};
+
+			if (!newEntity.model.empty() && !newEntity.classname.empty())
+			{
+				entityData.push_back(newEntity);
+			}
+		} // while (1)
+	}
+}
+
 void ClientDLL::SetupTraceVectors(float start[3], float end[3])
 {
 	auto view = last_vieworg;

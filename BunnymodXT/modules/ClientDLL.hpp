@@ -115,6 +115,17 @@ public:
 
 	void SetupTraceVectors(float start[3], float end[3]);
 
+	void ParseEntityData(const model_s *model, const bool reinit); // https://github.com/ValveSoftware/halflife/blob/c7240b965743a53a29491dd49320c88eecf6257b/cl_dll/hud_spectator.cpp#L235
+
+	struct ShortenedEntityData
+	{
+		std::string model;
+		std::string classname;
+		Vector origin;
+	};
+
+	std::vector<ShortenedEntityData> entityData;
+
 private:
 	ClientDLL() : IHookableNameFilter({ L"client.dll", L"client.so" }) {};
 	ClientDLL(const ClientDLL&);
