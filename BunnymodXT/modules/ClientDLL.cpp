@@ -1371,21 +1371,19 @@ void ClientDLL::SetSpeedScaling(bool scaled)
 	}
 }
 
-void ClientDLL::ParseEntityData(const model_s *model, const bool reinit)
+void ClientDLL::ParseEntityData(const bool reinit, char *data)
 {
-	if (!reinit && !entityData.empty()) // If reinit is false and the data is not empty, do not re-initialize!
+	if (!reinit && !entityTriggerData.empty()) // If reinit is false and the data is not empty, do not re-initialize!
 		return;
 
-	entityData.clear(); // Clearing old data.
+	entityTriggerData.clear(); // Clearing old data.
 
-	if (!model)
+	if (!pEngfuncs)
 		return;
 
 	int	n;
 	char keyname[256];
 	char token[1024];
-
-	char *data = model->entities;
 
 	while (data)
 	{
@@ -1451,7 +1449,10 @@ void ClientDLL::ParseEntityData(const model_s *model, const bool reinit)
 
 			if (!strcmp(keyname, "classname"))
 			{
-				newEntity.classname = token;
+				bool is_trigger = std::strncmp(token, "trigger_", 8) == 0;
+				bool is_ladder = std::strcmp(token, "func_ladder") == 0;
+				if (is_trigger || is_ladder)
+					newEntity.classname = token;
 			};
 
 			if (!strcmp(keyname, "model"))
@@ -1465,12 +1466,23 @@ void ClientDLL::ParseEntityData(const model_s *model, const bool reinit)
 				ss >> newEntity.origin[0] >> newEntity.origin[1] >> newEntity.origin[2];
 			};
 
-			if (!newEntity.model.empty() && !newEntity.classname.empty())
+			if (!newEntity.model.empty() && !newEntity.classname.empty()) // If model and classname are unknown, don't even dare save!
 			{
-				entityData.push_back(newEntity);
+				entityTriggerData.push_back(newEntity);
 			}
 		} // while (1)
 	}
+}
+
+void ClientDLL::ParseEntityData(const bool reinit)
+{
+	if (!pEngfuncs)
+		return;
+
+	cl_entity_t *pEnt = pEngfuncs->GetEntityByIndex(0);
+
+	if (pEnt && pEnt->model)
+		ParseEntityData(reinit, pEnt->model->entities);
 }
 
 void ClientDLL::SetupTraceVectors(float start[3], float end[3])
@@ -1695,6 +1707,8 @@ HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_Init)
 HOOK_DEF_0(ClientDLL, void, __cdecl, HUD_VidInit)
 {
 	ORIG_HUD_VidInit();
+
+	ParseEntityData(true); // Update data at map change
 
 	CustomHud::InitIfNecessary();
 	CustomHud::VidInit();

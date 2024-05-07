@@ -174,6 +174,9 @@ namespace TriangleDrawing
 		if (!CVars::bxt_show_triggers.GetBool())
 			return;
 
+		if (HwDLL::GetInstance().IsPlayingbackDemo())
+			return;
+
 		pTriAPI->RenderMode(kRenderTransAdd);
 		pTriAPI->CullFace(TRI_NONE);
 
@@ -212,6 +215,80 @@ namespace TriangleDrawing
 
 				pTriAPI->Color4f(r, g, b, a);
 				DrawPolygons<msurface_t*>(model, i, pTriAPI);
+			}
+		}
+	}
+
+	static void DrawTriggersClient(triangleapi_s *pTriAPI)
+	{
+		if (!CVars::bxt_show_triggers.GetBool())
+			return;
+
+		auto& hw = HwDLL::GetInstance();
+		auto& cl = ClientDLL::GetInstance();
+
+		if (!cl.pEngfuncs)
+			return;
+
+		if (!hw.IsPlayingbackDemo())
+			return;
+
+		cl.ParseEntityData(false);
+
+		pTriAPI->RenderMode(kRenderTransAdd);
+		pTriAPI->CullFace(TRI_NONE);
+
+		const float clTime = cl.pEngfuncs->GetClientTime();
+
+		if (!cl.entityTriggerData.empty())
+		{
+			for (int e = 1; e < hw.GetNumEntitiesCL(); ++e)
+			{
+				cl_entity_t* ent = cl.pEngfuncs->GetEntityByIndex(e);
+				if (ent && ent->model)
+				{
+					for (size_t i = 0; i < cl.entityTriggerData.size(); i++)
+					{
+						const model_t *model = ent->model;
+						if (!model)
+							continue;
+
+						if (strcmp(model->name, cl.entityTriggerData[i].model.c_str()) != 0)
+							continue;
+
+						const char *classname = cl.entityTriggerData[i].classname.c_str();
+
+						const bool active = ent->curstate.solid != SOLID_NOT || std::strcmp(classname, "trigger_transition") == 0;
+
+						float r, g, b, a;
+						ServerDLL::GetTriggerColor(classname, r, g, b);
+						ServerDLL::GetTriggerAlpha(classname, !active, true, a);
+						r /= 255.0f;
+						g /= 255.0f;
+						b /= 255.0f;
+						a /= 255.0f;
+
+						if (model->nummodelsurfaces)
+						{
+							for (int j = 0; j < model->nummodelsurfaces; ++j) 
+							{
+								// Offset to make each surface look slightly different
+								const float offset = j * float(M_PI) / 7;
+								if (active)
+									a = GetPulsatingAlpha(a, clTime + offset);
+								pTriAPI->Color4f(r, g, b, a);
+								DrawPolygons<msurface_t*>(model, j, pTriAPI);
+							}
+						}
+						else
+						{
+							pTriAPI->Color4f(r, g, b, a);
+							Vector absmin = model->mins + cl.entityTriggerData[i].origin;
+							Vector absmax = model->maxs + cl.entityTriggerData[i].origin;
+							TriangleUtils::DrawAACuboid(pTriAPI, absmin, absmax);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -2390,6 +2467,7 @@ namespace TriangleDrawing
 		DrawDisplacerTargets(pTriAPI);
 		DrawUseableEntities(pTriAPI);
 		DrawTriggers(pTriAPI);
+		DrawTriggersClient(pTriAPI);
 		DrawCustomTriggers(pTriAPI);
 		DrawAbsMinMax(pTriAPI);
 		DrawPlayerAbsMinMax(pTriAPI);

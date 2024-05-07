@@ -115,7 +115,8 @@ public:
 
 	void SetupTraceVectors(float start[3], float end[3]);
 
-	void ParseEntityData(const model_s *model, const bool reinit); // https://github.com/ValveSoftware/halflife/blob/c7240b965743a53a29491dd49320c88eecf6257b/cl_dll/hud_spectator.cpp#L235
+	void ParseEntityData(const bool reinit, char *data); // https://github.com/ValveSoftware/halflife/blob/c7240b965743a53a29491dd49320c88eecf6257b/cl_dll/hud_spectator.cpp#L235
+	void ParseEntityData(const bool reinit);
 
 	struct ShortenedEntityData
 	{
@@ -124,7 +125,7 @@ public:
 		Vector origin;
 	};
 
-	std::vector<ShortenedEntityData> entityData;
+	std::vector<ShortenedEntityData> entityTriggerData;
 
 private:
 	ClientDLL() : IHookableNameFilter({ L"client.dll", L"client.so" }) {};

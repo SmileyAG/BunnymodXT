@@ -247,6 +247,10 @@ public:
 		return static_cast<float>(static_cast<float>(std::floor(*host_frametime * 1000)) * 0.001);
 	}
 
+	inline int GetNumEntitiesCL() const {
+		return 2048; // TODO: replace with cl.num_entities
+	}
+
 	HLStrafe::TraceResult PlayerTrace(const float start[3], const float end[3], HLStrafe::HullType hull, bool extendDistanceLimit = false);
 	HLStrafe::TraceResult CameraTrace(float max_distance = 8192);
 
