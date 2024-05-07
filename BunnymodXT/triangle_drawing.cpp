@@ -160,6 +160,15 @@ namespace TriangleDrawing
 		return s;
 	}
 
+	template <typename T> void DrawPolygons(const model_t *model, int i, triangleapi_s *pTriAPI)
+	{
+		const T surfs = (T)model->surfaces + model->firstmodelsurface;
+		pTriAPI->Begin(TRI_POLYGON);
+		for (int j = 0; j < surfs[i].polys->numverts; ++j)
+			pTriAPI->Vertex3fv(surfs[i].polys->verts[j]);
+		pTriAPI->End();
+	}
+
 	static void DrawTriggers(triangleapi_s *pTriAPI)
 	{
 		if (!CVars::bxt_show_triggers.GetBool())
@@ -188,7 +197,6 @@ namespace TriangleDrawing
 				continue;
 
 			const bool active = ent->v.solid != SOLID_NOT || std::strcmp(classname, "trigger_transition") == 0;
-			const msurface_t *surfs = model->surfaces + model->firstmodelsurface;
 			for (int i = 0; i < model->nummodelsurfaces; ++i) {
 				// Offset to make each surface look slightly different
 				const float offset = i * float(M_PI) / 7;
@@ -203,10 +211,7 @@ namespace TriangleDrawing
 					a = GetPulsatingAlpha(a, svTime + offset);
 
 				pTriAPI->Color4f(r, g, b, a);
-				pTriAPI->Begin(TRI_POLYGON);
-				for (int j = 0; j < surfs[i].polys->numverts; ++j)
-					pTriAPI->Vertex3fv(surfs[i].polys->verts[j]);
-				pTriAPI->End();
+				DrawPolygons<msurface_t*>(model, i, pTriAPI);
 			}
 		}
 	}
