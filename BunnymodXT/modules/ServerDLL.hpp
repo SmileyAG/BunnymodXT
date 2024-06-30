@@ -4,6 +4,7 @@
 #include "../sptlib-wrapper.hpp"
 #include <SPTLib/IHookableDirFilter.hpp>
 #include "taslogger/writer.hpp"
+#include "../symtable.hpp"
 
 class ServerDLL : public IHookableDirFilter
 {

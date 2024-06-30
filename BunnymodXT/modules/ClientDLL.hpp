@@ -3,6 +3,7 @@
 #include "../sptlib-wrapper.hpp"
 #include <SPTLib/IHookableNameFilter.hpp>
 #include "../hud_custom.hpp"
+#include "../symtable.hpp"
 
 class ClientDLL : public IHookableNameFilter
 {

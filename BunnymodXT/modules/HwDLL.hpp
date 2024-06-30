@@ -6,6 +6,7 @@
 #include "taslogger/writer.hpp"
 #include "../input_editor.hpp"
 #include "../shared.hpp"
+#include "../symtable.hpp"
 
 enum class TASEditorMode {
 	DISABLED,
