@@ -192,6 +192,6 @@ struct efx_api_s
 	void		( *R_FireCustomDecal )			( int textureIndex, int entity, int modelIndex, float * position, int flags, float scale );
 };
 
-extern efx_api_t efx;
+//extern efx_api_t efx;
 
 #endif

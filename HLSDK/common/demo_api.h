@@ -26,6 +26,6 @@ typedef struct demo_api_s
 	void	( *WriteBuffer )	( int size, unsigned char *buffer );
 } demo_api_t;
 
-extern demo_api_t demoapi;
+//extern demo_api_t demoapi;
 
 #endif

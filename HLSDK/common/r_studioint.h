@@ -123,7 +123,7 @@ typedef struct r_studio_interface_s
 	int				( *StudioDrawPlayer	)			( int flags, struct entity_state_s *pplayer );
 } r_studio_interface_t;
 
-extern r_studio_interface_t *pStudioAPI;
+//extern r_studio_interface_t *pStudioAPI;
 
 // server blending
 #define SV_BLENDING_INTERFACE_VERSION 1

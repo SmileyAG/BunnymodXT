@@ -46,6 +46,6 @@ typedef struct event_api_s
 	void    ( *EV_KillEvents ) ( int entnum, const char *eventname );
 } event_api_t;
 
-extern event_api_t eventapi;
+//extern event_api_t eventapi;
 
 #endif
