@@ -45,3 +45,8 @@ constexpr int kRenderFxTrigger = 241; // DO NOT CHANGE THIS VALUE OR YOU WILL BR
 
 // - Other constants
 constexpr steamid_t STEAMID64_CONST = 76561197960265728; // 0x110000100000000
+
+// - Custom macros
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
