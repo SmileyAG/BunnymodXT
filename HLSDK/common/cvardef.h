@@ -32,7 +32,14 @@ typedef struct cvar_s
 
 	// Align of structure is exactly the same as in the Quake code and latest GoldSrc engine up to this point.
 
+	#ifdef HL_RELEASE_BUILD
+	qboolean archive;
+	qboolean server;
+	qboolean info;
+	#else
 	int		flags;
+	#endif
+
 	float	value;
 	struct cvar_s *next;
 } cvar_t;

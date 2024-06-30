@@ -272,7 +272,13 @@ inline CVarWrapper::CVarWrapper(const char* name, const char* string)
 	m_CVar->name = const_cast<char*>(name);
 	m_String = string;
 	m_CVar->string = const_cast<char*>(m_String);
+
+	#ifdef HL_RELEASE_BUILD
+	m_CVar->archive = m_CVar->server = m_CVar->info = 0;
+	#else
 	m_CVar->flags = 0;
+	#endif
+
 	m_CVar->value = static_cast<float>(std::atof(m_String));
 	m_CVar->next = nullptr;
 }
