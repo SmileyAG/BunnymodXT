@@ -116,6 +116,13 @@ const double M_PI = 3.14159265358979323846;
 		typedef	ret(call *_##name) (__VA_ARGS__); \
 		_##name ORIG_##name;
 
+#define HOOK_DECL_PUBLIC(ret, call, name, ...) \
+	public: \
+		static ret call HOOKED_##name(__VA_ARGS__); \
+		ret HOOKED_##name##_Func(__VA_ARGS__); \
+		typedef	ret(call *_##name) (__VA_ARGS__); \
+		_##name ORIG_##name;
+
 /*
 	Define a hook. Does the following:
 	- Defines the static function to call the member function;
