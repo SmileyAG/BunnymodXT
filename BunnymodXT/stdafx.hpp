@@ -87,6 +87,9 @@ using std::ptrdiff_t;
 #include "HLSDK/engine/cdll_int.h"
 #include "HLSDK/engine/client.h"
 
+#include "HLSDK/common/exefuncs.h"
+#include "HLSDK/common/cryptapi.h"
+
 #ifndef M_PI
 const double M_PI = 3.14159265358979323846;
 #endif
