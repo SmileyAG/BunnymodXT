@@ -1226,7 +1226,14 @@ void ServerDLL::FindStuff()
 		ORIG_GetEntityAPI = reinterpret_cast<_GetEntityAPI>(MemUtils::GetSymbolAddress(m_Handle, "GetEntityAPI"));
 		if (ORIG_GetEntityAPI) {
 			DLL_FUNCTIONS funcs;
+			#ifndef HL_RELEASE_BUILD
 			if (ORIG_GetEntityAPI(&funcs, INTERFACE_VERSION)) {
+			#else
+			auto found = ORIG_GetEntityAPI(&funcs, INTERFACE_VERSION);
+			if (!found)
+				found = ORIG_GetEntityAPI(&funcs, INTERFACE_VERSION_HL_WON_1008);
+			if (found) {
+			#endif
 				// Gets our hooked addresses on Windows.
 				ORIG_DispatchSpawn = funcs.pfnSpawn;
 				ORIG_DispatchTouch = funcs.pfnTouch;

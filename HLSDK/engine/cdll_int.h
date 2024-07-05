@@ -327,11 +327,13 @@ typedef struct cl_enginefuncs_s
 #endif
 
 #ifdef HL_DAYONE_BUILD
-#define CLDLL_INTERFACE_VERSION		2
+#define CLDLL_INTERFACE_VERSION 2
+#elif HL_RELEASE_BUILD
+#define CLDLL_INTERFACE_VERSION 3
 #elif HLSDK10_BUILD
-#define CLDLL_INTERFACE_VERSION		6
+#define CLDLL_INTERFACE_VERSION 6
 #else
-#define CLDLL_INTERFACE_VERSION		7
+#define CLDLL_INTERFACE_VERSION 7
 #endif
 
 extern void ClientDLL_Init( void ); // from cdll_int.c

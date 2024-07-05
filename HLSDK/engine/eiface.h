@@ -16,11 +16,14 @@
 #define EIFACE_H
 
 #ifdef HL_DAYONE_BUILD
-#define INTERFACE_VERSION		121
+#define INTERFACE_VERSION 121 // Half-Life: Day One (676 build)
+#elif HL_RELEASE_BUILD
+#define INTERFACE_VERSION 129 // WON release — WON 1.0.0.6
+#define INTERFACE_VERSION_HL_WON_1008 130 // WON 1.0.0.8
 #elif HLSDK10_BUILD
-#define INTERFACE_VERSION		138
+#define INTERFACE_VERSION 138 // WON 1.0.0.9 — WON 1.0.1.6, Blue Shift WON 1.0.0.1
 #else
-#define INTERFACE_VERSION		140
+#define INTERFACE_VERSION 140 // WON 1.1.0.0 and newer
 #endif
 
 #include <stdio.h>
