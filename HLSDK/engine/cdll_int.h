@@ -326,7 +326,9 @@ typedef struct cl_enginefuncs_s
 #include "../common/in_buttons.h"
 #endif
 
-#ifdef HLSDK10_BUILD
+#ifdef HL_DAYONE_BUILD
+#define CLDLL_INTERFACE_VERSION		2
+#elif HLSDK10_BUILD
 #define CLDLL_INTERFACE_VERSION		6
 #else
 #define CLDLL_INTERFACE_VERSION		7
