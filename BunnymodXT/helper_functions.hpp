@@ -4,7 +4,12 @@
 	#define DLL_EXTENSION ".dll"
 	#define PATH_SLASH '\\'
 #else
+	#ifdef __APPLE__
+	#define DLL_EXTENSION ".dylib"
+	#else
 	#define DLL_EXTENSION ".so"
+	#endif
+
 	#define PATH_SLASH '/'
 #endif
 
