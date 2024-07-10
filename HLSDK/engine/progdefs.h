@@ -97,8 +97,19 @@ typedef struct entvars_s
 	int			modelindex;
 	string_t	model;
 
+	#ifndef HL_DAYONE_BUILD
 	int			viewmodel;		// player's viewmodel
+	#endif
+
 	int			weaponmodel;	// what other players see
+
+#ifdef HL_DAYONE_BUILD
+	float weaponframe;
+	int weapon_selected;
+	int currentammo;
+#elif HL_RELEASE_BUILD
+	byte hlrelease_unknown[8];
+#endif
 	
 	vec3_t		absmin;		// BB max translated to world coord
 	vec3_t		absmax;		// BB max translated to world coord
@@ -125,6 +136,15 @@ typedef struct entvars_s
 	byte		cof_unknown[4];
 	#endif
 
+#if defined(HL_DAYONE_BUILD) || defined(HL_RELEASE_BUILD)
+	float		frame;			// % playback position in animation sequences (0..255)
+	float		scale;			// sprite rendering scale (0..255)
+	int			sequence;		// animation sequence
+	float		animtime;		// world time when frame was set
+	float		framerate;		// animation playback rate (-8x to 8x)
+	byte		controller[4];	// bone controller setting (0..255)
+	byte		blending[2];	// blending amount between sub-sequences (0..255)
+#else
 	int			sequence;		// animation sequence
 	int			gaitsequence;	// movement animation sequence for player (0 for none)
 	float		frame;			// % playback position in animation sequences (0..255)
@@ -132,8 +152,8 @@ typedef struct entvars_s
 	float		framerate;		// animation playback rate (-8x to 8x)
 	byte		controller[4];	// bone controller setting (0..255)
 	byte		blending[2];	// blending amount between sub-sequences (0..255)
-
 	float		scale;			// sprite rendering scale (0..255)
+#endif
 
 	int			rendermode;
 	float		renderamt;
