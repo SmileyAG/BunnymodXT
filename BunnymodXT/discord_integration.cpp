@@ -313,22 +313,7 @@ namespace discord_integration
 				const auto current_timestamp = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				start_timestamp = current_timestamp - total_time;
 
-				const char *skillName;
-
-				switch (CVars::skill.GetInt())
-				{
-					case 1:
-						skillName = "Easy";
-						break;
-					case 2:
-						skillName = "Normal";
-						break;
-					case 3:
-						skillName = "Hard";
-						break;
-					default:
-						skillName = "";
-				}
+				const char *skillName = databank::get_difficulty(CVars::skill.GetInt()).c_str();
 
 				if (CVars::host_framerate.GetFloat() > 0.0f)
 					snprintf(buffer_state, sizeof(buffer_state), "%s | FPS (HFR): %.1f | %s", state.c_str(), 1.0f / CVars::host_framerate.GetFloat(), skillName);

@@ -7,5 +7,5 @@
 
 namespace databank
 {
-
+	std::string get_difficulty(const int skill);
 }
