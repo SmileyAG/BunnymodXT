@@ -99,4 +99,56 @@ namespace databank
 			default: return "Unknown";
 		}
 	}
+
+	std::string get_effects(const int flags)
+	{
+		std::ostringstream out;
+
+		// The flags here were arranged in order from smallest to highest bits.
+		PRINT_FLAG(EF_BRIGHTFIELD);
+		PRINT_FLAG(EF_MUZZLEFLASH);
+		PRINT_FLAG(EF_BRIGHTLIGHT);
+		PRINT_FLAG(EF_DIMLIGHT);
+		PRINT_FLAG(EF_INVLIGHT);
+		PRINT_FLAG(EF_NOINTERP);
+		PRINT_FLAG(EF_LIGHT);
+		PRINT_FLAG(EF_NODRAW);
+
+		out << '\n';
+
+		return out.str();
+	}
+
+	std::string get_solid(const int solid)
+	{
+		switch (solid)
+		{
+			RET_CASE_STR(SOLID_NOT)
+			RET_CASE_STR(SOLID_TRIGGER)
+			RET_CASE_STR(SOLID_BBOX)
+			RET_CASE_STR(SOLID_SLIDEBOX)
+			RET_CASE_STR(SOLID_BSP)
+			default: return "Unknown";
+		}
+	}
+
+	std::string get_movetype(const int movetype)
+	{
+		switch (movetype)
+		{
+			RET_CASE_STR(MOVETYPE_NONE)
+			RET_CASE_STR(MOVETYPE_WALK)
+			RET_CASE_STR(MOVETYPE_STEP)
+			RET_CASE_STR(MOVETYPE_FLY)
+			RET_CASE_STR(MOVETYPE_TOSS)
+			RET_CASE_STR(MOVETYPE_PUSH)
+			RET_CASE_STR(MOVETYPE_NOCLIP)
+			RET_CASE_STR(MOVETYPE_FLYMISSILE)
+			RET_CASE_STR(MOVETYPE_BOUNCE)
+			RET_CASE_STR(MOVETYPE_BOUNCEMISSILE)
+			RET_CASE_STR(MOVETYPE_FOLLOW)
+			RET_CASE_STR(MOVETYPE_PUSHSTEP)
+			default: return "Unknown";
+		}
+	}
 };

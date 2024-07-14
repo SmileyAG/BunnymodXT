@@ -12,4 +12,7 @@ namespace databank
 	std::string get_typedescription_fieldtype(const int fieldType);
 	std::string get_renderfx(const int renderfx);
 	std::string get_rendermode(const int rendermode);
+	std::string get_effects(const int flags);
+	std::string get_solid(const int solid);
+	std::string get_movetype(const int movetype);
 }
