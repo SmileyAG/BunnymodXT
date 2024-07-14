@@ -6,6 +6,7 @@
 #include "modules/ClientDLL.hpp"
 #include "modules/ServerDLL.hpp"
 #include "modules/HwDLL.hpp"
+#include "databank.hpp"
 #include "cvars.hpp"
 #include "hud_custom.hpp"
 

@@ -11,6 +11,7 @@
 #include "../hud_custom.hpp"
 #include "../interprocess.hpp"
 #include "../runtime_data.hpp"
+#include "../databank.hpp"
 #include "../custom_triggers.hpp"
 #include "../splits.hpp"
 #include "../shared.hpp"

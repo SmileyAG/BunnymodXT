@@ -19,6 +19,7 @@
 #include "../bunnymodxt.hpp"
 #include "../cmd_wrapper.hpp"
 #include "../runtime_data.hpp"
+#include "../databank.hpp"
 #include "../git_revision.hpp"
 #include "../custom_triggers.hpp"
 #include "../simulation_ipc.hpp"

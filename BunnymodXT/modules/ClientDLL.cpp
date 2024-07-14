@@ -9,6 +9,7 @@
 #include "../patterns.hpp"
 #include "../cvars.hpp"
 #include "../hud_custom.hpp"
+#include "../databank.hpp"
 #include "../triangle_drawing.hpp"
 #include "../discord_integration.hpp"
 #include <GL/gl.h>
