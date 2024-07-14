@@ -56,4 +56,47 @@ namespace databank
 			default: return "Unknown";
 		}
 	}
+
+	std::string get_renderfx(const int renderfx)
+	{
+		switch (renderfx)
+		{
+			RET_CASE_STR(kRenderFxNone)
+			RET_CASE_STR(kRenderFxPulseSlow)
+			RET_CASE_STR(kRenderFxPulseFast)
+			RET_CASE_STR(kRenderFxPulseSlowWide)
+			RET_CASE_STR(kRenderFxPulseFastWide)
+			RET_CASE_STR(kRenderFxFadeSlow)
+			RET_CASE_STR(kRenderFxFadeFast)
+			RET_CASE_STR(kRenderFxSolidSlow)
+			RET_CASE_STR(kRenderFxSolidFast)
+			RET_CASE_STR(kRenderFxStrobeSlow)
+			RET_CASE_STR(kRenderFxStrobeFast)
+			RET_CASE_STR(kRenderFxStrobeFaster)
+			RET_CASE_STR(kRenderFxFlickerSlow)
+			RET_CASE_STR(kRenderFxFlickerFast)
+			RET_CASE_STR(kRenderFxNoDissipation)
+			RET_CASE_STR(kRenderFxDistort)
+			RET_CASE_STR(kRenderFxHologram)
+			RET_CASE_STR(kRenderFxDeadPlayer)
+			RET_CASE_STR(kRenderFxExplode)
+			RET_CASE_STR(kRenderFxGlowShell)
+			RET_CASE_STR(kRenderFxClampMinScale)
+			default: return "Unknown";
+		}
+	}
+
+	std::string get_rendermode(const int rendermode)
+	{
+		switch (rendermode)
+		{
+			RET_CASE_STR(kRenderNormal)
+			RET_CASE_STR(kRenderTransColor)
+			RET_CASE_STR(kRenderTransTexture)
+			RET_CASE_STR(kRenderGlow)
+			RET_CASE_STR(kRenderTransAlpha)
+			RET_CASE_STR(kRenderTransAdd)
+			default: return "Unknown";
+		}
+	}
 };
