@@ -308,4 +308,24 @@ namespace databank
 
 		return "\n";
 	}
+
+	std::string get_monster_triggercondition(const int m_iTriggerCondition)
+	{
+		switch (m_iTriggerCondition)
+		{
+			case AITRIGGER_NONE: return "No Trigger";
+			case AITRIGGER_SEEPLAYER_ANGRY_AT_PLAYER: return "See Player, Mad at Player";
+			case AITRIGGER_TAKEDAMAGE: return "Take Damage";
+			case AITRIGGER_HALFHEALTH: return "50% Health Remaining";
+			case AITRIGGER_DEATH: return "Death";
+			case AITRIGGER_SQUADMEMBERDIE: return "Squad Member Dead";
+			case AITRIGGER_SQUADLEADERDIE: return "Squad Leader Dead";
+			case AITRIGGER_HEARWORLD: return "Hear World";
+			case AITRIGGER_HEARPLAYER: return "Hear Player";
+			case AITRIGGER_HEARCOMBAT: return "Hear Combat";
+			case AITRIGGER_SEEPLAYER_UNCONDITIONAL: return "See Player Unconditional";
+			case AITRIGGER_SEEPLAYER_NOT_IN_COMBAT: return "See Player, Not In Combat";
+			default: return "Unknown";
+		}
+	}
 };
