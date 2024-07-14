@@ -18,4 +18,5 @@ namespace databank
 	std::string get_flags(const int flags);
 	std::string get_spawnflags(const int spawnflags, const char *classname);
 	std::string get_monster_triggercondition(const int m_iTriggerCondition);
+	std::string get_monster_task(const int iTask);
 }
