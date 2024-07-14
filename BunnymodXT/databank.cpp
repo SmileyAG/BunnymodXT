@@ -194,4 +194,118 @@ namespace databank
 
 		return out.str();
 	}
+
+	std::string get_spawnflags_breakable(const int flags, const bool pushable)
+	{
+		std::ostringstream out;
+
+		// The flags here were arranged in order from smallest to highest bits.
+		if (flags & SF_BREAK_TRIGGER_ONLY)
+			out << "Only trigger; ";
+		if (flags & SF_BREAK_TOUCH)
+			out << "Touch; ";
+		if (flags & SF_BREAK_PRESSURE)
+			out << "Pressure; ";
+		// unknown
+		// unknown
+		// unknown
+		// unknown
+		if (pushable && (flags & SF_PUSH_BREAKABLE))
+			out << "Breakable; ";
+		if (flags & SF_BREAK_CROWBAR)
+			out << "Instant crowbar; ";
+
+		out << '\n';
+
+		return out.str();
+	}
+
+	std::string get_spawnflags_door(const int flags, const bool rotating)
+	{
+		std::ostringstream out;
+
+		// The flags here were arranged in order from smallest to highest bits.
+		if (flags & SF_DOOR_START_OPEN)
+			out << "Starts Open; ";
+		if (rotating && (flags & SF_DOOR_ROTATE_BACKWARDS))
+			out << "Reverse Dir; ";
+		// unknown
+		if (flags & SF_DOOR_PASSABLE)
+			out << "Passable; ";
+		if (rotating && (flags & SF_DOOR_ONEWAY))
+			out << "One-way; ";
+		if (flags & SF_DOOR_NO_AUTO_RETURN)
+			out << "Toggle; ";
+		if (rotating && (flags & SF_DOOR_ROTATE_Z))
+			out << "X Axis; ";
+		if (rotating && (flags & SF_DOOR_ROTATE_X))
+			out << "Y Axis; ";
+		if (flags & SF_DOOR_USE_ONLY)
+			out << "Use Only; ";
+		if (flags & SF_DOOR_NOMONSTERS)
+			out << "Monsters Can't; ";
+
+		out << '\n';
+
+		return out.str();
+	}
+
+	std::string get_spawnflags_trigger(const int flags)
+	{
+		std::ostringstream out;
+
+		// The flags here were arranged in order from smallest to highest bits.
+		if (flags & SF_TRIGGER_ALLOWMONSTERS)
+			out << "Monsters; ";
+		if (flags & SF_TRIGGER_NOCLIENTS)
+			out << "No clients; ";
+		if (flags & SF_TRIGGER_PUSHABLES)
+			out << "Pushables; ";
+
+		out << '\n';
+
+		return out.str();
+	}
+
+	std::string get_spawnflags_monster(const int flags)
+	{
+		std::ostringstream out;
+
+		// The flags here were arranged in order from smallest to highest bits.
+		if (flags & SF_MONSTER_WAIT_TILL_SEEN)
+			out << "WaitTillSeen; ";
+		if (flags & SF_MONSTER_GAG)
+			out << "Gag; ";
+		if (flags & SF_MONSTER_HITMONSTERCLIP)
+			out << "MonsterClip; ";
+		// unknown
+		if (flags & SF_MONSTER_PRISONER)
+			out << "Prisoner; ";
+		// unknown
+		// unknown
+		if (flags & SF_MONSTER_WAIT_FOR_SCRIPT)
+			out << "WaitForScript; ";
+		if (flags & SF_MONSTER_PREDISASTER)
+			out << "Pre-Disaster; ";
+		if (flags & SF_MONSTER_FADECORPSE)
+			out << "Fade Corpse; ";
+
+		out << '\n';
+
+		return out.str();
+	}
+
+	std::string get_spawnflags(const int spawnflags, const char *classname)
+	{
+		if (!strcmp(classname, "func_breakable"))
+			return get_spawnflags_breakable(spawnflags, false);
+		else if (!strcmp(classname, "func_pushable"))
+			return get_spawnflags_breakable(spawnflags, true);
+		else if (!strcmp(classname, "func_door") || !strcmp(classname, "momentary_door"))
+			return get_spawnflags_door(spawnflags, false);
+		else if (!strcmp(classname, "func_door_rotating"))
+			return get_spawnflags_door(spawnflags, true);
+
+		return "\n";
+	}
 };

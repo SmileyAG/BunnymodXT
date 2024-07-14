@@ -16,4 +16,5 @@ namespace databank
 	std::string get_solid(const int solid);
 	std::string get_movetype(const int movetype);
 	std::string get_flags(const int flags);
+	std::string get_spawnflags(const int spawnflags, const char *classname);
 }
